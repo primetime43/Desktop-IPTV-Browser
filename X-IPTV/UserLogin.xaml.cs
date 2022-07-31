@@ -21,13 +21,14 @@ namespace X_IPTV
     {
         //TODO: read file when user is selected and load data.
         //Add a Load user button
-        private static UserDataSaver.User _currentUser = new UserDataSaver.User();
-        private static string assemblyFolder, saveDir, userFileFullPath;
+        private static UserDataSaver _currentUser = new UserDataSaver();
+        private static string assemblyFolder;
+        private static string saveDir;
         public UserLogin()
         {
             InitializeComponent();
             assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            saveDir = assemblyFolder + @"\Users\";
+            saveDir = assemblyFolder + @"\Users";
             loadUsersFromDirectory();
         }
 
@@ -35,8 +36,6 @@ namespace X_IPTV
         {
             //string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             //string saveDir = assemblyFolder + @"\Users";
-            if (!Directory.Exists(saveDir))
-                Directory.CreateDirectory(saveDir);
             DirectoryInfo DI = new DirectoryInfo(saveDir);
             FileInfo[] files = DI.GetFiles("*.txt");
             //Read files from dir
@@ -174,61 +173,20 @@ namespace X_IPTV
             Console.WriteLine("Done.");
         }
 
-        private void saveUserDataBtn_Click(object sender, RoutedEventArgs e)
+        private void button_Click(object sender, RoutedEventArgs e)
         {
-            if(usrTxt.Text == null || usrTxt.Text.Length < 0)
-            {
-                MessageBox.Show("Username input field is blank");
-                return;
-            }
-
-            _currentUser.UserName = usrTxt.Text;
-            _currentUser.Password = passTxt.Text;
-            _currentUser.Server = serverTxt.Text;
-            _currentUser.Port = portTxt.Text;
-            UserDataSaver.SaveUserData(_currentUser);
-            MessageBox.Show(_currentUser.UserName + "'s data saved");
+            UserDataSaver.User test1 = new UserDataSaver.User();
+            test1.UserName = "primetime43";
+            test1.Password = "abc1234";
+            test1.Server = "https://google.com";
+            test1.Port = 443;
+            _currentUser.SaveUserData(test1);
         }
 
         private void loadUserDataBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (UsercomboBox.SelectedItem == null)
-            {
-                MessageBox.Show("You must select a user to load");
-                return;
-            }
-            
-            _currentUser = UserDataSaver.GetUserData(UsercomboBox.SelectedValue.ToString(), getUserFileLocalPath());
-            loadDataIntoTextFields();
-            UsercomboBox.SelectedItem = null;
-        }
-
-        private void loadDataIntoTextFields()
-        {
-            if(_currentUser?.UserName == null || _currentUser?.Password == null || _currentUser?.Server == null || _currentUser?.Port == null)
-            {
-                MessageBox.Show("User data is missing, unable to load " + UsercomboBox.SelectedValue.ToString());
-                return;
-            }
-
-            usrTxt.Text = _currentUser.UserName;
-            passTxt.Text = _currentUser.Password;
-            serverTxt.Text = _currentUser.Server;
-            portTxt.Text = _currentUser.Port;
-        }
-
-        private string getUserFileLocalPath()
-        {
-            string? selectedUser = UsercomboBox.SelectedValue.ToString();
-            if (selectedUser != null && selectedUser.Length > 0)
-            {
-                return userFileFullPath = saveDir + selectedUser + ".txt";
-            }
-            else
-            {
-                MessageBox.Show("You must select a user");
-                return null;
-            }
+            string selectedUser = UsercomboBox.SelectedValue.ToString();
+            _currentUser.GetUserData(selectedUser, saveDir + selectedUser + ".txt");
         }
     }
 }
