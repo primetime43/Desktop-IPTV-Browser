@@ -17,44 +17,65 @@ namespace X_IPTV
             public string UserName { get; set; }
             public string Password { get; set; }
             public string Server { get; set; }
-            public int Port { get; set; }
+            public string Port { get; set; }
         }
 
         //Called when clicked save user info button
-        public void SaveUserData(User user)
+        public static void SaveUserData(User currentUser)
         {
             string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string saveDir = assemblyFolder + @"\Users";
+            string saveDir = assemblyFolder + @"\Users\";
             if (!Directory.Exists(saveDir))
                 Directory.CreateDirectory(saveDir);
-            var ser = new XmlSerializer(typeof(User));
-            using (StreamWriter w = File.AppendText(saveDir + "\\" + user.UserName + ".txt"))
-            {
-                w.WriteLine("Username," + user.UserName);
-                w.WriteLine("Password," + user.Password);
-                w.WriteLine("Server," + user.Server);
-                w.WriteLine("Port," + user.Port);
-            }
 
-            //loadUsersFromDirectory();
+            //Delete the file so the writer wont append text
+            if(File.Exists(saveDir + currentUser.UserName + ".txt"))
+                File.Delete(saveDir + currentUser.UserName + ".txt");
+
+            using (StreamWriter w = File.AppendText(saveDir + "\\" + currentUser.UserName + ".txt"))
+            {
+                w.WriteLine("Username," + currentUser.UserName);
+                w.WriteLine("Password," + currentUser.Password);
+                w.WriteLine("Server," + currentUser.Server);
+                w.WriteLine("Port," + currentUser.Port);
+            }
         }
 
         //Called on program load to load all user data
-        public User GetUserData(string fileName, string localPath)
+        public static User GetUserData(string fileName, string localPath)
         {
-            /*using (StreamReader r = new StreamReader(localPath))
+            User loadedUser = new User();
+            using (StreamReader r = new StreamReader(localPath))
             {
                 string line;
                 // Read and display lines from the file until the end of
                 // the file is reached.
                 while ((line = r.ReadLine()) != null)
                 {
+                    string[] words = line.Split(',');
                     //build the user and return the User obj
-                    Console.WriteLine(line);
+
+                    switch(words[0])
+                    {
+                        case "Username":
+                            loadedUser.UserName = words[1];
+                            break;
+                        case "Password":
+                            loadedUser.Password = words[1];
+                            break;
+                        case "Server":
+                            loadedUser.Server = words[1];
+                            break;
+                        case "Port":
+                            loadedUser.Port = words[1];
+                            break;
+                        default:
+                            MessageBox.Show("Error trying to set " + words[0] + " property");
+                            break;
+                    }
                 }
             }
-            return user;*/
-            return new User();
+            return loadedUser;
         }
         //Call locally to this class
         //private void loadUsersFromDirectory()
