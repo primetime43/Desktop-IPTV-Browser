@@ -19,9 +19,9 @@
         <TextBox x:Name="serverTxt" HorizontalAlignment="Left" Height="23" Margin="363,180,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
         <TextBox x:Name="portTxt" HorizontalAlignment="Left" Height="23" Margin="363,211,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
         <Button x:Name="con_btn" Content="Connect" HorizontalAlignment="Left" Margin="301,270,0,0" VerticalAlignment="Top" Width="143" Height="25" Click="Con_btn_Click"/>
-        <CheckBox x:Name="protocolCheckBox" Content="HTTPS" HorizontalAlignment="Left" Height="20" Margin="495,185,0,0" VerticalAlignment="Top" Width="90" ToolTip="HTTP will be used by default if not checked"/>
+        <CheckBox x:Name="protocolCheckBox" Content="HTTPS" HorizontalAlignment="Left" Height="20" Margin="495,185,0,0" VerticalAlignment="Top" Width="90" ToolTip="HTTP will be used by default if not checked" IsChecked="True"/>
         <extToolkit:BusyIndicator x:Name="busy_ind" IsBusy="False" BusyContent="Authenticating..."></extToolkit:BusyIndicator>
-        <Button x:Name="saveUserDataBtn" Content="Save User Login" HorizontalAlignment="Left" Margin="420,324,0,0" VerticalAlignment="Top" Height="25" Width="122" Click="button_Click"/>
+        <Button x:Name="saveUserDataBtn" Content="Save User Login" HorizontalAlignment="Left" Margin="420,324,0,0" VerticalAlignment="Top" Height="25" Width="122" Click="saveUserDataBtn_Click"/>
         <ComboBox x:Name="UsercomboBox" HorizontalAlignment="Left" Margin="90,282,0,0" VerticalAlignment="Top" Width="120"></ComboBox>
         <Button x:Name="loadUserDataBtn" Content="Load User Login" HorizontalAlignment="Left" Margin="237,324,0,0" VerticalAlignment="Top" Height="25" Width="122" Click="loadUserDataBtn_Click"/>
     </Grid>
