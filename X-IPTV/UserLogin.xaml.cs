@@ -126,6 +126,8 @@ namespace X_IPTV
             DirectoryInfo DI = new DirectoryInfo(saveDir);
             FileInfo[] files = DI.GetFiles("*.txt");
             //Read files from dir
+            if (UsercomboBox.Items != null)
+                UsercomboBox.Items.Clear();
             foreach (var file in files)
             {
                 UsercomboBox.Items.Add(file.Name.Remove(file.Name.IndexOf('.')));
@@ -222,6 +224,7 @@ namespace X_IPTV
             _currentUser.Server = serverTxt.Text;
             _currentUser.Port = portTxt.Text;
             UserDataSaver.SaveUserData(_currentUser);
+            loadUsersFromDirectory();
             MessageBox.Show(_currentUser.UserName + "'s data saved");
         }
 
