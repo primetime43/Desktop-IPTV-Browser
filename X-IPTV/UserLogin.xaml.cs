@@ -9,41 +9,50 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Reflection;
 
 namespace X_IPTV
 {
     /// <summary>
     /// Interaction logic for UserLogin.xaml
     /// </summary>
+    /// 
     public partial class UserLogin : Window
     {
+        //TODO: read file when user is selected and load data.
+        //Add a Load user button
+        private static UserDataSaver.User _currentUser = new UserDataSaver.User();
+        private static readonly HttpClient _client = new HttpClient();
+        private static string assemblyFolder, saveDir, userFileFullPath;
         public UserLogin()
         {
             InitializeComponent();
+            assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            saveDir = assemblyFolder + @"\Users\";
+            loadUsersFromDirectory();
         }
 
         private async void Con_btn_Click(object sender, RoutedEventArgs e)
         {
             busy_ind.IsBusy = true;
 
-            await Connect(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
+            await Connect(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Connect to the server
 
             busy_ind.BusyContent = "Loading channels list...";
 
-            await LoadChannels(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
+            await LoadChannels(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
 
             var channelWindow = new ChannelList();
 
             //load epg. Eventually make it optional
             busy_ind.BusyContent = "Loading playlist data...";
 
-            await LoadPlaylistData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
+            await LoadPlaylistData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
 
             channelWindow.Show();
 
             this.Close();
         }
-
         private async Task Connect(string user, string pass, string server, string port)
         {
             // Create a request for the URL. 		
@@ -76,7 +85,6 @@ namespace X_IPTV
             dataStream.Close();
             response.Close();
         }
-
         private async Task LoadChannels(string user, string pass, string server, string port)
         {
             // Create a request for the URL. 	
@@ -109,15 +117,67 @@ namespace X_IPTV
             dataStream.Close();
             response.Close();
         }
+        private void loadUsersFromDirectory()
+        {
+            //string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            //string saveDir = assemblyFolder + @"\Users";
+            if (!Directory.Exists(saveDir))
+                Directory.CreateDirectory(saveDir);
+            DirectoryInfo DI = new DirectoryInfo(saveDir);
+            FileInfo[] files = DI.GetFiles("*.txt");
+            //Read files from dir
+            if (UsercomboBox.Items != null)
+                UsercomboBox.Items.Clear();
+            foreach (var file in files)
+            {
+                UsercomboBox.Items.Add(file.Name.Remove(file.Name.IndexOf('.')));
+            }
+        }
+        private void loadDataIntoTextFields()
+        {
+            if (_currentUser?.UserName == null || _currentUser?.Password == null || _currentUser?.Server == null || _currentUser?.Port == null)
+            {
+                MessageBox.Show("User data is missing, unable to load " + UsercomboBox.SelectedValue.ToString());
+                return;
+            }
 
-        private static readonly HttpClient client = new HttpClient();
+            usrTxt.Text = _currentUser.UserName;
+            passTxt.Text = _currentUser.Password;
+            serverTxt.Text = _currentUser.Server;
+            portTxt.Text = _currentUser.Port;
+        }
+        private void loadUserDataBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (UsercomboBox.SelectedItem == null)
+            {
+                MessageBox.Show("You must select a user to load");
+                return;
+            }
+
+            _currentUser = UserDataSaver.GetUserData(UsercomboBox.SelectedValue.ToString(), getUserFileLocalPath());
+            loadDataIntoTextFields();
+            UsercomboBox.SelectedItem = null;
+        }
+        private string getUserFileLocalPath()
+        {
+            string? selectedUser = UsercomboBox.SelectedValue.ToString();
+            if (selectedUser != null && selectedUser.Length > 0)
+            {
+                return userFileFullPath = saveDir + selectedUser + ".txt";
+            }
+            else
+            {
+                MessageBox.Show("You must select a user");
+                return null;
+            }
+        }
         private async Task LoadPlaylistData(string user, string pass, string server, string port)
         {
             //retrieve playlist data from client
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36");
+            _client.DefaultRequestHeaders.Accept.Clear();
+            _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36");
 
-            var stringTask = client.GetStringAsync($"https://{server}:{port}/get.php?username={user}&password={pass}");
+            var stringTask = _client.GetStringAsync($"https://{server}:{port}/get.php?username={user}&password={pass}");
 
             var msg = await stringTask;
             //Console.Write(msg);
@@ -139,7 +199,8 @@ namespace X_IPTV
                     string xui_id = "";
                     foreach (Match match in Regex.Matches(splitArr[1], "\"([^\"]*)\""))
                         xui_id = match.ToString().Replace("\"", "");
-                    info[index] = new PlaylistData { 
+                    info[index] = new PlaylistData
+                    {
                         xui_id = xui_id,
                         stream_url = channel.Substring(channel.LastIndexOf("https"))
                     };
@@ -148,6 +209,43 @@ namespace X_IPTV
                 index++;
             }
             Console.WriteLine("Done.");
+        }
+
+        private void saveUserDataBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (usrTxt.Text == null || usrTxt.Text.Length <= 0)
+            {
+                MessageBox.Show("Username input field is blank");
+                return;
+            }
+
+            _currentUser.UserName = usrTxt.Text;
+            _currentUser.Password = passTxt.Text;
+            _currentUser.Server = serverTxt.Text;
+            _currentUser.Port = portTxt.Text;
+            UserDataSaver.SaveUserData(_currentUser);
+            loadUsersFromDirectory();
+            MessageBox.Show(_currentUser.UserName + "'s data saved");
+        }
+
+        private void usrTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+        }
+
+        private void passTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+        }
+
+        private void serverTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+        }
+
+        private void portTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
         }
     }
 }

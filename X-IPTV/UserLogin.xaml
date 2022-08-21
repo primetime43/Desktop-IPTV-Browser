@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:X_IPTV" 
         xmlns:extToolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="UserLogin" Height="450" Width="800">
+        Title="User Login" Height="450" Width="800">
     <Window.Resources>
     </Window.Resources>
     <Grid>
@@ -14,12 +14,17 @@
         <Label Content="Password:" HorizontalAlignment="Left" Margin="267,146,0,0" VerticalAlignment="Top"/>
         <Label Content="Server:" HorizontalAlignment="Left" Margin="267,176,0,0" VerticalAlignment="Top"/>
         <Label Content="Port:" HorizontalAlignment="Left" Margin="267,207,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="usrTxt" HorizontalAlignment="Left" Height="23" Margin="363,119,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="passTxt" HorizontalAlignment="Left" Height="23" Margin="363,150,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="serverTxt" HorizontalAlignment="Left" Height="23" Margin="363,180,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="portTxt" HorizontalAlignment="Left" Height="23" Margin="363,211,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <Button x:Name="con_btn" Content="Connect" HorizontalAlignment="Left" Margin="301,270,0,0" VerticalAlignment="Top" Width="143" Height="25" Click="Con_btn_Click"/>
-        <CheckBox x:Name="protocolCheckBox" Content="HTTPS" HorizontalAlignment="Left" Height="20" Margin="495,185,0,0" VerticalAlignment="Top" Width="90" ToolTip="HTTP will be used by default if not checked"/>
-        <extToolkit:BusyIndicator x:Name="busy_ind" IsBusy="False" BusyContent="Authenticating..."></extToolkit:BusyIndicator>
+        <TextBox x:Name="usrTxt" HorizontalAlignment="Left" Height="23" Margin="363,119,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="usrTxt_TextChanged"/>
+        <TextBox x:Name="passTxt" HorizontalAlignment="Left" Height="23" Margin="363,150,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="passTxt_TextChanged"/>
+        <TextBox x:Name="serverTxt" HorizontalAlignment="Left" Height="23" Margin="363,180,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="serverTxt_TextChanged"/>
+        <TextBox x:Name="portTxt" HorizontalAlignment="Left" Height="23" Margin="363,211,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="portTxt_TextChanged"/>
+        <Button x:Name="con_btn" Content="Connect" HorizontalAlignment="Left" Margin="301,270,0,0" VerticalAlignment="Top" Width="143" Height="25" Click="Con_btn_Click" RenderTransformOrigin="0.902,0.562"/>
+        <CheckBox x:Name="protocolCheckBox" Content="HTTPS" HorizontalAlignment="Left" Height="20" Margin="495,185,0,0" VerticalAlignment="Top" Width="90" ToolTip="HTTP will be used by default if not checked" IsChecked="True"/>
+        <extToolkit:BusyIndicator x:Name="busy_ind" IsBusy="False" BusyContent="Authenticating..." Margin="157,34,170,70"></extToolkit:BusyIndicator>
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="136" Margin="10,69,0,0" VerticalAlignment="Top" Width="165"/>
+        <Button x:Name="saveUserDataBtn" Content="Save User Login" HorizontalAlignment="Left" Margin="30,164,0,0" VerticalAlignment="Top" Height="25" Width="122" Click="saveUserDataBtn_Click"/>
+        <ComboBox x:Name="UsercomboBox" HorizontalAlignment="Left" Margin="30,77,0,0" VerticalAlignment="Top" Width="120"></ComboBox>
+        <Button x:Name="loadUserDataBtn" Content="Load User Login" HorizontalAlignment="Left" Margin="28,118,0,0" VerticalAlignment="Top" Height="25" Width="122" Click="loadUserDataBtn_Click"/>
+        <TextBox x:Name="textBoxServerConnectionString" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,379,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740"/>
     </Grid>
 </Window>
