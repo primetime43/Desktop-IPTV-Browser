@@ -230,22 +230,22 @@ namespace X_IPTV
 
         private void usrTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            textBoxServer.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
         }
 
         private void passTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            textBoxServer.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
         }
 
         private void serverTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            textBoxServer.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
         }
 
         private void portTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            textBoxServer.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
         }
     }
 }
