@@ -32,28 +32,33 @@ namespace X_IPTV
 
         private void ChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count > 1) return;
+            //MessageBox.Show("Hello, world!", "My App");
+
+            //open a window with a textbox to copy the url and see info etc.
+            //Then have a button to say do you want to open in vlc, yes or no
+
+            ChannelOptions channelOp = new ChannelOptions();
+
+;
+            if (e.AddedItems.Count > 1) 
+                return;
 
             ChannelEntry entry = e.AddedItems[0] as ChannelEntry;
 
 
             Console.WriteLine(Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
 
-            /*Console.WriteLine("Channel Info:");
-            Console.WriteLine(entry.name);
-            Console.WriteLine(entry.stream_id);
-            Console.WriteLine(UnixTimeStampToDateTime(Convert.ToDouble(entry.added)));*/
+            channelOp.displaySelectedChannelData(Instance.playlistDataMap, entry);
+            channelOp.Show();
 
-            //ProcessStartInfo processStartInfo = new ProcessStartInfo(@"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe", $"https://iptv-pure.com:8000/live/sabihi/ek5jkfngrf/{entry.stream_id}.m3u8");
 
-            ProcessStartInfo processStartInfo = new ProcessStartInfo(@"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe", Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
+            /*ProcessStartInfo processStartInfo = new ProcessStartInfo(@"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe", Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
 
-            string urlTest = Instance.playlistDataMap[entry.stream_id.ToString()].stream_url;
-
+            string streamURL = Instance.playlistDataMap[entry.stream_id.ToString()].stream_url;
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = $"/C \"C:/Program Files (x86)/VideoLAN/VLC/vlc.exe\" {urlTest}";
+            startInfo.Arguments = $"/C \"C:/Program Files (x86)/VideoLAN/VLC/vlc.exe\" {streamURL}";
             startInfo.RedirectStandardOutput = true;
             startInfo.RedirectStandardError = true;
             startInfo.UseShellExecute = false;
@@ -62,12 +67,20 @@ namespace X_IPTV
             Process processTemp = new Process();
             processTemp.StartInfo = startInfo;
             processTemp.EnableRaisingEvents = true;
-            processTemp.Start();
+            processTemp.Start();*/
+        }
 
-            //works
-            //string command = $"/C \"C:/Program Files (x86)/VideoLAN/VLC/vlc.exe\" {urlTest}";
-            //Process.Start("cmd.exe", command);
-
+        private void listBox1_MouseDown(object sender, RoutedEventArgs e)
+        {
+            /*if (e.Button == MouseButtons.Right)
+            {
+                //select the item under the mouse pointer
+                listBox1.SelectedIndex = listBox1.IndexFromPoint(e.Location);
+                if (listBox1.SelectedIndex != -1)
+                {
+                    listboxContextMenu.Show();
+                }
+            }*/
         }
 
         private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)

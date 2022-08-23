@@ -60,7 +60,12 @@
     </Window.Resources>
     <Grid>
         <ListBox Name="ChannelLst" d:DataContext="{Binding Source={StaticResource DesignViewModel}}"
-ItemsSource="{Binding MyListBoxItems}" SelectionChanged="ChannelLst_SelectionChanged">
+                 ItemsSource="{Binding MyListBoxItems}" SelectionChanged="ChannelLst_SelectionChanged">
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Copy URL" Click="listBox1_MouseDown"/>
+                </ContextMenu>
+            </ListBox.ContextMenu>
         </ListBox>
     </Grid>
 </Window>

@@ -1,0 +1,28 @@
+﻿<Window x:Class="X_IPTV.ChannelOptions"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:X_IPTV"
+        mc:Ignorable="d"
+        Title="ChannelOptions" Height="450" Width="735">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="242*"/>
+            <ColumnDefinition Width="0*"/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="openVLCbtn" Content="Open in VLC" HorizontalAlignment="Left" Height="40" Margin="210,294,0,0" VerticalAlignment="Top" Width="100" Click="openVLCbtn_Click" Grid.Column="1"/>
+        <Button x:Name="closeBtn" Content="Close" HorizontalAlignment="Left" Height="40" Margin="350,294,0,0" VerticalAlignment="Top" Width="110" Click="closeBtn_Click" Grid.Column="1"/>
+        <RichTextBox x:Name="richTextBox" HorizontalAlignment="Left" Height="220" Margin="140,44,0,0" VerticalAlignment="Top" Width="390" Grid.Column="1">
+            <FlowDocument>
+                <Paragraph>
+                    <Run Text="RichTextBox"/>
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
+        <Label x:Name="streamURLlbl" Content="Stream URL" Margin="35,354,299,46" Target="{Binding ElementName=streamURLtxtBox}" Grid.Column="1"/>
+        <TextBox x:Name="streamURLtxtBox" HorizontalAlignment="Left" TextAlignment="Center" Margin="35,379,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="626" Grid.Column="1" Height="18"/>
+
+    </Grid>
+</Window>
