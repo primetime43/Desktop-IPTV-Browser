@@ -51,7 +51,9 @@ namespace X_IPTV
 
             channelWindow.Show();
 
-            this.Close();
+            busy_ind.IsBusy = false;
+
+            //this.Close();
         }
         private async Task Connect(string user, string pass, string server, string port)
         {
