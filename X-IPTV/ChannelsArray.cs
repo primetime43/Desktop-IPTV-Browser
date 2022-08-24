@@ -33,8 +33,11 @@ namespace X_IPTV
     {
         public string xui_id { get; set; }
         public string stream_url { get; set; }
-        /*public string tvg_name { get; set; }
+        
+        //testing below
+        public string tvg_name { get; set; }
         public string tvg_logo { get; set; }
-        public string group_title { get; set; }*/
+        //public string group_title { get; set; }
+        public string tvg_id { get; set; }
     }
 }

@@ -13,7 +13,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Xceed.Wpf.Toolkit;
 
 namespace X_IPTV
 {
@@ -46,6 +45,9 @@ namespace X_IPTV
             processTemp.StartInfo = startInfo;
             processTemp.EnableRaisingEvents = true;
             processTemp.Start();
+
+            //delete
+            MessageBox.Show("Opening " + Instance.playlistDataMap[tempCE.stream_id.ToString()].tvg_name);
         }
 
         private void closeBtn_Click(object sender, RoutedEventArgs e)

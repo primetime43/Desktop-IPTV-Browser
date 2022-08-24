@@ -110,6 +110,7 @@ namespace X_IPTV
             // Display the content.
             Console.WriteLine(responseFromServer);
 
+            //Channels are loaded here
             ChannelEntry[] info = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelEntry[]>(responseFromServer);
 
             Instance.ChannelsArray = info;
@@ -188,22 +189,32 @@ namespace X_IPTV
             string[] playlist = msg.Split(new string[] { "#EXTINF:" }, StringSplitOptions.None);
 
             //needs cleaned up
-            PlaylistData[] info = new PlaylistData[Instance.ChannelsArray.Length];
+            PlaylistData[] info = new PlaylistData[Instance.ChannelsArray.Length];//creates the info array for X number of channels
             int index = -1;
-            Instance.playlistDataMap = new Dictionary<string, PlaylistData>();
+            Instance.playlistDataMap = new Dictionary<string, PlaylistData>(); //playlistDataMap is a dictionary containing the xui_id as the key and value being the PlaylistData object
             foreach (var channel in playlist)
             {
                 //Console.WriteLine($"#EXTINF:{channel}");
                 if (index > -1)
                 {
+                    List<string> wordArray = new List<string>();
+                    wordArray.Clear();
+                    //var wordArray = Regex.Matches(channel, "\"([^\"]+)\"|[^\" ]+\"");
+                    //dont need [0],[11],[12],[13],[14]. Need [1] - [10]
+                    wordArray = channel.Split('"').Select((element, index) => index % 2 == 0 ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) : new string[] { element }).SelectMany(element => element).ToList();
+
                     //eventually fix this, make the split better and use all of the data in the PlaylistData class
-                    string[] splitArr = channel.Split(' ');
+                    /*string[] splitArr = channel.Split(' ');
                     string xui_id = "";
                     foreach (Match match in Regex.Matches(splitArr[1], "\"([^\"]*)\""))
-                        xui_id = match.ToString().Replace("\"", "");
+                        xui_id = match.ToString().Replace("\"", "");*/
                     info[index] = new PlaylistData
                     {
-                        xui_id = xui_id,
+                        xui_id = wordArray[2],
+                        tvg_id = wordArray[4],
+                        tvg_name = wordArray[6],
+                        tvg_logo = wordArray[8],
+                        //group_title = "",
                         stream_url = channel.Substring(channel.LastIndexOf("https"))
                     };
                     Instance.playlistDataMap.Add(info[index].xui_id, info[index]);

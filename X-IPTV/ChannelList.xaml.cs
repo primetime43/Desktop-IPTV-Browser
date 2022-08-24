@@ -27,6 +27,7 @@ namespace X_IPTV
 
             ChannelModel model = new ChannelModel();
 
+            //the model is the array that holds all of the ChannelEntry Objects set in the ChannelModel class
             ChannelLst.DataContext = model;
         }
 
@@ -99,6 +100,7 @@ namespace X_IPTV
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
             for (int i = 0; i < Instance.ChannelsArray.Length; i++)
             {
+                //Loads each ChannelEntry Object into the list box
                 MyListBoxItems.Add(Instance.ChannelsArray[i]);
             }
         }
