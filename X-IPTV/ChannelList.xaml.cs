@@ -33,11 +33,6 @@ namespace X_IPTV
 
         private void ChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //MessageBox.Show("Hello, world!", "My App");
-
-            //open a window with a textbox to copy the url and see info etc.
-            //Then have a button to say do you want to open in vlc, yes or no
-
             ChannelOptions channelOp = new ChannelOptions();
 
 ;
@@ -46,29 +41,13 @@ namespace X_IPTV
 
             ChannelEntry entry = e.AddedItems[0] as ChannelEntry;
 
+            PlaylistData pdTest = e.AddedItems as PlaylistData;
+
 
             Console.WriteLine(Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
 
             channelOp.displaySelectedChannelData(Instance.playlistDataMap, entry);
             channelOp.Show();
-
-
-            /*ProcessStartInfo processStartInfo = new ProcessStartInfo(@"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe", Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
-
-            string streamURL = Instance.playlistDataMap[entry.stream_id.ToString()].stream_url;
-
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = $"/C \"C:/Program Files (x86)/VideoLAN/VLC/vlc.exe\" {streamURL}";
-            startInfo.RedirectStandardOutput = true;
-            startInfo.RedirectStandardError = true;
-            startInfo.UseShellExecute = false;
-            startInfo.CreateNoWindow = true;
-
-            Process processTemp = new Process();
-            processTemp.StartInfo = startInfo;
-            processTemp.EnableRaisingEvents = true;
-            processTemp.Start();*/
         }
 
         private void listBox1_MouseDown(object sender, RoutedEventArgs e)
@@ -97,11 +76,18 @@ namespace X_IPTV
     {
         public ChannelModel()
         {
+            //load all channels
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
+            var testTemp = Instance.categories[Instance.selectedCategory].Values.Count();
             for (int i = 0; i < Instance.ChannelsArray.Length; i++)
             {
-                //Loads each ChannelEntry Object into the list box
-                MyListBoxItems.Add(Instance.ChannelsArray[i]);
+                for (int k = 0; k < testTemp; k++)
+                {
+                    if (Instance.ChannelsArray[i].stream_id.ToString() == Instance.categories[Instance.selectedCategory].ElementAt(k).Value.xui_id)
+                    {
+                        MyListBoxItems.Add(Instance.ChannelsArray[i]);
+                    }
+                }
             }
         }
 

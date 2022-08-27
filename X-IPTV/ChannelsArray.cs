@@ -8,10 +8,10 @@ namespace X_IPTV
 {
 
 
-    public class ChannelsArray
+    /*public class ChannelsArray
     {
         public ChannelEntry[] Entries { get; set; }
-    }
+    }*/
 
     public class ChannelEntry
     {

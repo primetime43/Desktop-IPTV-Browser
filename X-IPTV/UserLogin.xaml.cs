@@ -40,12 +40,17 @@ namespace X_IPTV
 
             await LoadChannels(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
 
-            var channelWindow = new ChannelList();
+            //var channelWindow = new ChannelList();
 
             //load epg. Eventually make it optional
             busy_ind.BusyContent = "Loading playlist data...";
 
             await LoadPlaylistData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
+
+            ChannelNav nav = new ChannelNav();
+            nav.ShowDialog();
+
+            var channelWindow = new ChannelList();
 
             channelWindow.Show();
 
@@ -175,10 +180,13 @@ namespace X_IPTV
         private async Task LoadPlaylistData(string user, string pass, string server, string port)
         {
             Instance.playlistDataMap = new Dictionary<string, PlaylistData>(); //playlistDataMap is a dictionary containing the xui_id as the key and value being the PlaylistData object
+            //Outer dict key is playlist categories, key is another dictionary containing the channel data
+            //Innder dict key is each channel id,value is the Playlist data array for each channel
+            Instance.categories = new Dictionary<string, Dictionary<string, PlaylistData>>();
 
             //Outer dict key is playlist categories, key is another dictionary containing the channel data
             //Innder dict key is each channel id,value is the Playlist data array for each channel
-            Dictionary<string, Dictionary<string, PlaylistData>> categories = new Dictionary<string, Dictionary<string, PlaylistData>>();
+            //Dictionary<string, Dictionary<string, PlaylistData>> categories = new Dictionary<string, Dictionary<string, PlaylistData>>();
             //retrieve playlist data from client
             _client.DefaultRequestHeaders.Accept.Clear();
             _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36");
@@ -218,23 +226,22 @@ namespace X_IPTV
                     //Adds the channel data obj to the dict with channel id as the key
                     Instance.playlistDataMap.Add(currentChannelId, info[index]);
 
-                    bool keyExists = categories.ContainsKey(info[index].group_title);
+                    bool keyExists = Instance.categories.ContainsKey(info[index].group_title);
                     if (keyExists)
                     {
                         //string, Dictionary<string, PlaylistData
                         //Adds the Playlist data obj to under the category key using channel id for the inner dict
-                        categories[info[index].group_title].TryAdd(currentChannelId, Instance.playlistDataMap[currentChannelId]);
+                        Instance.categories[info[index].group_title].TryAdd(currentChannelId, Instance.playlistDataMap[currentChannelId]);
                     }
                     else
                     {
                         //Adds the category name as the key and create a new dictionary as the key
-                        categories.TryAdd(info[index].group_title, new Dictionary<string, PlaylistData>());
-                        categories[info[index].group_title].TryAdd(currentChannelId, Instance.playlistDataMap[currentChannelId]);
+                        Instance.categories.TryAdd(info[index].group_title, new Dictionary<string, PlaylistData>());
+                        Instance.categories[info[index].group_title].TryAdd(currentChannelId, Instance.playlistDataMap[currentChannelId]);
                     }
                 }
                 index++;
             }
-            Console.WriteLine("Done.");
         }
 
         private void saveUserDataBtn_Click(object sender, RoutedEventArgs e)

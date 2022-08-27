@@ -10,10 +10,15 @@ namespace X_IPTV
     {
         public static PlayerInfo PlayerInfo = null;
 
+        //Contains ChannelEntry obj data
         public static ChannelEntry[] ChannelsArray = null;
 
-        //public static PlaylistData[] PlaylistArray = null;
-
+        //key = xui_id, value = PlaylistData obj
         public static Dictionary<string, PlaylistData> playlistDataMap = null;
+
+        //key = category name, value = Dictionary (key = xui_id, value = PlaylistData obj)
+        public static Dictionary<string, Dictionary<string, PlaylistData>> categories = null;
+
+        public static string selectedCategory { get; set; }
     }
 }

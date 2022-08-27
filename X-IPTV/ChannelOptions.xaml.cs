@@ -76,10 +76,17 @@ namespace X_IPTV
 
             streamURLtxtBox.Text = Instance.playlistDataMap[entry.stream_id.ToString()].stream_url;
 
-            foreach(PropertyInfo ce in typeof(ChannelEntry).GetProperties())
+            foreach (PropertyInfo ce in typeof(ChannelEntry).GetProperties())
             {
                 richTextBox.AppendText(ce.Name + ": " + ce.GetValue(entry) + "\r");
             }
+
+            richTextBox.AppendText("----- Line Split -----");
+
+            /*foreach (PropertyInfo pd in typeof(PlaylistData).GetProperties())
+            {
+                richTextBox.AppendText(pd.Name + ": " + pd.GetValue(pdTest) + "\r");
+            }*/
 
             //richTextBox.AppendText(Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
 
