@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using Microsoft.Win32;
 
 namespace X_IPTV
 {
@@ -29,13 +22,35 @@ namespace X_IPTV
 
         private void openVLCbtn_Click(object sender, RoutedEventArgs e)
         {
-            ProcessStartInfo processStartInfo = new ProcessStartInfo(@"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe", Instance.playlistDataMap[tempCE.stream_id.ToString()].stream_url);
+            string vlcLocatedPath = "";
+            string vlcX64path = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
+            string vlcX86path = @"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe";
+
+            if (File.Exists(vlcX86path))
+                vlcLocatedPath = vlcX86path;
+            else if (File.Exists(vlcX64path))
+                vlcLocatedPath = vlcX64path;
+            else
+            {
+                OpenFileDialog openFileDialog1 = new OpenFileDialog();
+
+                openFileDialog1.InitialDirectory = "c:\\";
+                openFileDialog1.Filter = "VLC Executable File (*.exe)|*.exe";
+                openFileDialog1.RestoreDirectory = true;
+
+                bool? result = openFileDialog1.ShowDialog();
+
+                if (result == true)
+                    vlcLocatedPath = openFileDialog1.FileName;
+            }
+
+            ProcessStartInfo processStartInfo = new ProcessStartInfo(vlcLocatedPath, Instance.playlistDataMap[tempCE.stream_id.ToString()].stream_url);
 
             string streamURL = Instance.playlistDataMap[tempCE.stream_id.ToString()].stream_url;
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = $"/C \"C:/Program Files (x86)/VideoLAN/VLC/vlc.exe\" {streamURL}";
+            startInfo.Arguments = $"/C \"{vlcLocatedPath}\" {streamURL}";
             startInfo.RedirectStandardOutput = true;
             startInfo.RedirectStandardError = true;
             startInfo.UseShellExecute = false;
@@ -45,9 +60,6 @@ namespace X_IPTV
             processTemp.StartInfo = startInfo;
             processTemp.EnableRaisingEvents = true;
             processTemp.Start();
-
-            //delete
-            MessageBox.Show("Opening " + Instance.playlistDataMap[tempCE.stream_id.ToString()].tvg_name);
         }
 
         private void closeBtn_Click(object sender, RoutedEventArgs e)
