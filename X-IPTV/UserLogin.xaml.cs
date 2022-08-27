@@ -19,8 +19,6 @@ namespace X_IPTV
     /// 
     public partial class UserLogin : Window
     {
-        //TODO: read file when user is selected and load data.
-        //Add a Load user button
         private static UserDataSaver.User _currentUser = new UserDataSaver.User();
         private static readonly HttpClient _client = new HttpClient();
         private static string assemblyFolder, saveDir, userFileFullPath;
@@ -176,6 +174,11 @@ namespace X_IPTV
         }
         private async Task LoadPlaylistData(string user, string pass, string server, string port)
         {
+            Instance.playlistDataMap = new Dictionary<string, PlaylistData>(); //playlistDataMap is a dictionary containing the xui_id as the key and value being the PlaylistData object
+
+            //Outer dict key is playlist categories, key is another dictionary containing the channel data
+            //Innder dict key is each channel id,value is the Playlist data array for each channel
+            Dictionary<string, Dictionary<string, PlaylistData>> categories = new Dictionary<string, Dictionary<string, PlaylistData>>();
             //retrieve playlist data from client
             _client.DefaultRequestHeaders.Accept.Clear();
             _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36");
@@ -188,10 +191,8 @@ namespace X_IPTV
             //parse the m3u playlist and split into an array
             string[] playlist = msg.Split(new string[] { "#EXTINF:" }, StringSplitOptions.None);
 
-            //needs cleaned up
             PlaylistData[] info = new PlaylistData[Instance.ChannelsArray.Length];//creates the info array for X number of channels
             int index = -1;
-            Instance.playlistDataMap = new Dictionary<string, PlaylistData>(); //playlistDataMap is a dictionary containing the xui_id as the key and value being the PlaylistData object
             foreach (var channel in playlist)
             {
                 //Console.WriteLine($"#EXTINF:{channel}");
@@ -199,25 +200,37 @@ namespace X_IPTV
                 {
                     List<string> wordArray = new List<string>();
                     wordArray.Clear();
-                    //var wordArray = Regex.Matches(channel, "\"([^\"]+)\"|[^\" ]+\"");
                     //dont need [0],[11],[12],[13],[14]. Need [1] - [10]
                     wordArray = channel.Split('"').Select((element, index) => index % 2 == 0 ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) : new string[] { element }).SelectMany(element => element).ToList();
 
-                    //eventually fix this, make the split better and use all of the data in the PlaylistData class
-                    /*string[] splitArr = channel.Split(' ');
-                    string xui_id = "";
-                    foreach (Match match in Regex.Matches(splitArr[1], "\"([^\"]*)\""))
-                        xui_id = match.ToString().Replace("\"", "");*/
+
                     info[index] = new PlaylistData
                     {
                         xui_id = wordArray[2],
                         tvg_id = wordArray[4],
                         tvg_name = wordArray[6],
                         tvg_logo = wordArray[8],
-                        //group_title = "",
+                        group_title = wordArray[10],
                         stream_url = channel.Substring(channel.LastIndexOf("https"))
                     };
-                    Instance.playlistDataMap.Add(info[index].xui_id, info[index]);
+
+                    string currentChannelId = info[index].xui_id;
+                    //Adds the channel data obj to the dict with channel id as the key
+                    Instance.playlistDataMap.Add(currentChannelId, info[index]);
+
+                    bool keyExists = categories.ContainsKey(info[index].group_title);
+                    if (keyExists)
+                    {
+                        //string, Dictionary<string, PlaylistData
+                        //Adds the Playlist data obj to under the category key using channel id for the inner dict
+                        categories[info[index].group_title].TryAdd(currentChannelId, Instance.playlistDataMap[currentChannelId]);
+                    }
+                    else
+                    {
+                        //Adds the category name as the key and create a new dictionary as the key
+                        categories.TryAdd(info[index].group_title, new Dictionary<string, PlaylistData>());
+                        categories[info[index].group_title].TryAdd(currentChannelId, Instance.playlistDataMap[currentChannelId]);
+                    }
                 }
                 index++;
             }

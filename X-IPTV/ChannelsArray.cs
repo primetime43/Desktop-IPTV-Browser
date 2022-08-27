@@ -37,7 +37,7 @@ namespace X_IPTV
         //testing below
         public string tvg_name { get; set; }
         public string tvg_logo { get; set; }
-        //public string group_title { get; set; }
+        public string group_title { get; set; }
         public string tvg_id { get; set; }
     }
 }
