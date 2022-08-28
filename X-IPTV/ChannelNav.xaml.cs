@@ -51,5 +51,10 @@ namespace X_IPTV
             Instance.selectedCategory = this.categoriesComboBox.SelectedItem.ToString();
             this.Close();
         }
+
+        private void quitBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Environment.Exit(1);
+        }
     }
 }

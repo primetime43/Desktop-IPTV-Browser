@@ -47,18 +47,20 @@ namespace X_IPTV
 
             await LoadPlaylistData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
 
-            ChannelNav nav = new ChannelNav();
-            nav.ShowDialog();
-
-            var channelWindow = new ChannelList();
-
-            channelWindow.Show();
-
             busy_ind.IsBusy = false;
 
-            //this.Close();
-        }
-        private async Task Connect(string user, string pass, string server, string port)
+            while (true)
+            {
+                ChannelNav nav = new ChannelNav();
+                nav.ShowDialog();
+
+                ChannelList channelWindow = new ChannelList();
+                channelWindow.ShowDialog();
+            }
+
+                //this.Close();
+            }
+            private async Task Connect(string user, string pass, string server, string port)
         {
             // Create a request for the URL. 		
             WebRequest request;

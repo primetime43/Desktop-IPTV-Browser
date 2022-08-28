@@ -81,8 +81,6 @@ namespace X_IPTV
                 richTextBox.AppendText(ce.Name + ": " + ce.GetValue(entry) + "\r");
             }
 
-            richTextBox.AppendText("----- Line Split -----");
-
             /*foreach (PropertyInfo pd in typeof(PlaylistData).GetProperties())
             {
                 richTextBox.AppendText(pd.Name + ": " + pd.GetValue(pdTest) + "\r");
