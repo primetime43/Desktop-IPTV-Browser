@@ -34,13 +34,12 @@ namespace X_IPTV
         {
             busy_ind.IsBusy = true;
 
-            await REST_Ops.Connect(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Connect to the server
+            await REST_Ops.LoginConnect(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Connect to the server
 
             busy_ind.BusyContent = "Loading channels list...";
 
+            //May be able to remove RetrieveChannels or LoadPlaylistData
             await REST_Ops.RetrieveChannels(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
-
-            //var channelWindow = new ChannelList();
 
             //load epg. Eventually make it optional
             busy_ind.BusyContent = "Loading playlist data...";
@@ -56,7 +55,6 @@ namespace X_IPTV
 
                 ChannelList channelWindow = new ChannelList();
                 channelWindow.ShowDialog();
-
             }
 
             //this.Close();

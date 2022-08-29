@@ -14,7 +14,7 @@ namespace X_IPTV
         private static readonly HttpClient _client = new HttpClient();
         private static UserLogin ul = new UserLogin();
         //use get_live_categories for categories
-        public static async Task Connect(string user, string pass, string server, string port)
+        public static async Task LoginConnect(string user, string pass, string server, string port)
         {
             // Create a request for the URL. 		
             WebRequest request;
@@ -47,7 +47,7 @@ namespace X_IPTV
             response.Close();
         }
 
-        public static async Task RetrieveChannels(string user, string pass, string server, string port)
+        public static async Task RetrieveChannels(string user, string pass, string server, string port)//maybe pass in the action as a string and use this for all action calls
         {
             // Create a request for the URL. 	
             WebRequest request;
@@ -80,7 +80,8 @@ namespace X_IPTV
             dataStream.Close();
             response.Close();
         }
-        public static async Task LoadPlaylistData(string user, string pass, string server, string port)
+        //need to review these two. They seem to get the same data, but in a different format. get_live_streams seems to be better than get.php
+        public static async Task LoadPlaylistData(string user, string pass, string server, string port)//maybe remove this one
         {
             Instance.playlistDataMap = new Dictionary<string, PlaylistData>(); //playlistDataMap is a dictionary containing the xui_id as the key and value being the PlaylistData object
             //Outer dict key is playlist categories, key is another dictionary containing the channel data
@@ -145,6 +146,11 @@ namespace X_IPTV
                 }
                 index++;
             }
+        }
+
+        public static async Task RetrieveCategories(string user, string pass, string server, string port)
+        {
+
         }
     }
 }
