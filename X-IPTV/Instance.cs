@@ -17,7 +17,7 @@ namespace X_IPTV
         public static Dictionary<string, PlaylistData> playlistDataMap = null;
 
         //key = category name, value = Dictionary (key = xui_id, value = PlaylistData obj)
-        public static Dictionary<string, Dictionary<string, PlaylistData>> categories = null;
+        public static Dictionary<string, Dictionary<string, PlaylistData>> categories = null;//remove this once adding new categories method
 
         public static string selectedCategory { get; set; }
     }
