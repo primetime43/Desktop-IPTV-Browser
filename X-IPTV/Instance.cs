@@ -13,6 +13,9 @@ namespace X_IPTV
         //Contains ChannelEntry obj data
         public static ChannelEntry[] ChannelsArray = null;
 
+        //Contains the categories/groups for the channels
+        public static ChannelGroups[] ChannelGroupsArray = null;
+
         //key = xui_id, value = PlaylistData obj
         public static Dictionary<string, PlaylistData> playlistDataMap = null;
 

@@ -60,6 +60,11 @@ namespace X_IPTV
             //this.Close();
         }
 
+        private async void testBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await REST_Ops.RetrieveCategories(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
+        }
+
         private void loadUsersFromDirectory()
         {
             //string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

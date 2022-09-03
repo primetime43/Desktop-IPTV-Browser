@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:X_IPTV"
         mc:Ignorable="d"
-        Title="ChannelNav" Height="450" Width="800">
+        Title="Channel Navigation Guide" Height="450" Width="800">
     <Grid>
         <ComboBox x:Name="categoriesComboBox" ItemsSource="{Binding MyCategoryItems}" HorizontalAlignment="Left" Margin="100,57,0,0" VerticalAlignment="Top" Width="255" Height="27" SelectionChanged="categoriesComboBox_SelectionChanged"/>
         <Button x:Name="quitBtn" Content="Quit" HorizontalAlignment="Left" Height="45" Margin="475,84,0,0" VerticalAlignment="Top" Width="115" Click="quitBtn_Click"/>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -35,7 +36,7 @@ namespace X_IPTV
             // Read the content.
             string responseFromServer = await reader.ReadToEndAsync();
             // Display the content.
-            Console.WriteLine(responseFromServer);
+            Debug.WriteLine(responseFromServer);
 
             PlayerInfo info = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerInfo>(responseFromServer);
 
@@ -68,7 +69,7 @@ namespace X_IPTV
             // Read the content.
             string responseFromServer = await reader.ReadToEndAsync();
             // Display the content.
-            Console.WriteLine(responseFromServer);
+            Debug.WriteLine(responseFromServer);
 
             //Channels are loaded here
             ChannelEntry[] info = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelEntry[]>(responseFromServer);
@@ -150,7 +151,32 @@ namespace X_IPTV
 
         public static async Task RetrieveCategories(string user, string pass, string server, string port)
         {
+            
+            // Create a request for the URL. 		
+            WebRequest request = WebRequest.Create($"https://{server}:{port}/player_api.php?username={user}&password={pass}&action=get_live_categories");
+            // If required by the server, set the credentials.
+            request.Credentials = CredentialCache.DefaultCredentials;
+            // Get the response.
+            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+            // Display the status.
+            Console.WriteLine(response.StatusDescription);
+            // Get the stream containing content returned by the server.
+            Stream dataStream = response.GetResponseStream();
+            // Open the stream using a StreamReader for easy access.
+            StreamReader reader = new StreamReader(dataStream);
+            // Read the content.
+            string responseFromServer = await reader.ReadToEndAsync();
+            // Display the content.
+            Debug.WriteLine(responseFromServer);
 
+            ChannelGroups[] info = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelGroups[]>(responseFromServer);
+
+            Instance.ChannelGroupsArray = info;
+
+            // Cleanup the streams and the response.
+            reader.Close();
+            dataStream.Close();
+            response.Close();
         }
     }
 }

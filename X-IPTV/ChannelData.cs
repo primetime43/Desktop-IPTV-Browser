@@ -40,4 +40,11 @@ namespace X_IPTV
         public string group_title { get; set; }
         public string tvg_id { get; set; }
     }
+
+    public class ChannelGroups
+    {
+        public string category_id { get; set; }
+        public string category_name { get; set; }
+        public int parent_id { get; set; }
+    }
 }

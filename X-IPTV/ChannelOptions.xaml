@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:X_IPTV"
         mc:Ignorable="d"
-        Title="ChannelOptions" Height="450" Width="735">
+        Title="Channel Information Options" Height="450" Width="735">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="59*"/>

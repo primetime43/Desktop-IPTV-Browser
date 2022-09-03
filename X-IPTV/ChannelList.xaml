@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:X_IPTV"
         mc:Ignorable="d"
-        Title="ChannelList" Height="450" Width="800">
+        Title="Channel Guide List" Height="450" Width="800">
     <Window.Resources>
         <local:MyMockClass x:Key="DesignViewModel"/>
         
