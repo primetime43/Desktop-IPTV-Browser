@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace X_IPTV
 {
@@ -36,17 +37,20 @@ namespace X_IPTV
 
             await REST_Ops.LoginConnect(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Connect to the server
 
-            busy_ind.BusyContent = "Loading channels list...";
+            busy_ind.BusyContent = "Loading channel data...";
 
             //May be able to remove RetrieveChannels or LoadPlaylistData
-            await REST_Ops.RetrieveChannels(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
+            await REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
 
             //load epg. Eventually make it optional
-            busy_ind.BusyContent = "Loading playlist data...";
+            busy_ind.BusyContent = "Loading groups/categories data...";
 
-            await REST_Ops.LoadPlaylistData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
+            await REST_Ops.RetrieveCategories(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
+
+            //await REST_Ops.LoadPlaylistData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
 
             busy_ind.IsBusy = false;
+
 
             while (true)
             {
@@ -58,11 +62,6 @@ namespace X_IPTV
             }
 
             //this.Close();
-        }
-
-        private async void testBtn_Click(object sender, RoutedEventArgs e)
-        {
-            await REST_Ops.RetrieveCategories(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
         }
 
         private void loadUsersFromDirectory()

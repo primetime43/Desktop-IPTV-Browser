@@ -45,7 +45,6 @@ namespace X_IPTV
             }
 
             ProcessStartInfo processStartInfo = new ProcessStartInfo(vlcLocatedPath, Instance.playlistDataMap[tempCE.stream_id.ToString()].stream_url);
-
             string streamURL = Instance.playlistDataMap[tempCE.stream_id.ToString()].stream_url;
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -62,12 +61,7 @@ namespace X_IPTV
             processTemp.Start();
         }
 
-        private void closeBtn_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        public void displaySelectedChannelData(Dictionary<string, PlaylistData> playlistDataMap, ChannelEntry entry)
+        public void displaySelectedChannelData(ChannelEntry entry)
         {
             this.Title = entry.name;
             this.Icon = new BitmapImage(new Uri(entry.stream_icon));
@@ -80,14 +74,11 @@ namespace X_IPTV
             {
                 richTextBox.AppendText(ce.Name + ": " + ce.GetValue(entry) + "\r");
             }
+        }
 
-            /*foreach (PropertyInfo pd in typeof(PlaylistData).GetProperties())
-            {
-                richTextBox.AppendText(pd.Name + ": " + pd.GetValue(pdTest) + "\r");
-            }*/
-
-            //richTextBox.AppendText(Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
-
+        private void closeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

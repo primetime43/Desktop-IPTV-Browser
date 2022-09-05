@@ -10,9 +10,10 @@ namespace X_IPTV
 
     /*public class ChannelsArray
     {
-        public ChannelEntry[] Entries { get; set; }
+        public ChannelEntry[] channelData { get; set; }
     }*/
 
+    //Use this one for most data info, missing stream_url, which is why the PlaylistData obj is needed
     public class ChannelEntry
     {
         public int num { get; set; }
@@ -29,12 +30,12 @@ namespace X_IPTV
         public object tv_archive_duration { get; set; }
     }
 
+    //Need this for stream_url
     public class PlaylistData
     {
         public string xui_id { get; set; }
         public string stream_url { get; set; }
         
-        //testing below
         public string tvg_name { get; set; }
         public string tvg_logo { get; set; }
         public string group_title { get; set; }

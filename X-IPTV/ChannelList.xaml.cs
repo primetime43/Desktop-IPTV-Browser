@@ -44,9 +44,10 @@ namespace X_IPTV
             PlaylistData pdTest = e.AddedItems as PlaylistData;
 
 
-            Console.WriteLine(Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
+            //Console.WriteLine(Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
 
-            channelOp.displaySelectedChannelData(Instance.playlistDataMap, entry);
+            //fix
+            channelOp.displaySelectedChannelData(entry);
             channelOp.Show();
         }
 
@@ -78,15 +79,13 @@ namespace X_IPTV
         {
             //load all channels
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
-            var testTemp = Instance.categories[Instance.selectedCategory].Values.Count();
+            var categoryIndex = Array.FindIndex(Instance.ChannelGroupsArray, x => x.category_name.Equals(Instance.selectedCategory));
             for (int i = 0; i < Instance.ChannelsArray.Length; i++)
             {
-                for (int k = 0; k < testTemp; k++)
+                //Goes through each channel in the ChannelsArray looking for the category_id matching with the selected category's category_id
+                if (Instance.ChannelsArray[i].category_id == Instance.ChannelGroupsArray[categoryIndex].category_id)
                 {
-                    if (Instance.ChannelsArray[i].stream_id.ToString() == Instance.categories[Instance.selectedCategory].ElementAt(k).Value.xui_id)
-                    {
-                        MyListBoxItems.Add(Instance.ChannelsArray[i]);
-                    }
+                    MyListBoxItems.Add(Instance.ChannelsArray[i]);
                 }
             }
         }

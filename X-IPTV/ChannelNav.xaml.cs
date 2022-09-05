@@ -28,12 +28,15 @@ namespace X_IPTV
 
         private void loadCategories()
         {
-            List<string> sortedCategories = new List<string>(Instance.categories.Keys);
+            List<string> sortedCategories = Instance.ChannelGroupsArray.Select(cat_name => cat_name.category_name).ToList();
             sortedCategories.Sort();
             for (int i = 0; i < sortedCategories.Count; i++)
             {
                 categoriesComboBox.Items.Add(sortedCategories[i]);
             }
+
+            //Could eventually use an api call each time to just get the channels that are in the selected category.
+            //player_api.php?username=X&password=X&action=get_live_streams&category_id=X (This will get All LIVE Streams in the selected category ONLY)
         }
 
         private void searchForChannelByCurrentShow()

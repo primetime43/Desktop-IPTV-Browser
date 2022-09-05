@@ -8,9 +8,10 @@ namespace X_IPTV
 {
     public static class Instance
     {
+        //Contains the User_Info and Server_Info objects
         public static PlayerInfo PlayerInfo = null;
 
-        //Contains ChannelEntry obj data
+        //Contains the array of each channel's data
         public static ChannelEntry[] ChannelsArray = null;
 
         //Contains the categories/groups for the channels
@@ -18,9 +19,6 @@ namespace X_IPTV
 
         //key = xui_id, value = PlaylistData obj
         public static Dictionary<string, PlaylistData> playlistDataMap = null;
-
-        //key = category name, value = Dictionary (key = xui_id, value = PlaylistData obj)
-        public static Dictionary<string, Dictionary<string, PlaylistData>> categories = null;//remove this once adding new categories method
 
         public static string selectedCategory { get; set; }
     }
