@@ -82,10 +82,19 @@ namespace X_IPTV
             var categoryIndex = Array.FindIndex(Instance.ChannelGroupsArray, x => x.category_name.Equals(Instance.selectedCategory));
             for (int i = 0; i < Instance.ChannelsArray.Length; i++)
             {
-                //Goes through each channel in the ChannelsArray looking for the category_id matching with the selected category's category_id
-                if (Instance.ChannelsArray[i].category_id == Instance.ChannelGroupsArray[categoryIndex].category_id)
+                try
                 {
-                    MyListBoxItems.Add(Instance.ChannelsArray[i]);
+                    //Goes through each channel in the ChannelsArray looking for the category_id matching with the selected category's category_id
+                    if (Instance.ChannelsArray[i].category_id == Instance.ChannelGroupsArray[categoryIndex].category_id)
+                    {
+                        MyListBoxItems.Add(Instance.ChannelsArray[i]);
+                    }
+                }
+                catch(IndexOutOfRangeException e)//hits here when the user closes the ChannelNav form instead of using quit button
+                {
+                    //Change this eventually, but good to have for now
+                    MessageBox.Show("No channel selected, closing program.");
+                    Environment.Exit(1);
                 }
             }
         }
@@ -98,8 +107,8 @@ namespace X_IPTV
         public MyMockClass()
         {
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
-            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| TF1 UHD", stream_icon = "http://f.iptv-pure.com/tf14k.png" });
-            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| CSTAR FHD", stream_icon = "http://f.iptv-pure.com/cstar.png" });
+            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| TF1 UHD", stream_icon = "http://f.iptv-pure.com/tf14k.png", title = "Title Test", desc = "Hello World" });
+            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| CSTAR FHD", stream_icon = "http://f.iptv-pure.com/cstar.png", title = "Title Test 2", desc = "Hello World 2" });
         }
         public ObservableCollection<ChannelEntry> MyListBoxItems { get; set; }
     }

@@ -51,6 +51,7 @@ namespace X_IPTV
 
             busy_ind.IsBusy = false;
 
+            Debug.WriteLine(Instance.PlayerInfo);
 
             while (true)
             {
@@ -148,6 +149,12 @@ namespace X_IPTV
             textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
 
             textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+        }
+
+        private async void button_Click(object sender, RoutedEventArgs e)
+        {
+            await REST_Ops.LoadEPGData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
+            MessageBox.Show("EPG Loaded");
         }
 
         private void serverTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)

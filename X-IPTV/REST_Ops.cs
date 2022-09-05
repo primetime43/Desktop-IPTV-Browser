@@ -1,12 +1,16 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
+using System.ServiceModel.Channels;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Xml;
 
 namespace X_IPTV
 {
@@ -27,8 +31,6 @@ namespace X_IPTV
             request.Credentials = CredentialCache.DefaultCredentials;
             // Get the response.
             HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-            // Display the status.
-            Console.WriteLine(response.StatusDescription);
             // Get the stream containing content returned by the server.
             Stream dataStream = response.GetResponseStream();
             // Open the stream using a StreamReader for easy access.
@@ -60,8 +62,6 @@ namespace X_IPTV
             request.Credentials = CredentialCache.DefaultCredentials;
             // Get the response.
             HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-            // Display the status.
-            Console.WriteLine(response.StatusDescription);
             // Get the stream containing content returned by the server.
             Stream dataStream = response.GetResponseStream();
             // Open the stream using a StreamReader for easy access.
@@ -86,15 +86,17 @@ namespace X_IPTV
 
         public static async Task RetrieveCategories(string user, string pass, string server, string port)
         {
-            
-            // Create a request for the URL. 		
-            WebRequest request = WebRequest.Create($"https://{server}:{port}/player_api.php?username={user}&password={pass}&action=get_live_categories");
+
+            // Create a request for the URL.
+            WebRequest request;
+            if ((bool)ul.protocolCheckBox.IsChecked)//use the https protocol
+                request = WebRequest.Create($"https://{server}:{port}/player_api.php?username={user}&password={pass}&action=get_live_categories");
+            else//use the http protocol
+                request = WebRequest.Create($"http://{server}:{port}/player_api.php?username={user}&password={pass}&action=get_live_categories");
             // If required by the server, set the credentials.
             request.Credentials = CredentialCache.DefaultCredentials;
             // Get the response.
             HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-            // Display the status.
-            Console.WriteLine(response.StatusDescription);
             // Get the stream containing content returned by the server.
             Stream dataStream = response.GetResponseStream();
             // Open the stream using a StreamReader for easy access.
@@ -114,7 +116,6 @@ namespace X_IPTV
             response.Close();
         }
 
-        //need to review these two. They seem to get the same data, but in a different format. get_live_streams seems to be better than get.php
         //seems the get.php api call is the only one that includes the stream url in the response
         public static async Task LoadPlaylistData(string user, string pass, string server, string port)//maybe remove this one
         {
@@ -123,11 +124,19 @@ namespace X_IPTV
             //playlistDataMap is a dictionary containing the xui_id as the key and value being the PlaylistData object
             Instance.playlistDataMap = new Dictionary<string, PlaylistData>(); 
 
+            //*** Maybe change this from httpclient to webrequest eventually ***
+
             //retrieve channel data from client
             _client.DefaultRequestHeaders.Accept.Clear();
             _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36");
 
-            var stringTask = _client.GetStringAsync($"https://{server}:{port}/get.php?username={user}&password={pass}");
+            Task<string> stringTask = null;
+            if ((bool)ul.protocolCheckBox.IsChecked)//use the https protocol
+                stringTask = _client.GetStringAsync($"https://{server}:{port}/get.php?username={user}&password={pass}");
+            else//use the http protocol
+                stringTask = _client.GetStringAsync($"http://{server}:{port}/get.php?username={user}&password={pass}");
+
+            //var stringTask = _client.GetStringAsync($"https://{server}:{port}/get.php?username={user}&password={pass}");
 
             var serverResponse = await stringTask;
 
@@ -163,6 +172,76 @@ namespace X_IPTV
             }
 
             //Debug.WriteLine(info);
+        }
+
+        //This is a a lot of data, so probably make the load for epg data optional. Going to need to convert from xml to json
+        public static async Task LoadEPGData(string user, string pass, string server, string port)
+        {
+
+            //This method uses parsing instead of json Deserializing because this response doesn't return in json format/json formattable
+
+            //*** Doesn't seem to want to work with Webrequest, so have to use HttpClient ***
+
+            //retrieve channel data from client
+            _client.DefaultRequestHeaders.Accept.Clear();
+            _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36");
+
+            Task<string> stringTask = null;
+            if ((bool)ul.protocolCheckBox.IsChecked)//use the https protocol
+                stringTask = _client.GetStringAsync($"https://{server}:{port}/xmltv.php?username={user}&password={pass}");
+            else//use the http protocol
+                stringTask = _client.GetStringAsync($"http://{server}:{port}/xmltv.php?username={user}&password={pass}");
+
+            var serverResponse = await stringTask;
+
+            //after the server responds with the xml data and converts the xml data to json
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(serverResponse);
+            string xmlToJsonResult = Newtonsoft.Json.JsonConvert.SerializeXmlNode(doc);
+
+            //parsing the json data to JObject
+            JObject jsonEPG = JObject.Parse(xmlToJsonResult);
+
+            List<JToken> tempTest = jsonEPG["tv"]["channel"].Children().ToList();
+
+            Debug.WriteLine(tempTest);
+
+            Channel[] info = new Channel[tempTest.Count];//creates the info array for X number of channels
+            int index = -1;
+            foreach (var channel in tempTest)
+            {
+                if (index > -1)
+                {
+
+                    info[index] = new Channel
+                    {
+                        id = (string)tempTest[index]["@id"],
+                        display_name = (string)tempTest[index]["display-name"]
+                        /*xui_id = wordArray[2],
+                        tvg_id = wordArray[4],
+                        tvg_name = wordArray[6],
+                        tvg_logo = wordArray[8],
+                        group_title = wordArray[10],
+                        stream_url = channel.Substring(channel.LastIndexOf("https"))*/
+                    };
+                    Debug.WriteLine(info);
+                }
+                index++;
+            }
+
+            Debug.WriteLine(info);
+
+
+
+            //Channels are loaded here
+            //ChannelEntry[] channelInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelEntry[]>(responseFromServer);
+
+            //Instance.ChannelsArray = channelInfo;
+
+            // Cleanup the streams and the response.
+            //reader.Close();
+            //dataStream.Close();
+            //response.Close();
         }
     }
 }

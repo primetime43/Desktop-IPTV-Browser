@@ -20,6 +20,8 @@ namespace X_IPTV
         //key = xui_id, value = PlaylistData obj
         public static Dictionary<string, PlaylistData> playlistDataMap = null;
 
+        public static EPGData tempTestEPG = null;
+
         public static string selectedCategory { get; set; }
     }
 }

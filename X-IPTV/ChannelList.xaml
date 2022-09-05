@@ -8,9 +8,7 @@
         Title="Channel Guide List" Height="450" Width="800">
     <Window.Resources>
         <local:MyMockClass x:Key="DesignViewModel"/>
-        
-        
-
+   
         <Style TargetType="{x:Type ListBox}">
             <Setter Property="ItemsPanel">
                 <Setter.Value>
@@ -20,37 +18,20 @@
                 </Setter.Value>
             </Setter>
 
-            <Setter
-
-  Property="ScrollViewer.HorizontalScrollBarVisibility"
-
-  Value="Disabled"
-
-  />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
 
             <Setter Property="ItemTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <Border BorderBrush="Black" BorderThickness="4"
-
-              CornerRadius="5" Margin="6"
-
-              >
+                        <Border BorderBrush="Black" BorderThickness="4" CornerRadius="5" Margin="6">
                             <Grid Width="250">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="100"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Image
-
-                Source="{Binding Path=stream_icon}"
-
-                Stretch="Uniform"
-
-                 Height="120"
-
-               />
-                                <TextBlock FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=name}" VerticalAlignment="Center"></TextBlock>
+                                <Image Source="{Binding Path=stream_icon}" Stretch="Uniform" Height="120"/>
+                                <TextBlock Name="channelName" FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=name}" VerticalAlignment="Top"></TextBlock>
+                                <TextBlock Name="channelTitle" FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=title}" VerticalAlignment="Top" Margin="0,41,0,0"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
