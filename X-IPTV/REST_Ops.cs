@@ -170,7 +170,7 @@ namespace X_IPTV
                 }
                 index++;
             }
-
+            _client.Dispose();
             //Debug.WriteLine(info);
         }
 
@@ -208,22 +208,33 @@ namespace X_IPTV
 
             Channel[] info = new Channel[tempTest.Count];//creates the info array for X number of channels
             int index = -1;
+
+            //Use PlaylistData tvg_id and Channel id as unique id
             foreach (var channel in tempTest)
             {
                 if (index > -1)
                 {
-
+                    string channelID = (string)tempTest[index]["@id"];
+                    string displayName = (string)tempTest[index]["display-name"];
                     info[index] = new Channel
                     {
-                        id = (string)tempTest[index]["@id"],
-                        display_name = (string)tempTest[index]["display-name"]
-                        /*xui_id = wordArray[2],
-                        tvg_id = wordArray[4],
-                        tvg_name = wordArray[6],
-                        tvg_logo = wordArray[8],
-                        group_title = wordArray[10],
-                        stream_url = channel.Substring(channel.LastIndexOf("https"))*/
+                        id = channelID,
+                        display_name = displayName
                     };
+                    //Use PlaylistData tvg_id and Channel id as unique id. May be able to use name from ChannelEntry to Channel display-name to make it simpler
+                    //Need to take the 
+                    string currentChannelDisplayName = info[index].display_name;
+                    for(int i = 0; i < Instance.ChannelsArray.Length; i++)
+                    {
+                        if(Instance.ChannelsArray[i].name = currentChannelDisplayName)
+                        {
+                            //set title to Programme title
+                            //set desc to Programme desc
+                        }
+                    }
+                    //Adds the channel data obj to the dict with channel id as the key
+                    Instance.playlistDataMap.Add(currentChannelId, info[index]);
+                    Instance.ChannelsArray[0].tv
                     Debug.WriteLine(info);
                 }
                 index++;
@@ -231,17 +242,12 @@ namespace X_IPTV
 
             Debug.WriteLine(info);
 
-
+            _client.Dispose();
 
             //Channels are loaded here
             //ChannelEntry[] channelInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelEntry[]>(responseFromServer);
 
             //Instance.ChannelsArray = channelInfo;
-
-            // Cleanup the streams and the response.
-            //reader.Close();
-            //dataStream.Close();
-            //response.Close();
         }
     }
 }

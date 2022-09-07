@@ -73,6 +73,8 @@ namespace X_IPTV
         //non attributes
         [JsonProperty("@display-name")]
         public string display_name { get; set; }
+
+        [JsonProperty("icon")]
         public Icon icon { get; set; }
     }
     public class Icon
