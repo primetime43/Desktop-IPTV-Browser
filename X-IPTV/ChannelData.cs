@@ -14,7 +14,7 @@ namespace X_IPTV
         public ChannelEntry[] channelData { get; set; }
     }*/
 
-    //Use this one for most data info, missing stream_url, which is why the PlaylistData obj is needed
+    //Use this one for most data info, missing stream_url, which is why the PlaylistData obj is needed 
     public class ChannelEntry
     {
         public int num { get; set; }

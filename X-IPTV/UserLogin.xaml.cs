@@ -42,6 +42,10 @@ namespace X_IPTV
             //May be able to remove RetrieveChannels or LoadPlaylistData
             await REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
 
+            busy_ind.BusyContent = "Loading epg data with desc...";
+
+            await REST_Ops.LoadEPGDataWDesc(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
+
             //load epg. Eventually make it optional
             busy_ind.BusyContent = "Loading groups/categories data...";
 
@@ -153,7 +157,8 @@ namespace X_IPTV
 
         private async void button_Click(object sender, RoutedEventArgs e)
         {
-            await REST_Ops.LoadEPGData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
+            await REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
+            await REST_Ops.LoadEPGDataWDesc(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
             MessageBox.Show("EPG Loaded");
         }
 
