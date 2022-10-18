@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.SqlServer.Server;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -237,6 +239,17 @@ namespace X_IPTV
                     string title = (string)channelsWDesc[index]["title"];
                     string desc = (string)channelsWDesc[index]["desc"];
 
+                    Programme tempProgramme = new Programme()
+                    {
+                        start = startTime,
+                        stop = endTime,
+                        start_timestamp = start_timestamp,
+                        stop_timestamp = stop_timestamp,
+                        channel = channelIdProgramme,
+                        title = title,
+                        desc = desc
+                    };
+
                     /*MessageBox.Show("startTime: " + startTime);
                     MessageBox.Show("endTime: " + endTime);
                     MessageBox.Show("start_timestamp: " + start_timestamp);
@@ -251,7 +264,18 @@ namespace X_IPTV
                     info[index] = new Channel
                     {
                         id = channelID,
-                        display_name = displayName
+                        display_name = displayName,
+                        /*programme = new()
+                        {
+                            start = startTime,
+                            stop = endTime,
+                            start_timestamp = start_timestamp,
+                            stop_timestamp = stop_timestamp,
+                            channel = channelIdProgramme,
+                            title = title,
+                            desc = desc
+                        }*/
+                        programme = tempProgramme
                     };
                     //Use PlaylistData tvg_id and Channel id as unique id. May be able to use name from ChannelEntry to Channel display-name to make it simpler
                     //Need to take the 
@@ -265,18 +289,18 @@ namespace X_IPTV
                         //"name": "ASTRO | SUPERSPORT 01 (MY)" == <display-name>ASTRO | SUPERSPORT 01 (MY)</display-name>
                         if (Instance.ChannelsArray[i].name == currentChannelDisplayName)//this creates the bridge between ChannelEntry and Programme
                         {
-                            /*MessageBox.Show("In If: " + Instance.ChannelsArray[i].name + " == " + currentChannelDisplayName);
-                            MessageBox.Show(Instance.ChannelsArray[i].stream_id.ToString());
-                            MessageBox.Show("startTime: " + startTime);
-                            MessageBox.Show("endTime: " + endTime);
-                            MessageBox.Show("start_timestamp: " + start_timestamp);
-                            MessageBox.Show("stop_timestamp: " + stop_timestamp);
-                            MessageBox.Show("channelIdProgramme: " + channelIdProgramme);
-                            MessageBox.Show("title: " + title);
-                            MessageBox.Show("desc: " + desc);
+                            //MessageBox.Show("In If: " + Instance.ChannelsArray[i].name + " == " + currentChannelDisplayName);
+                            //MessageBox.Show(Instance.ChannelsArray[i].stream_id.ToString());
+                            //MessageBox.Show("startTime: " + startTime);
+                            //MessageBox.Show("endTime: " + endTime);
+                            //MessageBox.Show("start_timestamp: " + UnixTimeStampToDateTime(Convert.ToDouble(start_timestamp)).ToString());
+                            //MessageBox.Show("stop_timestamp: " + stop_timestamp);
+                            //MessageBox.Show("channelIdProgramme: " + channelIdProgramme);
+                            //MessageBox.Show("title: " + title);
+                            //MessageBox.Show("desc: " + desc);
 
-                            MessageBox.Show("Channel ID: " + channelID);
-                            MessageBox.Show("Display Name: " + displayName);*/
+                            //MessageBox.Show("Channel ID: " + channelID);
+                            //MessageBox.Show("Display Name: " + displayName);
 
 
                             //MessageBox.Show(Instance.ChannelsArray[Instance.ChannelsArray[i].num].title);
@@ -284,6 +308,9 @@ namespace X_IPTV
                             //testing setting desc
                             Instance.ChannelsArray[i].desc = desc;
                             Instance.ChannelsArray[i].title = title;
+                            //Instance.ChannelsArray[i].startTime = UnixTimeStampToDateTime(Convert.ToDouble(start_timestamp)).ToString();
+
+                            Instance.ChannelsArray[i].programInfoTest = tempProgramme;
 
                             //need to get description over to ChannelEntry
                             //need the tvg-id from this array
@@ -314,6 +341,13 @@ namespace X_IPTV
             //ChannelEntry[] channelInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelEntry[]>(responseFromServer);
 
             //Instance.ChannelsArray = channelInfo;
+        }
+        public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        {
+            // Unix timestamp is seconds past epoch
+            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dateTime = dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dateTime;
         }
     }
 }

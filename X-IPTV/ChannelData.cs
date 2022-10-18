@@ -37,6 +37,8 @@ namespace X_IPTV
         [JsonProperty("desc")]
         public string desc { get; set; }
 
+        public Programme programInfoTest { get; set; }
+
     }
 
     //Need this for stream_url
@@ -76,6 +78,8 @@ namespace X_IPTV
 
         [JsonProperty("icon")]
         public Icon icon { get; set; }
+
+        public Programme programme { get; set; }
     }
     public class Icon
     {
