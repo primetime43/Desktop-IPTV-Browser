@@ -239,7 +239,7 @@ namespace X_IPTV
                     string title = (string)channelsWDesc[index]["title"];
                     string desc = (string)channelsWDesc[index]["desc"];
 
-                    Programme tempProgramme = new Programme()
+                    /*Programme tempProgramme = new Programme()
                     {
                         start = startTime,
                         stop = endTime,
@@ -248,7 +248,7 @@ namespace X_IPTV
                         channel = channelIdProgramme,
                         title = title,
                         desc = desc
-                    };
+                    };*/
 
                     /*MessageBox.Show("startTime: " + startTime);
                     MessageBox.Show("endTime: " + endTime);
@@ -275,7 +275,6 @@ namespace X_IPTV
                             title = title,
                             desc = desc
                         }*/
-                        programme = tempProgramme
                     };
                     //Use PlaylistData tvg_id and Channel id as unique id. May be able to use name from ChannelEntry to Channel display-name to make it simpler
                     //Need to take the 
@@ -309,8 +308,6 @@ namespace X_IPTV
                             Instance.ChannelsArray[i].desc = desc;
                             Instance.ChannelsArray[i].title = title;
                             //Instance.ChannelsArray[i].startTime = UnixTimeStampToDateTime(Convert.ToDouble(start_timestamp)).ToString();
-
-                            Instance.ChannelsArray[i].programInfoTest = tempProgramme;
 
                             //need to get description over to ChannelEntry
                             //need the tvg-id from this array

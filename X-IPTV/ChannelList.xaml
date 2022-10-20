@@ -32,6 +32,7 @@
                                 <Image Source="{Binding Path=stream_icon}" Stretch="Uniform" Height="120"/>
                                 <TextBlock Name="channelName" FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=name}" VerticalAlignment="Top"></TextBlock>
                                 <TextBlock Name="channelTitle" FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=title}" VerticalAlignment="Top" Margin="0,41,0,0"/>
+                                <TextBlock Name="channelDesc" FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=desc}" VerticalAlignment="Top" Margin="0,41,0,0"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
