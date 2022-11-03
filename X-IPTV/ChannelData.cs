@@ -42,6 +42,7 @@ namespace X_IPTV
     }
 
     //Need this for stream_url
+    //server:port/get.php?username=X&password=X
     public class PlaylistData
     {
         public string xui_id { get; set; }
