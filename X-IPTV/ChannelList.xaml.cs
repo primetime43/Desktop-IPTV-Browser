@@ -107,9 +107,8 @@ namespace X_IPTV
         public MyMockClass()
         {
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
-            //need to use title and desc from Channel obj in ChannelData.cs some how
-            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| TF1 UHD", stream_icon = "http://f.iptv-pure.com/tf14k.png", title = "Title Test"/*, desc = "Hello World"*/ });
-            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| CSTAR FHD", stream_icon = "http://f.iptv-pure.com/cstar.png", title = "Title Test 2"/*, desc = "Hello World 2"*/ });
+            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| TF1 UHD", stream_icon = "http://f.iptv-pure.com/tf14k.png", title = "Title Test", start_timestamp = "Hello World" });
+            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| CSTAR FHD", stream_icon = "http://f.iptv-pure.com/cstar.png", title = "Title Test 2", start_timestamp = "Hello World 2" });
         }
         public ObservableCollection<ChannelEntry> MyListBoxItems { get; set; }
     }

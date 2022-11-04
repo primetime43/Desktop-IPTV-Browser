@@ -38,6 +38,11 @@ namespace X_IPTV
         [JsonProperty("desc")]
         public string desc { get; set; }
 
+        [JsonProperty("@start_timestamp")]
+        public string start_timestamp { get; set; }
+        [JsonProperty("@stop_timestamp")]
+        public string stop_timestamp { get; set; }
+
         public Programme programInfoTest { get; set; }
 
     }

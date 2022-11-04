@@ -282,12 +282,19 @@ namespace X_IPTV
                             /*MessageBox.Show(programmeDict[channelIDTest][iTest].title
                                 + " Currently airing on channel: " + channelDisplayNameTest + " from " + start_time + " to " + end_time);
                             */
+                            /*start_time_split[0]: Date
+                            start_time_split[1]: Time
+                            start_time_split[2]: AM/PM*/
+                            string[] start_time_split = start_time.ToString().Split(' ');
+                            string[] end_time_split = end_time.ToString().Split(' ');
+
                             for (int j = 0; j < Instance.ChannelsArray.Length; j++)
                             {
                                 if (channelDisplayNameTest == Instance.ChannelsArray[j].name)
                                 {
-                                    //MessageBox.Show("Match Found! " + channelDisplayNameTest + " == " + Instance.ChannelsArray[j].name);
+                                    //Here is setting the data that will be displayed on the ChannelList.xaml page
                                     Instance.ChannelsArray[j].title = programmeDict[channelIDTest][iTest].title;
+                                    Instance.ChannelsArray[j].start_timestamp = start_time_split[1] + " - " + end_time_split[1] + " " + end_time_split[2];
                                 }
                             }
                         }
