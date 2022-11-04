@@ -216,94 +216,118 @@ namespace X_IPTV
             _client.DefaultRequestHeaders.Accept.Clear();
             _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36");
 
-            //from this call, use channel id="AmericanHeroesChannel.us
-            Task<string> stringTask = null;
+
+            /*Task<string> stringTask = null;
             if ((bool)ul.protocolCheckBox.IsChecked)//use the https protocol
                 stringTask = _client.GetStringAsync($"https://{server}:{port}/xmltv.php?username={user}&password={pass}");
             else//use the http protocol
-                stringTask = _client.GetStringAsync($"http://{server}:{port}/xmltv.php?username={user}&password={pass}");
+                stringTask = _client.GetStringAsync($"http://{server}:{port}/xmltv.php?username={user}&password={pass}");*/
 
-            var serverResponse = await stringTask;
-
-            //after the server responds with the xml data and converts the xml data to json
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(serverResponse);
-            //JSON as string
-            string xmlToJsonResult = JsonConvert.SerializeXmlNode(doc);
-
-            //parsing further down the json tree. The JSON is wrapped inside an array.
-            string channelsHeaderInfo = JObject.Parse(xmlToJsonResult)["tv"]["channel"].ToString();
-            string channelsWDesc = JObject.Parse(xmlToJsonResult)["tv"]["programme"].ToString();
-
-            //deserialize the json string into an array of the Channel obj
-            Channel[] arrayOfChannelNames = JsonConvert.DeserializeObject<Channel[]>(channelsHeaderInfo);
-            //deserialize the json string into an array of the Programme obj
-            Programme[] arrayOfChannelEpgData = JsonConvert.DeserializeObject<Programme[]>(channelsWDesc);
-
-            //key is the channel names: US | REELZ, value is the Channel obj
-            Dictionary<string, Channel> channelsDict = arrayOfChannelNames.ToDictionary(ch => ch.display_name, ch => ch);
-
-            //make the key be the ReelzChannel.us
-            //make the value be a list of Programmes since there a multiple for different times
-            Dictionary<string, List<Programme>> programmeDict = new Dictionary<string, List<Programme>>();
-            for (int i = 0; i < arrayOfChannelEpgData.Length; i++)
+            try
             {
-                string currentChannelID = arrayOfChannelEpgData[i].channel;
-                if (!programmeDict.ContainsKey(currentChannelID))//doesnt have the key yet, so add it
+                //Wrapped this in a try catch test
+                Task<string> stringTask = null;
+                if ((bool)ul.protocolCheckBox.IsChecked)//use the https protocol
+                    stringTask = _client.GetStringAsync($"https://{server}:{port}/xmltv.php?username={user}&password={pass}");
+                else//use the http protocol
+                    stringTask = _client.GetStringAsync($"http://{server}:{port}/xmltv.php?username={user}&password={pass}");
+
+                var serverResponse = await stringTask;
+
+                //var serverResponse = await stringTask;
+                //to here; try catch test
+
+
+
+
+                //after the server responds with the xml data and converts the xml data to json
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(serverResponse);
+                //JSON as string
+                string xmlToJsonResult = JsonConvert.SerializeXmlNode(doc);
+
+                //parsing further down the json tree. The JSON is wrapped inside an array.
+                string channelsHeaderInfo = JObject.Parse(xmlToJsonResult)["tv"]["channel"].ToString();
+                string channelsWDesc = JObject.Parse(xmlToJsonResult)["tv"]["programme"].ToString();
+
+                //deserialize the json string into an array of the Channel obj
+                Channel[] arrayOfChannelNames = JsonConvert.DeserializeObject<Channel[]>(channelsHeaderInfo);
+                //deserialize the json string into an array of the Programme obj
+                Programme[] arrayOfChannelEpgData = JsonConvert.DeserializeObject<Programme[]>(channelsWDesc);
+
+                //key is the channel names: US | REELZ, value is the Channel obj
+                Dictionary<string, Channel> channelsDict = arrayOfChannelNames.ToDictionary(ch => ch.display_name, ch => ch);
+
+                //make the key be the ReelzChannel.us
+                //make the value be a list of Programmes since there a multiple for different times
+                Dictionary<string, List<Programme>> programmeDict = new Dictionary<string, List<Programme>>();
+                for (int i = 0; i < arrayOfChannelEpgData.Length; i++)
                 {
-                    programmeDict.Add(currentChannelID, new List<Programme>() { arrayOfChannelEpgData[i] });
-                }
-                else if (programmeDict.ContainsKey(currentChannelID))
-                {
-                    programmeDict[currentChannelID].Add(arrayOfChannelEpgData[i]);
-                }
-                else
-                    Debug.WriteLine("Error trying to add ChannelID as a key");
-            }
-
-            //Debug.WriteLine(programmeDict);
-
-            foreach (KeyValuePair<string, Channel> entry in channelsDict)
-            {
-                string channelIDTest = channelsDict[entry.Key].id;//ReelzChannel.us
-                string channelDisplayNameTest = channelsDict[entry.Key].display_name;//<display-name>US | REELZ</display-name>
-
-                //Debug.WriteLine(programmeDict[channelIDTest]);
-
-                //bug here where some keys arent present in programmeDict.
-                if (programmeDict.ContainsKey(channelIDTest))
-                {
-                    for (int iTest = 0; iTest < programmeDict[channelIDTest].Count; iTest++)
+                    string currentChannelID = arrayOfChannelEpgData[i].channel;
+                    if (!programmeDict.ContainsKey(currentChannelID))//doesnt have the key yet, so add it
                     {
-                        DateTime start_time = UnixTimeStampToDateTime(Convert.ToDouble(programmeDict[channelIDTest][iTest].start_timestamp));
-                        DateTime end_time = UnixTimeStampToDateTime(Convert.ToDouble(programmeDict[channelIDTest][iTest].stop_timestamp));
+                        programmeDict.Add(currentChannelID, new List<Programme>() { arrayOfChannelEpgData[i] });
+                    }
+                    else if (programmeDict.ContainsKey(currentChannelID))
+                    {
+                        programmeDict[currentChannelID].Add(arrayOfChannelEpgData[i]);
+                    }
+                    else
+                        Debug.WriteLine("Error trying to add ChannelID as a key");
+                }
 
-                        if ((DateTime.Now > start_time) && (DateTime.Now < end_time))
+
+                foreach (KeyValuePair<string, Channel> entry in channelsDict)
+                {
+                    string channelIDTest = channelsDict[entry.Key].id;//ReelzChannel.us
+                    string channelDisplayNameTest = channelsDict[entry.Key].display_name;//<display-name>US | REELZ</display-name>
+
+                    //Debug.WriteLine(programmeDict[channelIDTest]);
+
+                    //bug here where some keys arent present in programmeDict.
+                    if (programmeDict.ContainsKey(channelIDTest))
+                    {
+                        for (int iTest = 0; iTest < programmeDict[channelIDTest].Count; iTest++)
                         {
-                            /*MessageBox.Show(programmeDict[channelIDTest][iTest].title
-                                + " Currently airing on channel: " + channelDisplayNameTest + " from " + start_time + " to " + end_time);
-                            */
-                            /*start_time_split[0]: Date
-                            start_time_split[1]: Time
-                            start_time_split[2]: AM/PM*/
-                            string[] start_time_split = start_time.ToString().Split(' ');
-                            string[] end_time_split = end_time.ToString().Split(' ');
+                            DateTime start_time = UnixTimeStampToDateTime(Convert.ToDouble(programmeDict[channelIDTest][iTest].start_timestamp));
+                            DateTime end_time = UnixTimeStampToDateTime(Convert.ToDouble(programmeDict[channelIDTest][iTest].stop_timestamp));
 
-                            for (int j = 0; j < Instance.ChannelsArray.Length; j++)
+                            if ((DateTime.Now > start_time) && (DateTime.Now < end_time))
                             {
-                                if (channelDisplayNameTest == Instance.ChannelsArray[j].name)
+                                /*MessageBox.Show(programmeDict[channelIDTest][iTest].title
+                                    + " Currently airing on channel: " + channelDisplayNameTest + " from " + start_time + " to " + end_time);
+                                */
+                                /*start_time_split[0]: Date
+                                start_time_split[1]: Time
+                                start_time_split[2]: AM/PM*/
+                                string[] start_time_split = start_time.ToString().Split(' ');
+                                string[] end_time_split = end_time.ToString().Split(' ');
+
+                                for (int j = 0; j < Instance.ChannelsArray.Length; j++)
                                 {
-                                    //Here is setting the data that will be displayed on the ChannelList.xaml page
-                                    Instance.ChannelsArray[j].title = programmeDict[channelIDTest][iTest].title;
-                                    Instance.ChannelsArray[j].start_timestamp = start_time_split[1] + " - " + end_time_split[1] + " " + end_time_split[2];
+                                    if (channelDisplayNameTest == Instance.ChannelsArray[j].name)
+                                    {
+                                        //** IMPORTANT **\\
+                                        //Here is setting the data that will be displayed on the ChannelList.xaml page and other data that uses the Instance.ChannelsArray
+                                        Instance.ChannelsArray[j].title = programmeDict[channelIDTest][iTest].title;
+                                        Instance.ChannelsArray[j].start_timestamp = start_time_split[1] + " - " + end_time_split[1] + " " + end_time_split[2];
+                                        Instance.ChannelsArray[j].desc = programmeDict[channelIDTest][iTest].desc;
+
+                                        //test
+                                        Instance.ChannelsArray[j].added = UnixTimeStampToDateTime(Convert.ToDouble(Instance.ChannelsArray[j].added)).ToString();
+                                    }
                                 }
                             }
                         }
                     }
+                    else
+                        //MessageBox.Show("Key " + channelIDTest + " not in programmeDict");
+                        Debug.WriteLine("Key " + channelIDTest + " not in programmeDict");
                 }
-                else
-                    //MessageBox.Show("Key " + channelIDTest + " not in programmeDict");
-                    Debug.WriteLine("Key " + channelIDTest + " not in programmeDict");
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("{0} Exception caught.", e.ToString());
             }
             _client.Dispose();
         }

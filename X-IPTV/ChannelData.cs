@@ -43,8 +43,6 @@ namespace X_IPTV
         [JsonProperty("@stop_timestamp")]
         public string stop_timestamp { get; set; }
 
-        public Programme programInfoTest { get; set; }
-
     }
 
     //Need this for stream_url
