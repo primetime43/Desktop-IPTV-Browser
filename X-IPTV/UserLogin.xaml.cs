@@ -155,13 +155,6 @@ namespace X_IPTV
             textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
         }
 
-        private async void button_Click(object sender, RoutedEventArgs e)
-        {
-            await REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
-            await REST_Ops.LoadEPGDataWDesc(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
-            MessageBox.Show("EPG Loaded");
-        }
-
         private void serverTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;

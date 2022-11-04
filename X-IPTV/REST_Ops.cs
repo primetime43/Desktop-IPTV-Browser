@@ -192,6 +192,7 @@ namespace X_IPTV
                     {
                         if (!Instance.playlistDataMap.ContainsKey(currentChannelNameId))
                         {
+                            //playlistDataMap is the only one that contains the stream url
                             Instance.playlistDataMap.Add(currentChannelId, info[index]);
                             //need to use the xui_id with it to make it more unqiue since there are multiple tvg_id with the same.
                             //there a some with multiples due to hd and sd

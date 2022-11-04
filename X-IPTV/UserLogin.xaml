@@ -29,6 +29,5 @@
         <Label x:Name="serverPlaylistDataConnectionlbl" Content="Playlist Data Connection String" Margin="28,311,560,40" Target="{Binding ElementName=textBoxPlaylistDataConnectionString}"/>
         <TextBox x:Name="textBoxServerConnectionString"  HorizontalAlignment="Center" TextAlignment="Center" Margin="0,379,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740"/>
         <TextBox x:Name="textBoxPlaylistDataConnectionString" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,337,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740" Height="20"/>
-        <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Margin="635,88,0,0" VerticalAlignment="Top" Height="42" Width="80" RenderTransformOrigin="0.437,-0.451" Click="button_Click"/>
     </Grid>
 </Window>
