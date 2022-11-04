@@ -1,7 +1,10 @@
 ﻿using Microsoft.SqlServer.Server;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -10,9 +13,13 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.ServiceModel.Channels;
+using System.Threading.Channels;
 using System.Threading.Tasks;
+using System.Web.Services.Description;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media.Media3D;
 using System.Xml;
 
 namespace X_IPTV
@@ -136,8 +143,7 @@ namespace X_IPTV
             //This method uses parsing instead of json Deserializing because this response doesn't return in json format/json formattable
 
             //playlistDataMap is a dictionary containing the xui_id as the key and value being the PlaylistData object
-            Instance.playlistDataMap = new Dictionary<string, PlaylistData>();
-            Instance.testMap = new Dictionary<string, PlaylistData>();
+            Instance.playlistDataMap = new Dictionary<string, PlaylistEPGData>();
 
             //*** Maybe change this from httpclient to webrequest eventually ***
 
@@ -158,7 +164,7 @@ namespace X_IPTV
             //parse the m3u playlist and split into an array. playlist array contains the unparsed data
             string[] playlist = serverResponse.Split(new string[] { "#EXTINF:" }, StringSplitOptions.None);
 
-            PlaylistData[] info = new PlaylistData[Instance.ChannelsArray.Length];//creates the info array for X number of channels
+            PlaylistEPGData[] info = new PlaylistEPGData[Instance.ChannelsArray.Length];//creates the info array for X number of channels
             int index = -1;
             foreach (var channel in playlist)
             {
@@ -170,7 +176,7 @@ namespace X_IPTV
                     wordArray = channel.Split('"').Select((element, index) => index % 2 == 0 ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) : new string[] { element }).SelectMany(element => element).ToList();
 
                     //only need the stream_url, but might as well get the other data while here
-                    info[index] = new PlaylistData
+                    info[index] = new PlaylistEPGData
                     {
                         xui_id = wordArray[2],
                         tvg_id = wordArray[4],
@@ -184,12 +190,11 @@ namespace X_IPTV
                     //Adds the channel data obj to the dict with channel id as the key
                     if (currentChannelNameId != "" && currentChannelNameId != null)
                     {
-                        if (!Instance.testMap.ContainsKey(currentChannelNameId))
+                        if (!Instance.playlistDataMap.ContainsKey(currentChannelNameId))
                         {
                             Instance.playlistDataMap.Add(currentChannelId, info[index]);
                             //need to use the xui_id with it to make it more unqiue since there are multiple tvg_id with the same.
                             //there a some with multiples due to hd and sd
-                            Instance.testMap.Add(currentChannelId + "_" + currentChannelNameId, info[index]);//testing new map
                         }
                         else
                             MessageBox.Show("Dup key debug: " + currentChannelNameId);
@@ -199,16 +204,11 @@ namespace X_IPTV
             }
             //_client.Dispose();
             //Debug.WriteLine(info);
-            Object test = Instance.testMap;
-            Debug.WriteLine(test);
         }
 
         //This is a lot of data, so probably make the load for epg data optional. Going to need to convert from xml to json
         public static async Task LoadEPGDataWDesc(string user, string pass, string server, string port)
         {
-
-            //This method uses parsing instead of json Deserializing because this response doesn't return in json format/json formattable
-
             //*** Doesn't seem to want to work with Webrequest, so have to use HttpClient ***
 
             //retrieve channel data from client
@@ -227,150 +227,77 @@ namespace X_IPTV
             //after the server responds with the xml data and converts the xml data to json
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(serverResponse);
-            string xmlToJsonResult = Newtonsoft.Json.JsonConvert.SerializeXmlNode(doc);
+            //JSON as string
+            string xmlToJsonResult = JsonConvert.SerializeXmlNode(doc);
 
-            //parsing the json data to JObject
-            JObject jsonEPG = JObject.Parse(xmlToJsonResult);
+            //parsing further down the json tree. The JSON is wrapped inside an array.
+            string channelsHeaderInfo = JObject.Parse(xmlToJsonResult)["tv"]["channel"].ToString();
+            string channelsWDesc = JObject.Parse(xmlToJsonResult)["tv"]["programme"].ToString();
 
-            List<JToken> channelsHeaderInfo = jsonEPG["tv"]["channel"].Children().ToList();
-            List<JToken> channelsWDesc = jsonEPG["tv"]["programme"].Children().ToList();
+            //deserialize the json string into an array of the Channel obj
+            Channel[] arrayOfChannelNames = JsonConvert.DeserializeObject<Channel[]>(channelsHeaderInfo);
+            //deserialize the json string into an array of the Programme obj
+            Programme[] arrayOfChannelEpgData = JsonConvert.DeserializeObject<Programme[]>(channelsWDesc);
 
-            Channel[] info = new Channel[channelsHeaderInfo.Count];//creates the info array for X number of channels
+            //key is the channel names: US | REELZ, value is the Channel obj
+            Dictionary<string, Channel> channelsDict = arrayOfChannelNames.ToDictionary(ch => ch.display_name, ch => ch);
 
-            //Use PlaylistData tvg_id and Channel id as unique id
-            for (int index = 0; index < channelsHeaderInfo.Count; index++)
+            //make the key be the ReelzChannel.us
+            //make the value be a list of Programmes since there a multiple for different times
+            Dictionary<string, List<Programme>> programmeDict = new Dictionary<string, List<Programme>>();
+            for (int i = 0; i < arrayOfChannelEpgData.Length; i++)
             {
-
-                //Debug.WriteLine(channelsHeaderInfo[index]);
-                string channelID = (string)channelsHeaderInfo[index]["@id"];//use this ReelzChannel.us
-                string displayName = (string)channelsHeaderInfo[index]["display-name"];//<display-name>US | REELZ</display-name>
-
-                for (int k = 0; k < channelsWDesc.Count; k++)
+                string currentChannelID = arrayOfChannelEpgData[i].channel;
+                if (!programmeDict.ContainsKey(currentChannelID))//doesnt have the key yet, so add it
                 {
-                    string channelIdProgramme = (string)channelsWDesc[k]["@channel"]; //ReelzChannel.us
-                    //Debug.WriteLine(channelsWDesc[index]);
-                    if (channelIdProgramme == channelID)
+                    programmeDict.Add(currentChannelID, new List<Programme>() { arrayOfChannelEpgData[i] });
+                }
+                else if (programmeDict.ContainsKey(currentChannelID))
+                {
+                    programmeDict[currentChannelID].Add(arrayOfChannelEpgData[i]);
+                }
+                else
+                    Debug.WriteLine("Error trying to add ChannelID as a key");
+            }
+
+            //Debug.WriteLine(programmeDict);
+
+            foreach (KeyValuePair<string, Channel> entry in channelsDict)
+            {
+                string channelIDTest = channelsDict[entry.Key].id;//ReelzChannel.us
+                string channelDisplayNameTest = channelsDict[entry.Key].display_name;//<display-name>US | REELZ</display-name>
+
+                //Debug.WriteLine(programmeDict[channelIDTest]);
+
+                //bug here where some keys arent present in programmeDict.
+                if (programmeDict.ContainsKey(channelIDTest))
+                {
+                    for (int iTest = 0; iTest < programmeDict[channelIDTest].Count; iTest++)
                     {
-                        string startTime = (string)channelsWDesc[k]["@start"];
-                        string endTime = (string)channelsWDesc[k]["@stop"];
-                        string start_timestamp = (string)channelsWDesc[k]["@start_timestamp"];
-                        string stop_timestamp = (string)channelsWDesc[k]["@stop_timestamp"];
-                        //string channelIdProgramme = (string)channelsWDesc[k]["@channel"];//same as channelId (links to desc)
-                        string title = (string)channelsWDesc[k]["title"];
-                        string desc = (string)channelsWDesc[k]["desc"];
+                        DateTime start_time = UnixTimeStampToDateTime(Convert.ToDouble(programmeDict[channelIDTest][iTest].start_timestamp));
+                        DateTime end_time = UnixTimeStampToDateTime(Convert.ToDouble(programmeDict[channelIDTest][iTest].stop_timestamp));
 
-                        info[index] = new Channel
+                        if ((DateTime.Now > start_time) && (DateTime.Now < end_time))
                         {
-                            id = channelID,
-                            display_name = displayName
-                        };
-
-                        //not working. Need to find names to then set the title and desc
-                        for (int i = 0; i < Instance.ChannelsArray.Length; i++)
-                        {
-                            //Object test = Instance.ChannelsArray[i];
-                            //Debug.WriteLine(test);
-                            if (Instance.ChannelsArray[i].name == title)
+                            /*MessageBox.Show(programmeDict[channelIDTest][iTest].title
+                                + " Currently airing on channel: " + channelDisplayNameTest + " from " + start_time + " to " + end_time);
+                            */
+                            for (int j = 0; j < Instance.ChannelsArray.Length; j++)
                             {
-                                MessageBox.Show(Instance.ChannelsArray[i].name + " - " + title);
-                                MessageBox.Show(Instance.ChannelsArray[i].num.ToString());
+                                if (channelDisplayNameTest == Instance.ChannelsArray[j].name)
+                                {
+                                    //MessageBox.Show("Match Found! " + channelDisplayNameTest + " == " + Instance.ChannelsArray[j].name);
+                                    Instance.ChannelsArray[j].title = programmeDict[channelIDTest][iTest].title;
+                                }
                             }
-                        }
-
-                        //MessageBox.Show("Current time: " + DateTime.Now.ToString("h:mm tt"));
-
-                        //working
-                        if (channelID == "MTV.us")
-                        {
-                            MessageBox.Show(displayName);
-                            MessageBox.Show(title);
-                            MessageBox.Show(desc);
-                            DateTime start_time = UnixTimeStampToDateTime(Convert.ToDouble(start_timestamp));
-                            DateTime end_time = UnixTimeStampToDateTime(Convert.ToDouble(stop_timestamp));
-                            MessageBox.Show("Start: " + UnixTimeStampToDateTime(Convert.ToDouble(start_timestamp)).ToString()
-                                + " End: " + UnixTimeStampToDateTime(Convert.ToDouble(stop_timestamp)).ToString());
-
-                            string nowTime = DateTime.Now.ToString("MM/dd/yyyy h:mm tt");
-                            if (nowTime)
                         }
                     }
                 }
-
-                /*Debug.WriteLine(channelsWDesc[index]);
-                string startTime = (string)channelsWDesc[index]["@start"];
-                string endTime = (string)channelsWDesc[index]["@stop"];
-                string start_timestamp = (string)channelsWDesc[index]["@start_timestamp"];
-                string stop_timestamp = (string)channelsWDesc[index]["@stop_timestamp"];
-                string channelIdProgramme = (string)channelsWDesc[index]["@channel"];//same as channelId (links to desc)
-                string title = (string)channelsWDesc[index]["title"];
-                string desc = (string)channelsWDesc[index]["desc"];*/
-
-                /*Programme tempProgramme = new Programme()
-                {
-                    start = startTime,
-                    stop = endTime,
-                    start_timestamp = start_timestamp,
-                    stop_timestamp = stop_timestamp,
-                    channel = channelIdProgramme,
-                    title = title,
-                    desc = desc
-                };*/
-
-                /*info[index] = new Channel
-                {
-                    id = channelID,
-                    display_name = displayName,
-                    //programme = new()
-                    //{
-                      //  start = startTime,
-                        //stop = endTime,
-                        //start_timestamp = start_timestamp,
-                        //stop_timestamp = stop_timestamp,
-                        //channel = channelIdProgramme,
-                        //title = title,
-                        //desc = desc
-                    //}
-                };*/
-                //Use PlaylistData tvg_id and Channel id as unique id. May be able to use name from ChannelEntry to Channel display-name to make it simpler
-
-                //Dont use display name, use channel id instead
-                //string currentChannelDisplayName = info[index].display_name;
-                //for(int i = 0; i < Instance.ChannelsArray.Length; i++)
-                //{
-                //MessageBox.Show("Current Channel: " + currentChannelDisplayName);
-                //MessageBox.Show(Instance.ChannelsArray[i].name);
-                //if works, need to create a map between the channel ids to retrieve the desc. Need to check timestamps since there are multiple time stamps for future time
-
-
-                //"name": "ASTRO | SUPERSPORT 01 (MY)" == <display-name>ASTRO | SUPERSPORT 01 (MY)</display-name>
-                //if (Instance.ChannelsArray[i].name == currentChannelDisplayName)//this creates the bridge between ChannelEntry and Programme
-                //{
-                //MessageBox.Show("start_timestamp: " + UnixTimeStampToDateTime(Convert.ToDouble(start_timestamp)).ToString());
-
-
-
-                //MessageBox.Show(Instance.ChannelsArray[Instance.ChannelsArray[i].num].title);
-
-                //testing setting desc
-                /*Instance.ChannelsArray[i].desc = desc;
-                Instance.ChannelsArray[i].title = title;*/
-                //Instance.ChannelsArray[i].startTime = UnixTimeStampToDateTime(Convert.ToDouble(start_timestamp)).ToString();
-                //}
-                //}
-                //Adds the channel data obj to the dict with channel id as the key
-                //Instance.playlistDataMap.Add(currentChannelId, info[index]);
-                //Instance.ChannelsArray[0].
-                Debug.WriteLine(info);
+                else
+                    //MessageBox.Show("Key " + channelIDTest + " not in programmeDict");
+                    Debug.WriteLine("Key " + channelIDTest + " not in programmeDict");
             }
-
-            Debug.WriteLine(Instance.ChannelsArray);
-
             _client.Dispose();
-
-            //Channels are loaded here
-            //ChannelEntry[] channelInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelEntry[]>(responseFromServer);
-
-            //Instance.ChannelsArray = channelInfo;
         }
         public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {

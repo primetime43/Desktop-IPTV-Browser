@@ -15,10 +15,11 @@ namespace X_IPTV
     }*/
 
     //Use this one for most data info, missing stream_url, which is why the PlaylistData obj is needed 
+    //server:port/player_api.php?username=X&password=X&action=get_live_streams
     public class ChannelEntry
     {
         public int num { get; set; }
-        public string name { get; set; }
+        public string name { get; set; } //this ASTRO | SUPERSPORT 01 (MY)
         public string stream_type { get; set; }
         public int stream_id { get; set; }
         public string stream_icon { get; set; }
@@ -43,12 +44,12 @@ namespace X_IPTV
 
     //Need this for stream_url
     //server:port/get.php?username=X&password=X
-    public class PlaylistData
+    public class PlaylistEPGData
     {
         public string xui_id { get; set; }
         public string stream_url { get; set; }
         
-        public string tvg_name { get; set; }
+        public string tvg_name { get; set; } //this ASTRO | SUPERSPORT 01 (MY)
         public string tvg_logo { get; set; }
         public string group_title { get; set; }
         public string tvg_id { get; set; }
@@ -74,13 +75,13 @@ namespace X_IPTV
         public string id { get; set; }
 
         //non attributes
-        [JsonProperty("@display-name")]
-        public string display_name { get; set; }
+        [JsonProperty("display-name")]
+        public string display_name { get; set; } //this ASTRO | SUPERSPORT 01 (MY)
 
         [JsonProperty("icon")]
         public Icon icon { get; set; }
 
-        public Programme programme { get; set; }
+        //public Programme programme { get; set; }
     }
     public class Icon
     {
@@ -88,6 +89,8 @@ namespace X_IPTV
         public string Src { get; set; }
     }
 
+    //Holds EPG data
+    //server:port/xmltv.php?username=X&password=X
     public class Programme
     {
         //attributes

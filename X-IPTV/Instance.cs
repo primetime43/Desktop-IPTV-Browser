@@ -18,13 +18,7 @@ namespace X_IPTV
         public static ChannelGroups[] ChannelGroupsArray = null;
 
         //key = xui_id, value = PlaylistData obj
-        public static Dictionary<string, PlaylistData> playlistDataMap = null;
-
-        //use a map with tvg_id from get.php call as id rather than xui_id
-        //key: tvg_uid (AmericanHeroesChannel.us), value:PlaylistData Obj
-        public static Dictionary<string, PlaylistData> testMap = null;
-
-        public static EPGData tempTestEPG = null;
+        public static Dictionary<string, PlaylistEPGData> playlistDataMap = null;
 
         public static string selectedCategory { get; set; }
     }

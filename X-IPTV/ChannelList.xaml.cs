@@ -41,7 +41,7 @@ namespace X_IPTV
 
             ChannelEntry entry = e.AddedItems[0] as ChannelEntry;
 
-            PlaylistData pdTest = e.AddedItems as PlaylistData;
+            PlaylistEPGData pdTest = e.AddedItems as PlaylistEPGData;
 
 
             //Console.WriteLine(Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
