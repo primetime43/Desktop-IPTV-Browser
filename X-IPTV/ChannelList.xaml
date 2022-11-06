@@ -23,7 +23,7 @@
             <Setter Property="ItemTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <Border BorderBrush="Black" BorderThickness="4" CornerRadius="5" Margin="6" Height="163" Width="314">
+                        <Border BorderBrush="Black" BorderThickness="4" CornerRadius="5" Margin="6" Height="163" Width="314" ToolTip="{Binding Path=desc}">
                             <Grid Width="250">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="100"/>

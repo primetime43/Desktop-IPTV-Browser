@@ -292,17 +292,11 @@ namespace X_IPTV
                             DateTime start_time = UnixTimeStampToDateTime(Convert.ToDouble(programmeDict[channelIDTest][iTest].start_timestamp));
                             DateTime end_time = UnixTimeStampToDateTime(Convert.ToDouble(programmeDict[channelIDTest][iTest].stop_timestamp));
 
+                            string formatted_start_time = String.Format("{0:t}", start_time).ToString();
+                            string formatted_end_time = String.Format("{0:t}", end_time).ToString();
+
                             if ((DateTime.Now > start_time) && (DateTime.Now < end_time))
                             {
-                                /*MessageBox.Show(programmeDict[channelIDTest][iTest].title
-                                    + " Currently airing on channel: " + channelDisplayNameTest + " from " + start_time + " to " + end_time);
-                                */
-                                /*start_time_split[0]: Date
-                                start_time_split[1]: Time
-                                start_time_split[2]: AM/PM*/
-                                string[] start_time_split = start_time.ToString().Split(' ');
-                                string[] end_time_split = end_time.ToString().Split(' ');
-
                                 for (int j = 0; j < Instance.ChannelsArray.Length; j++)
                                 {
                                     if (channelDisplayNameTest == Instance.ChannelsArray[j].name)
@@ -310,7 +304,8 @@ namespace X_IPTV
                                         //** IMPORTANT **\\
                                         //Here is setting the data that will be displayed on the ChannelList.xaml page and other data that uses the Instance.ChannelsArray
                                         Instance.ChannelsArray[j].title = programmeDict[channelIDTest][iTest].title;
-                                        Instance.ChannelsArray[j].start_timestamp = start_time_split[1] + " - " + end_time_split[1] + " " + end_time_split[2];
+                                        //Instance.ChannelsArray[j].start_timestamp = start_time_split[1] + " - " + end_time_split[1] + " " + end_time_split[2];
+                                        Instance.ChannelsArray[j].start_timestamp = formatted_start_time + " - " + formatted_end_time;
                                         Instance.ChannelsArray[j].desc = programmeDict[channelIDTest][iTest].desc;
 
                                         //test
