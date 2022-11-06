@@ -27,47 +27,41 @@ namespace X_IPTV
 
             ChannelModel model = new ChannelModel();
 
+            //the model is the array that holds all of the ChannelEntry Objects set in the ChannelModel class
             ChannelLst.DataContext = model;
         }
 
         private void ChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count > 1) return;
+            ChannelOptions channelOp = new ChannelOptions();
+
+;
+            if (e.AddedItems.Count > 1) 
+                return;
 
             ChannelEntry entry = e.AddedItems[0] as ChannelEntry;
 
-
-            Console.WriteLine(Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
-
-            /*Console.WriteLine("Channel Info:");
-            Console.WriteLine(entry.name);
-            Console.WriteLine(entry.stream_id);
-            Console.WriteLine(UnixTimeStampToDateTime(Convert.ToDouble(entry.added)));*/
-
-            //ProcessStartInfo processStartInfo = new ProcessStartInfo(@"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe", $"https://iptv-pure.com:8000/live/sabihi/ek5jkfngrf/{entry.stream_id}.m3u8");
-
-            ProcessStartInfo processStartInfo = new ProcessStartInfo(@"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe", Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
-
-            string urlTest = Instance.playlistDataMap[entry.stream_id.ToString()].stream_url;
+            PlaylistEPGData pdTest = e.AddedItems as PlaylistEPGData;
 
 
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = $"/C \"C:/Program Files (x86)/VideoLAN/VLC/vlc.exe\" {urlTest}";
-            startInfo.RedirectStandardOutput = true;
-            startInfo.RedirectStandardError = true;
-            startInfo.UseShellExecute = false;
-            startInfo.CreateNoWindow = true;
+            //Console.WriteLine(Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
 
-            Process processTemp = new Process();
-            processTemp.StartInfo = startInfo;
-            processTemp.EnableRaisingEvents = true;
-            processTemp.Start();
+            //fix
+            channelOp.displaySelectedChannelData(entry);
+            channelOp.Show();
+        }
 
-            //works
-            //string command = $"/C \"C:/Program Files (x86)/VideoLAN/VLC/vlc.exe\" {urlTest}";
-            //Process.Start("cmd.exe", command);
-
+        private void listBox1_MouseDown(object sender, RoutedEventArgs e)
+        {
+            /*if (e.Button == MouseButtons.Right)
+            {
+                //select the item under the mouse pointer
+                listBox1.SelectedIndex = listBox1.IndexFromPoint(e.Location);
+                if (listBox1.SelectedIndex != -1)
+                {
+                    listboxContextMenu.Show();
+                }
+            }*/
         }
 
         private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
@@ -83,10 +77,25 @@ namespace X_IPTV
     {
         public ChannelModel()
         {
+            //load all channels
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
+            var categoryIndex = Array.FindIndex(Instance.ChannelGroupsArray, x => x.category_name.Equals(Instance.selectedCategory));
             for (int i = 0; i < Instance.ChannelsArray.Length; i++)
             {
-                MyListBoxItems.Add(Instance.ChannelsArray[i]);
+                try
+                {
+                    //Goes through each channel in the ChannelsArray looking for the category_id matching with the selected category's category_id
+                    if (Instance.ChannelsArray[i].category_id == Instance.ChannelGroupsArray[categoryIndex].category_id)
+                    {
+                        MyListBoxItems.Add(Instance.ChannelsArray[i]);
+                    }
+                }
+                catch(IndexOutOfRangeException e)//hits here when the user closes the ChannelNav form instead of using quit button
+                {
+                    //Change this eventually, but good to have for now
+                    MessageBox.Show("No channel selected, closing program.");
+                    Environment.Exit(1);
+                }
             }
         }
 
@@ -98,8 +107,8 @@ namespace X_IPTV
         public MyMockClass()
         {
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
-            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| TF1 UHD", stream_icon = "http://f.iptv-pure.com/tf14k.png" });
-            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| CSTAR FHD", stream_icon = "http://f.iptv-pure.com/cstar.png" });
+            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| TF1 UHD", stream_icon = "http://f.iptv-pure.com/tf14k.png", title = "Title Test", start_timestamp = "Hello World" });
+            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| CSTAR FHD", stream_icon = "http://f.iptv-pure.com/cstar.png", title = "Title Test 2", start_timestamp = "Hello World 2" });
         }
         public ObservableCollection<ChannelEntry> MyListBoxItems { get; set; }
     }

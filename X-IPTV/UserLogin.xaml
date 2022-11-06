@@ -25,6 +25,9 @@
         <Button x:Name="saveUserDataBtn" Content="Save User Login" HorizontalAlignment="Left" Margin="30,164,0,0" VerticalAlignment="Top" Height="25" Width="122" Click="saveUserDataBtn_Click"/>
         <ComboBox x:Name="UsercomboBox" HorizontalAlignment="Left" Margin="30,77,0,0" VerticalAlignment="Top" Width="120"></ComboBox>
         <Button x:Name="loadUserDataBtn" Content="Load User Login" HorizontalAlignment="Left" Margin="28,118,0,0" VerticalAlignment="Top" Height="25" Width="122" Click="loadUserDataBtn_Click"/>
-        <TextBox x:Name="textBoxServerConnectionString" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,379,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740"/>
+        <Label x:Name="serverConnectionStringlbl" Content="Connection String" Margin="28,356,625,14" Target="{Binding ElementName=textBoxServerConnectionString}"/>
+        <Label x:Name="serverPlaylistDataConnectionlbl" Content="EPG Data Connection String" Margin="28,311,560,40" Target="{Binding ElementName=textBoxPlaylistDataConnectionString}"/>
+        <TextBox x:Name="textBoxServerConnectionString"  HorizontalAlignment="Center" TextAlignment="Center" Margin="0,379,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740"/>
+        <TextBox x:Name="textBoxPlaylistDataConnectionString" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,337,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740" Height="20"/>
     </Grid>
 </Window>

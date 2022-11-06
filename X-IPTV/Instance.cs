@@ -8,12 +8,18 @@ namespace X_IPTV
 {
     public static class Instance
     {
+        //Contains the User_Info and Server_Info objects
         public static PlayerInfo PlayerInfo = null;
 
+        //Contains the array of each channel's data
         public static ChannelEntry[] ChannelsArray = null;
 
-        //public static PlaylistData[] PlaylistArray = null;
+        //Contains the categories/groups for the channels
+        public static ChannelGroups[] ChannelGroupsArray = null;
 
-        public static Dictionary<string, PlaylistData> playlistDataMap = null;
+        //key = xui_id, value = PlaylistData obj
+        public static Dictionary<string, PlaylistEPGData> playlistDataMap = null;
+
+        public static string selectedCategory { get; set; }
     }
 }
