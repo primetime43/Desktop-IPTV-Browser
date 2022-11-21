@@ -55,10 +55,7 @@ namespace X_IPTV
             startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = true;
 
-            Process processTemp = new Process();
-            processTemp.StartInfo = startInfo;
-            processTemp.EnableRaisingEvents = true;
-            processTemp.Start();
+            Process.Start(startInfo);
         }
 
         public void displaySelectedChannelData(ChannelEntry entry)
