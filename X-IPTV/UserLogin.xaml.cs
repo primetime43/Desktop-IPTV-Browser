@@ -28,7 +28,7 @@ namespace X_IPTV
         public UserLogin()
         {
             InitializeComponent();
-            this.Title = "User Login v1.5";
+            this.Title = "User Login v1.5.1";
             assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             saveDir = assemblyFolder + @"\Users\";
             loadUsersFromDirectory();
