@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Reflection;
 using System.Diagnostics;
+using System.Net.Http.Json;
+using GitHubReleaseChecker;
 
 namespace X_IPTV
 {
@@ -20,15 +22,15 @@ namespace X_IPTV
     /// 
     public partial class UserLogin : Window
     {
+        private static string programVersion = "v1.5.0";
         private static UserDataSaver.User _currentUser = new UserDataSaver.User();
-        //private static readonly HttpClient _client = new HttpClient();
         private static string assemblyFolder, saveDir, userFileFullPath;
 
-        public static string titleTest = "User Login";
         public UserLogin()
         {
             InitializeComponent();
-            this.Title = "User Login v1.5.1";
+            this.Title = "User Login " + programVersion;
+            checkForUpdate();
             assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             saveDir = assemblyFolder + @"\Users\";
             loadUsersFromDirectory();
@@ -171,5 +173,78 @@ namespace X_IPTV
 
             textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
         }
+
+        private async void checkForUpdate()
+        {
+            var release = await ReleaseChecker.CheckForNewRelease("primetime43", "Xtream-Browser");
+            int latestReleaseInt = ReleaseChecker.convertVersionToInt(release.tag_name);
+            int localProgramVersionInt = ReleaseChecker.convertVersionToInt(programVersion);
+
+            if (release != null && latestReleaseInt > localProgramVersionInt)
+            {
+                MessageBoxResult result = MessageBox.Show("Current version: " + programVersion + "\nNew release available: " + release.name + " (" + release.tag_name + ")\nDo you want to download it?", "New Release", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        var startInfo = new ProcessStartInfo
+                        {
+                            FileName = ReleaseChecker.releaseURL,
+                            UseShellExecute = true
+                        };
+
+                        Process.Start(startInfo);
+                    }
+                    catch (System.ComponentModel.Win32Exception ex)
+                    {
+                        MessageBox.Show("An error occurred: " + ex.Message);
+                    }
+                }
+
+            }
+            else
+            {
+                MessageBox.Show("No new releases available.");
+            }
+        }
     }
 }
+
+
+namespace GitHubReleaseChecker
+{
+    public class Release
+    {
+        public string tag_name { get; set; }
+        public string name { get; set; }
+        public DateTime published_at { get; set; }
+    }
+
+    public class ReleaseChecker
+    {
+        private static readonly HttpClient client = new HttpClient();
+        private const string apiUrl = "https://api.github.com/repos/{0}/{1}/releases";
+        public static string releaseURL = "https://github.com/{0}/{1}/releases";
+
+        public static async Task<Release> CheckForNewRelease(string owner, string repo)
+        {
+            var url = string.Format(apiUrl, owner, repo);
+            releaseURL = string.Format(releaseURL, owner, repo);
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
+            var releases = await client.GetFromJsonAsync<List<Release>>(url);
+            return releases[0];
+        }
+
+        public static int convertVersionToInt(string version)
+        {
+            string[] parts = version.Split('.');
+            int major = int.Parse(parts[0].TrimStart('v'));
+            int minor = int.Parse(parts[1]);
+            int patch = int.Parse(parts[2]);
+            int versionInt = major * 10000 + minor * 100 + patch;
+            return versionInt;
+        }
+    }
+}
+
