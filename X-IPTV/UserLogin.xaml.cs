@@ -25,12 +25,17 @@ namespace X_IPTV
         private static string programVersion = "v1.5.1";
         private static UserDataSaver.User _currentUser = new UserDataSaver.User();
         private static string assemblyFolder, saveDir, userFileFullPath;
+        private static bool updateCheckDone = false;
 
         public UserLogin()
         {
             InitializeComponent();
             this.Title = "User Login " + programVersion;
-            checkForUpdate();
+            if (!updateCheckDone)
+            {
+                checkForUpdate();
+                updateCheckDone = true;
+            }
             assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             saveDir = assemblyFolder + @"\Users\";
             loadUsersFromDirectory();
