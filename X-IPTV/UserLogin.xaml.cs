@@ -50,11 +50,13 @@ namespace X_IPTV
             busy_ind.BusyContent = "Loading channel data...";
 
             //May be able to remove RetrieveChannels or LoadPlaylistData
-            await REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
+            //temp
+            //wait REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
 
             busy_ind.BusyContent = "Loading epg data with desc...";
 
-            await REST_Ops.LoadEPGDataWDesc(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
+            //temp
+            //await REST_Ops.LoadEPGDataWDesc(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
 
             //load epg. Eventually make it optional
             busy_ind.BusyContent = "Loading groups/categories data...";
@@ -66,6 +68,8 @@ namespace X_IPTV
             busy_ind.IsBusy = false;
 
             Debug.WriteLine(Instance.PlayerInfo);
+
+            Debug.WriteLine(Instance.ChannelGroupsArray);
 
             while (true)
             {

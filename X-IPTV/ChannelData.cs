@@ -63,6 +63,12 @@ namespace X_IPTV
         public string category_id { get; set; }
         public string category_name { get; set; }
         public int parent_id { get; set; }
+
+        //testing
+        public string category_name_id
+        {
+            get { return category_name + " - " + category_id; }
+        }
     }
 
     public class EPGData

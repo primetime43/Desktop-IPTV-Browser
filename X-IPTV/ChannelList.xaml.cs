@@ -79,6 +79,13 @@ namespace X_IPTV
         {
             //load all channels
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
+            foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
+            {
+                if(Instance.selectedCategory == (entry.category_name + " - " + entry.category_id))
+                {
+                    Debug.WriteLine("Found it! " + entry.category_id.ToString());
+                }
+            }
             var categoryIndex = Array.FindIndex(Instance.ChannelGroupsArray, x => x.category_name.Equals(Instance.selectedCategory));
             for (int i = 0; i < Instance.ChannelsArray.Length; i++)
             {
