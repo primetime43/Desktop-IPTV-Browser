@@ -114,4 +114,28 @@ namespace X_IPTV
         [JsonProperty("desc")]
         public string desc { get; set; }
     }
+
+
+    //testing for rewrite below here
+
+    public class EpgListing
+    {
+        public string id { get; set; }
+        public string epg_id { get; set; }
+        public string title { get; set; }
+        public string lang { get; set; }
+        public string start { get; set; }
+        public string end { get; set; }
+        public string description { get; set; }
+        public string channel_id { get; set; }
+        public string start_timestamp { get; set; }
+        public string stop_timestamp { get; set; }
+        public int now_playing { get; set; }
+        public int has_archive { get; set; }
+    }
+
+    public class Channel24hrEPG
+    {
+        public List<EpgListing> epg_listings { get; set; }
+    }
 }

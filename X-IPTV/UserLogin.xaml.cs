@@ -172,6 +172,26 @@ namespace X_IPTV
             textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
         }
 
+        private async void button_Click(object sender, RoutedEventArgs e)
+        {
+            //1. Get the Channels
+            //2. Get the EPG Data for the Channels
+            //3. Get the Categories
+            //4. Link the Channels to the EPG
+            await REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull all channel data from the server
+
+            //loop through the channels and get the epg data for each channel
+            foreach (var channel in Instance.ChannelsArray)
+            {
+                await REST_Ops.GetEPGDataForIndividualChannel(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text, channel.stream_id.ToString());
+            }
+            Debug.WriteLine("");
+            //loop through all ChannelsArray ids pass through here to get epg
+            //await REST_Ops.GetEPGDataForIndividualChannel(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text, "98");//testing
+
+            await REST_Ops.RetrieveCategories(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
+        }
+
         private void portTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;

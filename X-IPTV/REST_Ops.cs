@@ -11,8 +11,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.ServiceModel.Channels;
+using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Web.Services.Description;
@@ -21,13 +23,12 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media.Media3D;
 using System.Xml;
+using Xceed.Wpf.Toolkit;
 
 namespace X_IPTV
 {
     /*
      * player_api.php?action=get_live_streams
-     * 
-     * player_api.php?action=get_live_categories
      * 
      * player_api.php?action=get_live_categories
      * 
@@ -40,6 +41,8 @@ namespace X_IPTV
         private static readonly HttpClient _client = new HttpClient();
         private static UserLogin ul = new UserLogin();
         //use get_live_categories for categories
+
+        //not needed other than to get basic account info
         public static async Task LoginConnect(string user, string pass, string server, string port)
         {
             // Create a request for the URL. 		
@@ -71,8 +74,76 @@ namespace X_IPTV
             response.Close();
         }
 
+        //testing for rewrite
+        public static async Task GetEPGDataForIndividualChannel(string user, string pass, string server, string port, string stream_id)
+        {
+            // Create a request for the URL. 		
+            WebRequest request;
+            if ((bool)ul.protocolCheckBox.IsChecked)//use the https protocol
+                request = WebRequest.Create($"https://{server}:{port}/player_api.php?username={user}&password={pass}&action=get_simple_data_table&stream_id={stream_id}");
+            else//use the http protocol
+                request = WebRequest.Create($"http://{server}:{port}/player_api.php?username={user}&password={pass}&action=get_simple_data_table&stream_id={stream_id}");
+            // If required by the server, set the credentials.
+            request.Credentials = CredentialCache.DefaultCredentials;
+            // Get the response.
+            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+            // Get the stream containing content returned by the server.
+            Stream dataStream = response.GetResponseStream();
+            // Open the stream using a StreamReader for easy access.
+            StreamReader reader = new StreamReader(dataStream);
+            // Read the content.
+            string responseFromServer = await reader.ReadToEndAsync();
+
+            Channel24hrEPG myDeserializedClass = JsonConvert.DeserializeObject<Channel24hrEPG>(responseFromServer);
+
+            if (myDeserializedClass.epg_listings.Count == 0)
+            {
+                Debug.WriteLine("epg_listings is an empty list");
+                return;
+            }
+            else
+                Debug.WriteLine("epg_listings is not an empty list");
+
+
+
+            //MessageBox.Show(DecodeFrom64(myDeserializedClass.epg_listings[0].title));
+
+            Debug.WriteLine("title: " + DecodeFrom64(myDeserializedClass.epg_listings[0].title));
+            Debug.WriteLine("description: " + DecodeFrom64(myDeserializedClass.epg_listings[0].description));
+
+
+            //Instance.allChannelEPG_24HRS_Dict.Add(stream_id, myDeserializedClass);
+
+            // Cleanup the streams and the response.
+            reader.Close();
+            dataStream.Close();
+            response.Close();
+        }
+
+        public static string DecodeFrom64(string encodedData)
+        {
+            try
+            {
+                byte[] encodedDataAsBytes = System.Convert.FromBase64String(encodedData);
+                string returnValue = System.Text.Encoding.UTF8.GetString(encodedDataAsBytes);
+                return returnValue;
+            }
+            catch (FormatException e)
+            {
+                Console.WriteLine("An error occurred while decoding the base64 encoded string: " + e.Message);
+                return null;
+            }
+        }
+
+
+        //Retrieves each individual channel data
         public static async Task RetrieveChannelData(string user, string pass, string server, string port)//maybe pass in the action as a string and use this for all action calls
         {
+            //action=get_live_streams  use this to get all the channels and their data
+            //action=get_live_categories    use this to get the categories (already is used, should be fine)
+            //action=get_simple_data_table&stream_id=X  use this to get the channel data for a specific channel (EPG)
+
+
             // Create a request for the URL. 	
             WebRequest request;
             if ((bool)ul.protocolCheckBox.IsChecked)//use the https protocol
@@ -198,7 +269,7 @@ namespace X_IPTV
                             //there a some with multiples due to hd and sd
                         }
                         else
-                            MessageBox.Show("Dup key debug: " + currentChannelNameId);
+                            System.Windows.MessageBox.Show("Dup key debug: " + currentChannelNameId);
                     }
                 }
                 index++;
