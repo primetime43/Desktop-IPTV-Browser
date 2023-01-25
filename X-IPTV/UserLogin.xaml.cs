@@ -67,9 +67,9 @@ namespace X_IPTV
 
             busy_ind.IsBusy = false;
 
-            Debug.WriteLine(Instance.PlayerInfo);
+            //Debug.WriteLine(Instance.PlayerInfo);
 
-            Debug.WriteLine(Instance.ChannelGroupsArray);
+            //Debug.WriteLine(Instance.ChannelGroupsArray);
 
             while (true)
             {
@@ -178,22 +178,33 @@ namespace X_IPTV
 
         private async void button_Click(object sender, RoutedEventArgs e)
         {
-            //1. Get the Channels
-            //2. Get the EPG Data for the Channels
-            //3. Get the Categories
+            //2. Get the Channels
+            //3. Get the EPG Data for the Channels
+            //1. Get the Categories
             //4. Link the Channels to the EPG
-            await REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull all channel data from the server
-
-            //loop through the channels and get the epg data for each channel
-            foreach (var channel in Instance.ChannelsArray)
-            {
-                await REST_Ops.GetEPGDataForIndividualChannel(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text, channel.stream_id.ToString());
-            }
-            Debug.WriteLine("");
-            //loop through all ChannelsArray ids pass through here to get epg
-            //await REST_Ops.GetEPGDataForIndividualChannel(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text, "98");//testing
 
             await REST_Ops.RetrieveCategories(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
+
+            await REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull all channel data from the server
+
+            //Debug.WriteLine(Instance.categoryToChannelMap);
+
+            //loop through the channels and get the epg data for each channel
+            /*foreach (var channel in Instance.ChannelsArray)
+            {
+                await REST_Ops.GetEPGDataForIndividualChannel(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text, channel.stream_id.ToString());
+            }*/
+            Debug.WriteLine("");
+
+            while (true)
+            {
+                ChannelNav nav = new ChannelNav();
+                nav.ShowDialog();
+
+                ChannelList channelWindow = new ChannelList();
+                channelWindow.ShowDialog();
+            }
+
         }
 
         private void portTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)

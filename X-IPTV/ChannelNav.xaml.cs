@@ -21,7 +21,7 @@ namespace X_IPTV
 
         private void loadCategories()
         {
-            List<ChannelGroups> itemsTest = Instance.ChannelGroupsArray.OrderBy(x => x.category_name + " test").ToList();
+            List<ChannelGroups> itemsTest = Instance.ChannelGroupsArray.OrderBy(x => x.category_name).ToList();
             listViewTest.ItemsSource = itemsTest;
 
 

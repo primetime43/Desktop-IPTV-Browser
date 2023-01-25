@@ -168,6 +168,15 @@ namespace X_IPTV
             //Channels are loaded here
             ChannelEntry[] channelInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelEntry[]>(responseFromServer);
 
+            //add each ChannelEntry to categoryToChannelMap based on the category_id
+            foreach (ChannelEntry channel in channelInfo)
+            {
+                if (Instance.categoryToChannelMap.ContainsKey(channel.category_id))
+                    Instance.categoryToChannelMap[channel.category_id].Add(channel);
+                else
+                    Instance.categoryToChannelMap.Add(channel.category_id, new List<ChannelEntry>() { channel });
+            }
+
             Instance.ChannelsArray = channelInfo;
 
             // Cleanup the streams and the response.
@@ -202,6 +211,12 @@ namespace X_IPTV
             Debug.WriteLine(responseFromServer);
 
             ChannelGroups[] info = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelGroups[]>(responseFromServer);
+
+            //add each category_id to the categoryToChannelMap as a key and the values null
+            foreach (ChannelGroups entry in info)
+            {
+                Instance.categoryToChannelMap.Add(entry.category_id, new List<ChannelEntry>());
+            }
 
             Instance.ChannelGroupsArray = info;
 

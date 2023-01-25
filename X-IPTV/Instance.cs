@@ -17,6 +17,9 @@ namespace X_IPTV
         //Contains the categories/groups for the channels
         public static ChannelGroups[] ChannelGroupsArray = null;
 
+        //testing dictionary channel group: Key: category_id Value: Array of channels by channel num
+        public static Dictionary<string, List<ChannelEntry>> categoryToChannelMap = new Dictionary<string, List<ChannelEntry>>();
+
         //key = xui_id, value = PlaylistData obj
         public static Dictionary<string, PlaylistEPGData> playlistDataMap = null;
 

@@ -81,27 +81,22 @@ namespace X_IPTV
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
             foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
             {
-                if(Instance.selectedCategory == (entry.category_name + " - " + entry.category_id))
+                if (Instance.selectedCategory == (entry.category_name + " - " + entry.category_id))
                 {
-                    Debug.WriteLine("Found it! " + entry.category_id.ToString());
-                }
-            }
-            var categoryIndex = Array.FindIndex(Instance.ChannelGroupsArray, x => x.category_name.Equals(Instance.selectedCategory));
-            for (int i = 0; i < Instance.ChannelsArray.Length; i++)
-            {
-                try
-                {
-                    //Goes through each channel in the ChannelsArray looking for the category_id matching with the selected category's category_id
-                    if (Instance.ChannelsArray[i].category_id == Instance.ChannelGroupsArray[categoryIndex].category_id)
+                    string selectedCategoryID = entry.category_id.ToString();
+                    //add each value from the categoryToChannelMap to the MyListBoxItems array
+                    try
                     {
-                        MyListBoxItems.Add(Instance.ChannelsArray[i]);
+                        foreach (ChannelEntry channelEntry in Instance.categoryToChannelMap[selectedCategoryID])
+                        {
+                            MyListBoxItems.Add(channelEntry);
+                        }
                     }
-                }
-                catch(IndexOutOfRangeException e)//hits here when the user closes the ChannelNav form instead of using quit button
-                {
-                    //Change this eventually, but good to have for now
-                    MessageBox.Show("No channel selected, closing program.");
-                    Environment.Exit(1);
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e);
+                        MessageBox.Show("No channels found for this category.");
+                    }
                 }
             }
         }
