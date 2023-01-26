@@ -43,42 +43,55 @@ namespace X_IPTV
 
         private async void Con_btn_Click(object sender, RoutedEventArgs e)
         {
+            Instance.currentUser.username = usrTxt.Text;
+            Instance.currentUser.password = passTxt.Text;
+            Instance.currentUser.server = serverTxt.Text;
+            Instance.currentUser.port = portTxt.Text;
+            Instance.currentUser.useHttps = (bool)protocolCheckBox.IsChecked;
+
+
             busy_ind.IsBusy = true;
 
-            await REST_Ops.LoginConnect(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Connect to the server
+            busy_ind.BusyContent = "Attempting to connect...";
 
-            busy_ind.BusyContent = "Loading channel data...";
-
-            //May be able to remove RetrieveChannels or LoadPlaylistData
-            //temp
-            //wait REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
-
-            busy_ind.BusyContent = "Loading epg data with desc...";
-
-            //temp
-            //await REST_Ops.LoadEPGDataWDesc(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
-
-            //load epg. Eventually make it optional
-            busy_ind.BusyContent = "Loading groups/categories data...";
-
-            await REST_Ops.RetrieveCategories(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
-
-            //await REST_Ops.LoadPlaylistData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
-
-            busy_ind.IsBusy = false;
-
-            //Debug.WriteLine(Instance.PlayerInfo);
-
-            //Debug.WriteLine(Instance.ChannelGroupsArray);
-
-            while (true)
+            if (await REST_Ops.CheckLoginConnection())//Connect to the server
             {
-                ChannelNav nav = new ChannelNav();
-                nav.ShowDialog();
 
-                ChannelList channelWindow = new ChannelList();
-                channelWindow.ShowDialog();
+                busy_ind.BusyContent = "Loading channel data...";
+
+                //May be able to remove RetrieveChannels or LoadPlaylistData
+                //temp
+                //wait REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
+
+                busy_ind.BusyContent = "Loading epg data with desc...";
+
+                //temp
+                //await REST_Ops.LoadEPGDataWDesc(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
+
+                //load epg. Eventually make it optional
+                busy_ind.BusyContent = "Loading groups/categories data...";
+
+                await REST_Ops.RetrieveCategories();//Load epg it into the channels array
+
+                //await REST_Ops.LoadPlaylistData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
+
+                busy_ind.IsBusy = false;
+
+                //Debug.WriteLine(Instance.PlayerInfo);
+
+                //Debug.WriteLine(Instance.ChannelGroupsArray);
+
+                while (true)
+                {
+                    ChannelNav nav = new ChannelNav();
+                    nav.ShowDialog();
+
+                    ChannelList channelWindow = new ChannelList();
+                    channelWindow.ShowDialog();
+                }
             }
+            else
+                busy_ind.IsBusy = false;
 
             //this.Close();
         }
@@ -183,9 +196,15 @@ namespace X_IPTV
             //1. Get the Categories
             //4. Link the Channels to the EPG
 
-            await REST_Ops.RetrieveCategories(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
+            Instance.currentUser.username = usrTxt.Text;
+            Instance.currentUser.password = passTxt.Text;
+            Instance.currentUser.server = serverTxt.Text;
+            Instance.currentUser.port = portTxt.Text;
+            Instance.currentUser.useHttps = (bool)protocolCheckBox.IsChecked;
 
-            await REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull all channel data from the server
+            await REST_Ops.RetrieveCategories();//Load epg it into the channels array
+
+            await REST_Ops.RetrieveChannelData();//Pull all channel data from the server
 
             //Debug.WriteLine(Instance.categoryToChannelMap);
 

@@ -8,6 +8,9 @@ namespace X_IPTV
 {
     public static class Instance
     {
+        //User's login info to use throughout the program
+        public static Current_User currentUser = new Current_User();
+
         //Contains the User_Info and Server_Info objects
         public static PlayerInfo PlayerInfo = null;
 
@@ -21,7 +24,7 @@ namespace X_IPTV
         public static Dictionary<string, List<ChannelEntry>> categoryToChannelMap = new Dictionary<string, List<ChannelEntry>>();
 
         //key = xui_id, value = PlaylistData obj
-        public static Dictionary<string, PlaylistEPGData> playlistDataMap = null;
+        public static Dictionary<string, ChannelStreamData> playlistDataMap = null;
 
         public static string selectedCategory { get; set; }
 

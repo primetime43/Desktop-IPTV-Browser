@@ -9,10 +9,14 @@ namespace X_IPTV
 {
 
 
-    /*public class ChannelsArray
+    public class Current_User
     {
-        public ChannelEntry[] channelData { get; set; }
-    }*/
+        public string username { get; set; }
+        public string password { get; set; }
+        public string server { get; set; }
+        public string port { get; set; }
+        public bool useHttps { get; set; }
+    }
 
     //Use this one for most data info, missing stream_url, which is why the PlaylistData obj is needed 
     //server:port/player_api.php?username=X&password=X&action=get_live_streams
@@ -47,7 +51,7 @@ namespace X_IPTV
 
     //Need this for stream_url
     //server:port/get.php?username=X&password=X
-    public class PlaylistEPGData
+    public class ChannelStreamData
     {
         public string xui_id { get; set; }
         public string stream_url { get; set; }
