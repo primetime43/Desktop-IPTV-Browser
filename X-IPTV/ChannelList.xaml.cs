@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -83,23 +84,10 @@ namespace X_IPTV
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
             foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
             {
-                if (Instance.selectedCategory == (entry.category_name + " - " + entry.category_id))
+                if (Instance.selectedCategory == entry.category_name_id)
                 {
                     string selectedCategoryID = entry.category_id.ToString();
-                    //load epg data for select category here
 
-                    List<ChannelEntry> channels = Instance.categoryToChannelMap[selectedCategoryID];
-                    foreach (ChannelEntry channel in channels)
-                    {
-                        int streamId = channel.stream_id;
-                        Debug.WriteLine(channel.name + " " + streamId);
-                        // Do something with the streamId value
-                        //with each get the epg for each channel (can eventually do this with category too instead of getting all live channels.player_api.php?username=X&password=X&action=get_live_streams&category_id=X (This will get All LIVE Streams in the selected category ONLY)
-                        //await REST_Ops.GetEPGDataForIndividualChannel(channel.stream_id.ToString());
-                        testLoadData(channel.stream_id.ToString());
-                    }
-                    Debug.WriteLine("");
-                    //REST_Ops.GetEPGDataForIndividualChannel(selectedCategoryID);
                     //add each value from the categoryToChannelMap to the MyListBoxItems array
                     try
                     {
@@ -115,11 +103,6 @@ namespace X_IPTV
                     }
                 }
             }
-        }
-
-        private async Task testLoadData(string streamID)
-        {
-            await REST_Ops.GetEPGDataForIndividualChannel(streamID);
         }
 
         public ObservableCollection<ChannelEntry> MyListBoxItems { get; set; }

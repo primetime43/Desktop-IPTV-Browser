@@ -97,10 +97,10 @@ namespace X_IPTV
         }
 
         //testing for rewrite
-        public static async Task GetEPGDataForIndividualChannel(string stream_id)
+        public static async Task GetEPGDataForIndividualChannel(ChannelEntry channel)
         {
             // Create a request for the URL. 		
-            WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_simple_data_table&stream_id={stream_id}");
+            WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_simple_data_table&stream_id={channel.stream_id}");
             // If required by the server, set the credentials.
             request.Credentials = CredentialCache.DefaultCredentials;
             // Get the response.
@@ -112,24 +112,27 @@ namespace X_IPTV
             // Read the content.
             string responseFromServer = await reader.ReadToEndAsync();
 
-            Channel24hrEPG myDeserializedClass = JsonConvert.DeserializeObject<Channel24hrEPG>(responseFromServer);
+            Channel24hrEPG channel24hrEpgData = JsonConvert.DeserializeObject<Channel24hrEPG>(responseFromServer);
 
-            if (myDeserializedClass.epg_listings.Count == 0)
+            if (channel24hrEpgData.epg_listings.Count == 0)
             {
                 Debug.WriteLine("epg_listings is an empty list");
+                channel.title = "No information";
+                channel.desc = "No information";
                 return;
             }
-            else
-                Debug.WriteLine("epg_listings is not an empty list");
 
-
-
-            //MessageBox.Show(DecodeFrom64(myDeserializedClass.epg_listings[0].title));
-
-            Debug.WriteLine("title: " + DecodeFrom64(myDeserializedClass.epg_listings[0].title));
-            Debug.WriteLine("description: " + DecodeFrom64(myDeserializedClass.epg_listings[0].description));
-
-
+            var nowPlaying = channel24hrEpgData.epg_listings.Where(x => x.now_playing == 1).FirstOrDefault();
+            if (nowPlaying != null)
+            {
+                //System.Windows.MessageBox.Show("Now playing: " + DecodeFrom64(nowPlaying.title) + "\nDescription: " + DecodeFrom64(nowPlaying.description));
+                channel.title = DecodeFrom64(nowPlaying.title);
+                channel.desc = DecodeFrom64(nowPlaying.description);
+                channel.start_timestamp = nowPlaying.start;
+                channel.stop_timestamp = nowPlaying.end;
+                Debug.WriteLine("Added epg for " + channel.title + " - " + nowPlaying.channel_id);
+            }
+            
             //Instance.allChannelEPG_24HRS_Dict.Add(stream_id, myDeserializedClass);
 
             // Cleanup the streams and the response.

@@ -219,7 +219,27 @@ namespace X_IPTV
             {
                 ChannelNav nav = new ChannelNav();
                 nav.ShowDialog();
+                
+                foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
+                {
+                    //load epg data for select category here
+                    if (Instance.selectedCategory == (entry.category_name + " - " + entry.category_id))
+                    {
+                        string selectedCategoryID = entry.category_id.ToString();
 
+                        List<ChannelEntry> channels = Instance.categoryToChannelMap[selectedCategoryID];
+                        foreach (ChannelEntry channel in channels)
+                        {
+                            //int streamId = channel.stream_id;
+                            //Debug.WriteLine("");
+                            await REST_Ops.GetEPGDataForIndividualChannel(channel);
+                            //with each get the epg for each channel (can eventually do this with category too instead of getting all live channels.player_api.php?username=X&password=X&action=get_live_streams&category_id=X (This will get All LIVE Streams in the selected category ONLY)
+                        }
+
+                        MessageBox.Show("Done with epg");
+                    }
+                }
+                
                 ChannelList channelWindow = new ChannelList();
                 channelWindow.ShowDialog();
             }
