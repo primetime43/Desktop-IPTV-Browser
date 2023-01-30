@@ -84,7 +84,7 @@ namespace X_IPTV
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
             foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
             {
-                if (Instance.selectedCategory == entry.category_name_id)
+                if (Instance.selectedCategory == entry.category_name)
                 {
                     string selectedCategoryID = entry.category_id.ToString();
 

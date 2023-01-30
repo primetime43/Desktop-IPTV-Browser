@@ -72,7 +72,7 @@ namespace X_IPTV
                     foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
                     {
                         //load epg data for select category here
-                        if (Instance.selectedCategory == (entry.category_name + " - " + entry.category_id))
+                        if (Instance.selectedCategory == entry.category_name)
                         {
                             //busy_ind.BusyContent = "Loading epg data for " + entry.category_name + "...";
                             
@@ -193,62 +193,6 @@ namespace X_IPTV
             textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
 
             textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-        }
-
-        private async void button_Click(object sender, RoutedEventArgs e)
-        {
-            //2. Get the Channels
-            //3. Get the EPG Data for the Channels
-            //1. Get the Categories
-            //4. Link the Channels to the EPG
-
-            Instance.currentUser.username = usrTxt.Text;
-            Instance.currentUser.password = passTxt.Text;
-            Instance.currentUser.server = serverTxt.Text;
-            Instance.currentUser.port = portTxt.Text;
-            Instance.currentUser.useHttps = (bool)protocolCheckBox.IsChecked;
-
-            await REST_Ops.RetrieveCategories();//Load epg it into the channels array
-
-            //await REST_Ops.RetrieveChannelData();//Pull all channel data from the server
-           
-            
-            //loop through the channels and get the epg data for each channel
-            /*foreach (var channel in Instance.ChannelsArray)
-            {
-                await REST_Ops.GetEPGDataForIndividualChannel(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text, channel.stream_id.ToString());
-            }*/
-            Debug.WriteLine("");
-
-            while (true)
-            {
-                ChannelNav nav = new ChannelNav();
-                nav.ShowDialog();
-                
-                foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
-                {
-                    //load epg data for select category here
-                    if (Instance.selectedCategory == (entry.category_name + " - " + entry.category_id))
-                    {
-                        string selectedCategoryID = entry.category_id.ToString();
-
-                        List<ChannelEntry> channels = Instance.categoryToChannelMap[selectedCategoryID];
-                        foreach (ChannelEntry channel in channels)
-                        {
-                            //int streamId = channel.stream_id;
-                            //Debug.WriteLine("");
-                            await REST_Ops.GetEPGDataForIndividualChannel(channel);
-                            //with each get the epg for each channel (can eventually do this with category too instead of getting all live channels.player_api.php?username=X&password=X&action=get_live_streams&category_id=X (This will get All LIVE Streams in the selected category ONLY)
-                        }
-
-                        MessageBox.Show("Done with epg");
-                    }
-                }
-                
-                ChannelList channelWindow = new ChannelList();
-                channelWindow.ShowDialog();
-            }
-
         }
 
         private void portTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
