@@ -26,6 +26,8 @@ namespace X_IPTV
         public string created_at { get; set; }
         public string max_connections { get; set; }
         public string[] allowed_output_formats { get; set; }
+        public string port { get; internal set; }
+        public string server { get; internal set; }
     }
 
     public class Server_Info

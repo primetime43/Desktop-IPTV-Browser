@@ -24,6 +24,7 @@ namespace X_IPTV
             List<ChannelGroups> itemsTest = Instance.ChannelGroupsArray.OrderBy(x => x.category_name).ToList();
             listViewTest.ItemsSource = itemsTest;
 
+
             //Could eventually use an api call each time to just get the channels that are in the selected category.
             //player_api.php?username=X&password=X&action=get_live_streams&category_id=X (This will get All LIVE Streams in the selected category ONLY)
         }
