@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,6 +47,13 @@ namespace X_IPTV
         public string start_timestamp { get; set; }
         [JsonProperty("@stop_timestamp")]
         public string stop_timestamp { get; set; }
+
+        [JsonProperty("start")]
+        public string start { get; set; }
+        [JsonProperty("end")]
+        public string end { get; set; }
+
+        public string start_end_timestamp { get; set; }
 
     }
 

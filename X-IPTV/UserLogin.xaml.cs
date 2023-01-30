@@ -56,35 +56,41 @@ namespace X_IPTV
 
             if (await REST_Ops.CheckLoginConnection())//Connect to the server
             {
-
-                busy_ind.BusyContent = "Loading channel data...";
-
-                //May be able to remove RetrieveChannels or LoadPlaylistData
-                //temp
-                //wait REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
-
-                busy_ind.BusyContent = "Loading epg data with desc...";
-
-                //temp
-                //await REST_Ops.LoadEPGDataWDesc(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
-
-                //load epg. Eventually make it optional
                 busy_ind.BusyContent = "Loading groups/categories data...";
 
                 await REST_Ops.RetrieveCategories();//Load epg it into the channels array
 
-                //await REST_Ops.LoadPlaylistData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
+                busy_ind.BusyContent = "Loading channel data...";
 
-                busy_ind.IsBusy = false;
-
-                //Debug.WriteLine(Instance.PlayerInfo);
-
-                //Debug.WriteLine(Instance.ChannelGroupsArray);
+                await REST_Ops.RetrieveChannelData(busy_ind);
 
                 while (true)
                 {
                     ChannelNav nav = new ChannelNav();
                     nav.ShowDialog();
+
+                    foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
+                    {
+                        //load epg data for select category here
+                        if (Instance.selectedCategory == (entry.category_name + " - " + entry.category_id))
+                        {
+                            //busy_ind.BusyContent = "Loading epg data for " + entry.category_name + "...";
+                            
+                            string selectedCategoryID = entry.category_id.ToString();
+
+                            List<ChannelEntry> channels = Instance.categoryToChannelMap[selectedCategoryID];
+
+                            int counter = 0;
+                            foreach (ChannelEntry channel in channels)
+                            {
+                                busy_ind.BusyContent = $"Loading epg data for {entry.category_name}... ({counter + 1}/{channels.Count})";
+                                await REST_Ops.GetEPGDataForIndividualChannel(channel);
+                                counter++;
+                            }
+
+                            //MessageBox.Show("Done with epg");
+                        }
+                    }
 
                     ChannelList channelWindow = new ChannelList();
                     channelWindow.ShowDialog();
@@ -204,10 +210,9 @@ namespace X_IPTV
 
             await REST_Ops.RetrieveCategories();//Load epg it into the channels array
 
-            await REST_Ops.RetrieveChannelData();//Pull all channel data from the server
-
-            //Debug.WriteLine(Instance.categoryToChannelMap);
-
+            //await REST_Ops.RetrieveChannelData();//Pull all channel data from the server
+           
+            
             //loop through the channels and get the epg data for each channel
             /*foreach (var channel in Instance.ChannelsArray)
             {

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:X_IPTV"
         mc:Ignorable="d"
-        Title="Channel Guide List" Height="450" Width="800">
+        Title="Channel Guide - Hover Over A Channel For Description" Height="450" Width="800">
     <Window.Resources>
         <local:MyMockClass x:Key="DesignViewModel"/>
 
@@ -32,7 +32,7 @@
                                 <Image Source="{Binding Path=stream_icon}" Stretch="Uniform" Height="120"/>
                                 <TextBlock Name="channelName" FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=name}" VerticalAlignment="Top"></TextBlock>
                                 <TextBlock Name="channelTitle" FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=title}" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,41,0,0" RenderTransformOrigin="0.487,1.728"></TextBlock>
-                                <TextBlock Name="channelDesc" FontSize="12" Padding="15,5,5,5" Text="{Binding Path=start_timestamp}" VerticalAlignment="Top" TextWrapping="Wrap" Margin="0,119,10,0" Height="25" RenderTransformOrigin="0.213,0.84" Grid.Column="1"/>
+                                <TextBlock Name="channelDesc" FontSize="12" Padding="15,5,5,5" Text="{Binding Path=start_end_timestamp}" VerticalAlignment="Top" TextWrapping="Wrap" Margin="0,119,10,0" Height="25" RenderTransformOrigin="0.213,0.84" Grid.Column="1"/>
                             </Grid>
                         </Border>
                     </DataTemplate>

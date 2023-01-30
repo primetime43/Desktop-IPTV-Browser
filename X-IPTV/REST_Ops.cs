@@ -128,11 +128,24 @@ namespace X_IPTV
                 //System.Windows.MessageBox.Show("Now playing: " + DecodeFrom64(nowPlaying.title) + "\nDescription: " + DecodeFrom64(nowPlaying.description));
                 channel.title = DecodeFrom64(nowPlaying.title);
                 channel.desc = DecodeFrom64(nowPlaying.description);
-                channel.start_timestamp = nowPlaying.start;
-                channel.stop_timestamp = nowPlaying.end;
-                Debug.WriteLine("Added epg for " + channel.title + " - " + nowPlaying.channel_id);
+
+                DateTime startTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(double.Parse(nowPlaying.start_timestamp));
+                DateTime stopTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(double.Parse(nowPlaying.stop_timestamp));
+
+                startTime = TimeZoneInfo.ConvertTimeFromUtc(startTime, TimeZoneInfo.Local);
+                stopTime = TimeZoneInfo.ConvertTimeFromUtc(stopTime, TimeZoneInfo.Local);
+
+                channel.start_timestamp = startTime.ToString("h:mm tt MM-dd-yyyy");
+                channel.stop_timestamp = stopTime.ToString("h:mm tt MM-dd-yyyy");
+
+                channel.start_end_timestamp = startTime.ToString("h:mm tt") + " - " + stopTime.ToString("h:mm tt");
+
+
+                /*channel.start_timestamp = nowPlaying.start;
+                channel.stop_timestamp = nowPlaying.end;*/
+                //Debug.WriteLine("Added epg for " + channel.title + " - " + nowPlaying.channel_id);
             }
-            
+
             //Instance.allChannelEPG_24HRS_Dict.Add(stream_id, myDeserializedClass);
 
             // Cleanup the streams and the response.
@@ -159,7 +172,7 @@ namespace X_IPTV
 
         //Retrieves each individual channel data
         //keep pass action as parameter
-        public static async Task RetrieveChannelData()//maybe pass in the action as a string and use this for all action calls
+        public static async Task RetrieveChannelData(BusyIndicator busy_ind)//maybe pass in the action as a string and use this for all action calls
         {
             //action=get_live_streams  use this to get all the channels and their data
             //action=get_live_categories    use this to get the categories (already is used, should be fine)
@@ -185,13 +198,26 @@ namespace X_IPTV
             ChannelEntry[] channelInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelEntry[]>(responseFromServer);
 
             //add each ChannelEntry to categoryToChannelMap based on the category_id
-            foreach (ChannelEntry channel in channelInfo)
+            /*foreach (ChannelEntry channel in channelInfo)
             {
                 if (Instance.categoryToChannelMap.ContainsKey(channel.category_id))
                     Instance.categoryToChannelMap[channel.category_id].Add(channel);
                 else
                     Instance.categoryToChannelMap.Add(channel.category_id, new List<ChannelEntry>() { channel });
+            }*/
+
+            int counter = 0;
+            int total = channelInfo.Length;
+            foreach (ChannelEntry channel in channelInfo)
+            {
+                busy_ind.BusyContent = $"Processing channel data... ({counter + 1}/{total})";
+                if (Instance.categoryToChannelMap.ContainsKey(channel.category_id))
+                    Instance.categoryToChannelMap[channel.category_id].Add(channel);
+                else
+                    Instance.categoryToChannelMap.Add(channel.category_id, new List<ChannelEntry>() { channel });
+                counter++;
             }
+
 
             Instance.ChannelsArray = channelInfo;
 
@@ -244,72 +270,6 @@ namespace X_IPTV
             response.Close();
         }
 
-        //seems the get.php api call is the only one that includes the stream url in the response
-        //public static async Task LoadPlaylistChannelData(string user, string pass, string server, string port)
-        //{
-        //    //This method uses parsing instead of json Deserializing because this response doesn't return in json format/json formattable
-
-        //    //playlistDataMap is a dictionary containing the xui_id as the key and value being the PlaylistData object
-        //    Instance.playlistDataMap = new Dictionary<string, ChannelStreamData>();
-
-        //    //*** Maybe change this from httpclient to webrequest eventually ***
-
-        //    //retrieve channel data from client
-        //    _client.DefaultRequestHeaders.Accept.Clear();
-        //    _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36");
-
-        //    Task<string> stringTask = null;
-        //    if ((bool)ul.protocolCheckBox.IsChecked)//use the https protocol
-        //        stringTask = _client.GetStringAsync($"https://{server}:{port}/get.php?username={user}&password={pass}");
-        //    else//use the http protocol
-        //        stringTask = _client.GetStringAsync($"http://{server}:{port}/get.php?username={user}&password={pass}");
-
-        //    var serverResponse = await stringTask;
-
-        //    //parse the m3u playlist and split into an array. playlist array contains the unparsed data
-        //    string[] playlist = serverResponse.Split(new string[] { "#EXTINF:" }, StringSplitOptions.None);
-
-        //    ChannelStreamData[] info = new ChannelStreamData[Instance.ChannelsArray.Length];//creates the info array for X number of channels
-        //    int index = -1;
-        //    foreach (var channel in playlist)
-        //    {
-        //        if (index > -1)
-        //        {
-        //            List<string> wordArray = new List<string>();
-        //            wordArray.Clear();
-        //            //dont need [0],[11],[12],[13],[14]. Need [1] - [10]
-        //            wordArray = channel.Split('"').Select((element, index) => index % 2 == 0 ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) : new string[] { element }).SelectMany(element => element).ToList();
-
-        //            //only need the stream_url, but might as well get the other data while here
-        //            info[index] = new ChannelStreamData
-        //            {
-        //                xui_id = wordArray[2],
-        //                tvg_id = wordArray[4],
-        //                tvg_name = wordArray[6],
-        //                tvg_logo = wordArray[8],
-        //                group_title = wordArray[10],
-        //                stream_url = channel.Substring(channel.LastIndexOf("https"))
-        //            };
-        //            string currentChannelId = info[index].xui_id;
-        //            string currentChannelNameId = info[index].tvg_id;
-        //            //Adds the channel data obj to the dict with channel id as the key
-        //            if (currentChannelNameId != "" && currentChannelNameId != null)
-        //            {
-        //                if (!Instance.playlistDataMap.ContainsKey(currentChannelNameId))
-        //                {
-        //                    //playlistDataMap is the only one that contains the stream url
-        //                    Instance.playlistDataMap.Add(currentChannelId, info[index]);
-        //                    //need to use the xui_id with it to make it more unqiue since there are multiple tvg_id with the same.
-        //                    //there a some with multiples due to hd and sd
-        //                }
-        //                else
-        //                    System.Windows.MessageBox.Show("Dup key debug: " + currentChannelNameId);
-        //            }
-        //        }
-        //        index++;
-        //    }
-        //}
-
         private static readonly HttpClient _clientTest = CreateHttpClient();
 
         private static HttpClient CreateHttpClient()
@@ -353,13 +313,13 @@ namespace X_IPTV
 
         private static void AddToPlaylistDataMap(ChannelStreamData data)
         {
-            if (!Instance.playlistDataMap.ContainsKey(data.tvg_id))
+            if (!Instance.playlistDataMap.ContainsKey(data.xui_id))
             {
                 Instance.playlistDataMap.Add(data.xui_id, data);
             }
             else
             {
-                System.Windows.MessageBox.Show("Duplicate key: " + data.tvg_id);
+                System.Windows.MessageBox.Show("Duplicate key: " + data.xui_id);
             }
         }
 

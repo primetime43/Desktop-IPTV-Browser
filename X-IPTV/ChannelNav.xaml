@@ -18,7 +18,7 @@
                 <DataTemplate>
                     <WrapPanel>
                         <!--<TextBlock Text="Name: " />-->
-                        <TextBlock Text="{Binding category_name_id}" FontWeight="Bold" MouseDown="TextBlock_MouseDown"/>
+                        <TextBlock Text="{Binding category_name}" FontWeight="Bold" MouseDown="TextBlock_MouseDown"/>
                         <!--<TextBlock Text=", " />
                         <TextBlock Text="Age: " />
                         <TextBlock Text="{Binding Age}" FontWeight="Bold" />-->
