@@ -81,11 +81,14 @@ namespace X_IPTV
             this.Close();
         }
 
-        private string convertUnixToRealTIme(int unixTime)
+        public static string convertUnixToRealTIme(int unixTime)
         {
-            var realTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local).AddSeconds(unixTime).ToLocalTime();
+            //var realTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local).AddSeconds(unixTime).ToLocalTime();
 
-            return realTime.ToString("HH:mm:ss MM-dd-yyyy");
+            DateTime realTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(unixTime);
+            realTime = TimeZoneInfo.ConvertTimeFromUtc(realTime, TimeZoneInfo.Local);
+
+            return realTime.ToString("h:mm tt MM-dd-yyyy");
         }
     }
 }

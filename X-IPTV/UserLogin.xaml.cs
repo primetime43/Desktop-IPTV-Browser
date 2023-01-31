@@ -49,7 +49,6 @@ namespace X_IPTV
             Instance.currentUser.port = portTxt.Text;
             Instance.currentUser.useHttps = (bool)protocolCheckBox.IsChecked;
 
-
             busy_ind.IsBusy = true;
 
             busy_ind.BusyContent = "Attempting to connect...";
@@ -64,43 +63,51 @@ namespace X_IPTV
 
                 await REST_Ops.RetrieveChannelData(busy_ind);
 
-                while (true)
-                {
-                    ChannelNav nav = new ChannelNav();
-                    nav.ShowDialog();
+                busy_ind.IsBusy = false;
 
-                    foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
-                    {
-                        //load epg data for select category here
-                        if (Instance.selectedCategory == entry.category_name)
-                        {
-                            //busy_ind.BusyContent = "Loading epg data for " + entry.category_name + "...";
-                            
-                            string selectedCategoryID = entry.category_id.ToString();
+                ChannelNav nav = new ChannelNav();
 
-                            List<ChannelEntry> channels = Instance.categoryToChannelMap[selectedCategoryID];
-
-                            int counter = 0;
-                            foreach (ChannelEntry channel in channels)
-                            {
-                                busy_ind.BusyContent = $"Loading epg data for {entry.category_name}... ({counter + 1}/{channels.Count})";
-                                await REST_Ops.GetEPGDataForIndividualChannel(channel);
-                                counter++;
-                            }
-
-                            //MessageBox.Show("Done with epg");
-                        }
-                    }
-
-                    ChannelList channelWindow = new ChannelList();
-                    channelWindow.ShowDialog();
-                }
+                await StartLoop(nav);
             }
             else
                 busy_ind.IsBusy = false;
-
-            //this.Close();
         }
+        
+        public async Task StartLoop(ChannelNav categoryNav)
+        {
+            categoryNav.ShowDialog();
+            while (true)
+            {
+                busy_ind.IsBusy = true;
+                int counter = 0;
+                foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
+                {
+                    if (Instance.selectedCategory == entry.category_name)
+                    {
+                        string selectedCategoryID = entry.category_id.ToString();
+
+                        List<ChannelEntry> channels = Instance.categoryToChannelMap[selectedCategoryID];
+
+                        //int counter = 0;
+                        foreach (ChannelEntry channel in channels)
+                        {
+                            busy_ind.BusyContent = $"Loading epg data for {entry.category_name}... ({counter + 1}/{channels.Count})";
+                            await REST_Ops.GetEPGDataForIndividualChannel(channel);
+                            counter++;
+                        }
+                    }
+                }
+                
+                busy_ind.IsBusy = false;
+                ChannelList channelWindow = new ChannelList();
+                if(counter > 0)
+                    channelWindow.ShowDialog();
+
+                ChannelNav nav = new ChannelNav();
+                nav.ShowDialog();
+            }
+        }
+
 
         private void loadUsersFromDirectory()
         {

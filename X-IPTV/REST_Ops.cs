@@ -154,22 +154,6 @@ namespace X_IPTV
             response.Close();
         }
 
-        public static string DecodeFrom64(string encodedData)
-        {
-            try
-            {
-                byte[] encodedDataAsBytes = System.Convert.FromBase64String(encodedData);
-                string returnValue = System.Text.Encoding.UTF8.GetString(encodedDataAsBytes);
-                return returnValue;
-            }
-            catch (FormatException e)
-            {
-                Console.WriteLine("An error occurred while decoding the base64 encoded string: " + e.Message);
-                return null;
-            }
-        }
-
-
         //Retrieves each individual channel data
         //keep pass action as parameter
         public static async Task RetrieveChannelData(BusyIndicator busy_ind)//maybe pass in the action as a string and use this for all action calls
@@ -218,8 +202,9 @@ namespace X_IPTV
                 counter++;
             }
 
-
             Instance.ChannelsArray = channelInfo;
+
+            //busy_ind.IsBusy = false;
 
             // Cleanup the streams and the response.
             reader.Close();
@@ -319,16 +304,24 @@ namespace X_IPTV
             }
             else
             {
-                System.Windows.MessageBox.Show("Duplicate key: " + data.xui_id);
+                System.Windows.MessageBox.Show("Duplicate key: " + data.xui_id + "\rClosing application");
+                Application.Current.Shutdown();
             }
         }
 
-        public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        public static string DecodeFrom64(string encodedData)
         {
-            // Unix timestamp is seconds past epoch
-            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            dateTime = dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
-            return dateTime;
+            try
+            {
+                byte[] encodedDataAsBytes = System.Convert.FromBase64String(encodedData);
+                string returnValue = System.Text.Encoding.UTF8.GetString(encodedDataAsBytes);
+                return returnValue;
+            }
+            catch (FormatException e)
+            {
+                Console.WriteLine("An error occurred while decoding the base64 encoded string: " + e.Message);
+                return null;
+            }
         }
     }
 }
