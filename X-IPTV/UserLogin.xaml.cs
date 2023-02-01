@@ -155,7 +155,8 @@ namespace X_IPTV
             string? selectedUser = UsercomboBox.SelectedValue.ToString();
             if (selectedUser != null && selectedUser.Length > 0)
             {
-                return userFileFullPath = saveDir + selectedUser + ".txt";
+                userFileFullPath = saveDir + selectedUser + ".txt";
+                return userFileFullPath;
             }
             else
             {
@@ -240,7 +241,7 @@ namespace X_IPTV
             }
             else
             {
-                MessageBox.Show("No new releases available.");
+                Debug.WriteLine("No new releases available.");
             }
         }
     }

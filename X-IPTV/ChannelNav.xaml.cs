@@ -52,7 +52,7 @@ namespace X_IPTV
             {
                 if (ce.Name == "exp_date" || ce.Name == "created_at")
                     userInfoTxtBox.AppendText(ce.Name + ": " + ChannelOptions.convertUnixToRealTIme(Convert.ToInt32(ce.GetValue(Instance.PlayerInfo.user_info))) + "\r");
-                /*else if (ce.Name == "allowed_output_formats")
+                else if (ce.Name == "allowed_output_formats")
                 {
                     userInfoTxtBox.AppendText(ce.Name + ": ");
                     string[] formats = (string[])ce.GetValue(Instance.PlayerInfo.user_info);
@@ -63,7 +63,7 @@ namespace X_IPTV
                             userInfoTxtBox.AppendText(", ");
                     }
                     userInfoTxtBox.AppendText("\r");
-                }*/
+                }
                 else
                     userInfoTxtBox.AppendText(ce.Name + ": " + ce.GetValue(Instance.PlayerInfo.user_info) + "\r");
             }
