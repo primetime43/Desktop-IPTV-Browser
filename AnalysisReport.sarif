@@ -6,7 +6,7 @@
       "tool": {
         "driver": {
           "name": "Dependency Analysis",
-          "semanticVersion": "0.4.336902",
+          "semanticVersion": "0.4.355802",
           "informationUri": "https://docs.microsoft.com/en-us/dotnet/core/porting/upgrade-assistant-overview",
           "rules": [
             {
@@ -32,39 +32,7 @@
         {
           "ruleId": "UA105",
           "message": {
-            "text": "Package Extended.Wpf.Toolkit, Version=4.1.0 does not support the target(s) net6.0-windows but a newer version (4.4.0) does.  Package Extended.Wpf.Toolkit needs to be upgraded from 4.1.0 to 4.4.0."
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "file:///C:/Users/Mike/source/repos/Xtream-Browser/X-IPTV/X-IPTV.csproj"
-                },
-                "region": {}
-              }
-            }
-          ]
-        },
-        {
-          "ruleId": "UA105",
-          "message": {
-            "text": "Package System.ComponentModel.Composition, Version=5.0.0 needs to be deleted."
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "file:///C:/Users/Mike/source/repos/Xtream-Browser/X-IPTV/X-IPTV.csproj"
-                },
-                "region": {}
-              }
-            }
-          ]
-        },
-        {
-          "ruleId": "UA105",
-          "message": {
-            "text": "Package System.IO, Version=4.3.0 needs to be deleted."
+            "text": "Package System.IO needs to be removed as its a transitive dependency that is not required"
           },
           "locations": [
             {
@@ -112,39 +80,7 @@
         {
           "ruleId": "UA106",
           "message": {
-            "text": "Package Extended.Wpf.Toolkit, Version=4.4.0 needs to be added."
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "file:///C:/Users/Mike/source/repos/Xtream-Browser/X-IPTV/X-IPTV.csproj"
-                },
-                "region": {}
-              }
-            }
-          ]
-        },
-        {
-          "ruleId": "UA106",
-          "message": {
-            "text": "Package Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers, Version=0.4.336902 needs to be added."
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "file:///C:/Users/Mike/source/repos/Xtream-Browser/X-IPTV/X-IPTV.csproj"
-                },
-                "region": {}
-              }
-            }
-          ]
-        },
-        {
-          "ruleId": "UA106",
-          "message": {
-            "text": "Package Microsoft.Windows.Compatibility, Version=6.0.0 needs to be added."
+            "text": "Package Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers, Version=0.4.355802 needs to be added."
           },
           "locations": [
             {
@@ -164,7 +100,18 @@
       "tool": {
         "driver": {
           "name": "API Upgradability",
-          "semanticVersion": "0.4.336902",
+          "semanticVersion": "0.4.355802",
+          "informationUri": "https://docs.microsoft.com/en-us/dotnet/core/porting/upgrade-assistant-overview"
+        }
+      },
+      "results": [],
+      "columnKind": "utf16CodeUnits"
+    },
+    {
+      "tool": {
+        "driver": {
+          "name": "Component Analysis",
+          "semanticVersion": "0.4.355802",
           "informationUri": "https://docs.microsoft.com/en-us/dotnet/core/porting/upgrade-assistant-overview"
         }
       },
