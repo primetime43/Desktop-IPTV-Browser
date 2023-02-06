@@ -69,13 +69,26 @@ namespace X_IPTV
 
             foreach (PropertyInfo ce in typeof(ChannelEntry).GetProperties())
             {
-                richTextBox.AppendText(ce.Name + ": " + ce.GetValue(entry) + "\r");
+                if (ce.Name == "added")
+                    richTextBox.AppendText(ce.Name + ": " + convertUnixToRealTIme(Convert.ToInt32(ce.GetValue(entry))) + "\r");
+                else
+                    richTextBox.AppendText(ce.Name + ": " + ce.GetValue(entry) + "\r");
             }
         }
 
         private void closeBtn_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        public static string convertUnixToRealTIme(int unixTime)
+        {
+            //var realTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local).AddSeconds(unixTime).ToLocalTime();
+
+            DateTime realTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(unixTime);
+            realTime = TimeZoneInfo.ConvertTimeFromUtc(realTime, TimeZoneInfo.Local);
+
+            return realTime.ToString("h:mm tt MM-dd-yyyy");
         }
     }
 }

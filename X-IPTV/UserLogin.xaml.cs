@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Reflection;
 using System.Diagnostics;
+using System.Net.Http.Json;
+using GitHubReleaseChecker;
 
 namespace X_IPTV
 {
@@ -20,15 +22,20 @@ namespace X_IPTV
     /// 
     public partial class UserLogin : Window
     {
+        private static string programVersion = "v2.0.0";
         private static UserDataSaver.User _currentUser = new UserDataSaver.User();
-        //private static readonly HttpClient _client = new HttpClient();
         private static string assemblyFolder, saveDir, userFileFullPath;
+        private static bool updateCheckDone = false;
 
-        public static string titleTest = "User Login";
         public UserLogin()
         {
             InitializeComponent();
-            this.Title = "User Login v1.5.1";
+            this.Title = "User Login " + programVersion;
+            if (!updateCheckDone)
+            {
+                checkForUpdate();
+                updateCheckDone = true;
+            }
             assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             saveDir = assemblyFolder + @"\Users\";
             loadUsersFromDirectory();
@@ -36,41 +43,71 @@ namespace X_IPTV
 
         private async void Con_btn_Click(object sender, RoutedEventArgs e)
         {
+            Instance.currentUser.username = usrTxt.Text;
+            Instance.currentUser.password = passTxt.Text;
+            Instance.currentUser.server = serverTxt.Text;
+            Instance.currentUser.port = portTxt.Text;
+            Instance.currentUser.useHttps = (bool)protocolCheckBox.IsChecked;
+
             busy_ind.IsBusy = true;
 
-            await REST_Ops.LoginConnect(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Connect to the server
+            busy_ind.BusyContent = "Attempting to connect...";
 
-            busy_ind.BusyContent = "Loading channel data...";
+            if (await REST_Ops.CheckLoginConnection())//Connect to the server
+            {
+                busy_ind.BusyContent = "Loading groups/categories data...";
 
-            //May be able to remove RetrieveChannels or LoadPlaylistData
-            await REST_Ops.RetrieveChannelData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Pull the data from the server
+                await REST_Ops.RetrieveCategories();//Load epg it into the channels array
 
-            busy_ind.BusyContent = "Loading epg data with desc...";
+                busy_ind.BusyContent = "Loading channel data...";
 
-            await REST_Ops.LoadEPGDataWDesc(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);
+                await REST_Ops.RetrieveChannelData(busy_ind);
 
-            //load epg. Eventually make it optional
-            busy_ind.BusyContent = "Loading groups/categories data...";
+                busy_ind.IsBusy = false;
 
-            await REST_Ops.RetrieveCategories(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
+                ChannelNav nav = new ChannelNav();
 
-            //await REST_Ops.LoadPlaylistData(usrTxt.Text, passTxt.Text, serverTxt.Text, portTxt.Text);//Load epg it into the channels array
-
-            busy_ind.IsBusy = false;
-
-            Debug.WriteLine(Instance.PlayerInfo);
-
+                await StartLoop(nav);
+            }
+            else
+                busy_ind.IsBusy = false;
+        }
+        
+        public async Task StartLoop(ChannelNav categoryNav)
+        {
+            categoryNav.ShowDialog();
             while (true)
             {
+                busy_ind.IsBusy = true;
+                int counter = 0;
+                foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
+                {
+                    if (Instance.selectedCategory == entry.category_name)
+                    {
+                        string selectedCategoryID = entry.category_id.ToString();
+
+                        List<ChannelEntry> channels = Instance.categoryToChannelMap[selectedCategoryID];
+
+                        //int counter = 0;
+                        foreach (ChannelEntry channel in channels)
+                        {
+                            busy_ind.BusyContent = $"Loading epg data for {entry.category_name}... ({counter + 1}/{channels.Count})";
+                            await REST_Ops.GetEPGDataForIndividualChannel(channel);
+                            counter++;
+                        }
+                    }
+                }
+                
+                busy_ind.IsBusy = false;
+                ChannelList channelWindow = new ChannelList();
+                if(counter > 0)
+                    channelWindow.ShowDialog();
+
                 ChannelNav nav = new ChannelNav();
                 nav.ShowDialog();
-
-                ChannelList channelWindow = new ChannelList();
-                channelWindow.ShowDialog();
             }
-
-            //this.Close();
         }
+
 
         private void loadUsersFromDirectory()
         {
@@ -118,7 +155,8 @@ namespace X_IPTV
             string? selectedUser = UsercomboBox.SelectedValue.ToString();
             if (selectedUser != null && selectedUser.Length > 0)
             {
-                return userFileFullPath = saveDir + selectedUser + ".txt";
+                userFileFullPath = saveDir + selectedUser + ".txt";
+                return userFileFullPath;
             }
             else
             {
@@ -171,5 +209,78 @@ namespace X_IPTV
 
             textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
         }
+
+        private async void checkForUpdate()
+        {
+            var release = await ReleaseChecker.CheckForNewRelease("primetime43", "Xtream-Browser");
+            int latestReleaseInt = ReleaseChecker.convertVersionToInt(release.tag_name);
+            int localProgramVersionInt = ReleaseChecker.convertVersionToInt(programVersion);
+
+            if (release != null && latestReleaseInt > localProgramVersionInt)
+            {
+                MessageBoxResult result = MessageBox.Show("Current version: " + programVersion + "\nNew release available: " + release.name + " (" + release.tag_name + ")\nDo you want to download it?", "New Release", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        var startInfo = new ProcessStartInfo
+                        {
+                            FileName = ReleaseChecker.releaseURL,
+                            UseShellExecute = true
+                        };
+
+                        Process.Start(startInfo);
+                    }
+                    catch (System.ComponentModel.Win32Exception ex)
+                    {
+                        MessageBox.Show("An error occurred: " + ex.Message);
+                    }
+                }
+
+            }
+            else
+            {
+                Debug.WriteLine("No new releases available.");
+            }
+        }
     }
 }
+
+
+namespace GitHubReleaseChecker
+{
+    public class Release
+    {
+        public string tag_name { get; set; }
+        public string name { get; set; }
+        public DateTime published_at { get; set; }
+    }
+
+    public class ReleaseChecker
+    {
+        private static readonly HttpClient client = new HttpClient();
+        private const string apiUrl = "https://api.github.com/repos/{0}/{1}/releases";
+        public static string releaseURL = "https://github.com/{0}/{1}/releases";
+
+        public static async Task<Release> CheckForNewRelease(string owner, string repo)
+        {
+            var url = string.Format(apiUrl, owner, repo);
+            releaseURL = string.Format(releaseURL, owner, repo);
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
+            var releases = await client.GetFromJsonAsync<List<Release>>(url);
+            return releases[0];
+        }
+
+        public static int convertVersionToInt(string version)
+        {
+            string[] parts = version.Split('.');
+            int major = int.Parse(parts[0].TrimStart('v'));
+            int minor = int.Parse(parts[1]);
+            int patch = int.Parse(parts[2]);
+            int versionInt = major * 10000 + minor * 100 + patch;
+            return versionInt;
+        }
+    }
+}
+

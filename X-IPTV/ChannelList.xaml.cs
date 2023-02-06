@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,7 +44,7 @@ namespace X_IPTV
 
             ChannelEntry entry = e.AddedItems[0] as ChannelEntry;
 
-            PlaylistEPGData pdTest = e.AddedItems as PlaylistEPGData;
+            ChannelStreamData pdTest = e.AddedItems as ChannelStreamData;
 
 
             //Console.WriteLine(Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
@@ -79,22 +82,25 @@ namespace X_IPTV
         {
             //load all channels
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
-            var categoryIndex = Array.FindIndex(Instance.ChannelGroupsArray, x => x.category_name.Equals(Instance.selectedCategory));
-            for (int i = 0; i < Instance.ChannelsArray.Length; i++)
+            foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
             {
-                try
+                if (Instance.selectedCategory == entry.category_name)
                 {
-                    //Goes through each channel in the ChannelsArray looking for the category_id matching with the selected category's category_id
-                    if (Instance.ChannelsArray[i].category_id == Instance.ChannelGroupsArray[categoryIndex].category_id)
+                    string selectedCategoryID = entry.category_id.ToString();
+
+                    //add each value from the categoryToChannelMap to the MyListBoxItems array
+                    try
                     {
-                        MyListBoxItems.Add(Instance.ChannelsArray[i]);
+                        foreach (ChannelEntry channelEntry in Instance.categoryToChannelMap[selectedCategoryID])
+                        {
+                            MyListBoxItems.Add(channelEntry);
+                        }
                     }
-                }
-                catch(IndexOutOfRangeException e)//hits here when the user closes the ChannelNav form instead of using quit button
-                {
-                    //Change this eventually, but good to have for now
-                    MessageBox.Show("No channel selected, closing program.");
-                    Environment.Exit(1);
+                    catch (Exception e)
+                    {
+                        //Debug.WriteLine(e);
+                        MessageBox.Show("No channels found for this category.");
+                    }
                 }
             }
         }
@@ -107,8 +113,8 @@ namespace X_IPTV
         public MyMockClass()
         {
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
-            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| TF1 UHD", stream_icon = "http://f.iptv-pure.com/tf14k.png", title = "Title Test", start_timestamp = "Hello World" });
-            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| CSTAR FHD", stream_icon = "http://f.iptv-pure.com/cstar.png", title = "Title Test 2", start_timestamp = "Hello World 2" });
+            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| TF1 UHD", stream_icon = "http://f.iptv-pure.com/tf14k.png", title = "Title", start_end_timestamp = "Start Time" });
+            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| CSTAR FHD", stream_icon = "http://f.iptv-pure.com/cstar.png", title = "Title 2", start_end_timestamp = "Start Time 2" });
         }
         public ObservableCollection<ChannelEntry> MyListBoxItems { get; set; }
     }

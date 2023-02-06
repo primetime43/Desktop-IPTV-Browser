@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,10 +10,14 @@ namespace X_IPTV
 {
 
 
-    /*public class ChannelsArray
+    public class Current_User
     {
-        public ChannelEntry[] channelData { get; set; }
-    }*/
+        public string username { get; set; }
+        public string password { get; set; }
+        public string server { get; set; }
+        public string port { get; set; }
+        public bool useHttps { get; set; }
+    }
 
     //Use this one for most data info, missing stream_url, which is why the PlaylistData obj is needed 
     //server:port/player_api.php?username=X&password=X&action=get_live_streams
@@ -43,11 +48,18 @@ namespace X_IPTV
         [JsonProperty("@stop_timestamp")]
         public string stop_timestamp { get; set; }
 
+        [JsonProperty("start")]
+        public string start { get; set; }
+        [JsonProperty("end")]
+        public string end { get; set; }
+
+        public string start_end_timestamp { get; set; }
+
     }
 
     //Need this for stream_url
     //server:port/get.php?username=X&password=X
-    public class PlaylistEPGData
+    public class ChannelStreamData
     {
         public string xui_id { get; set; }
         public string stream_url { get; set; }
@@ -63,6 +75,12 @@ namespace X_IPTV
         public string category_id { get; set; }
         public string category_name { get; set; }
         public int parent_id { get; set; }
+
+        //testing
+        public string category_name_id
+        {
+            get { return category_name + " - " + category_id; }
+        }
     }
 
     public class EPGData
@@ -113,5 +131,29 @@ namespace X_IPTV
         public string title { get; set;  }
         [JsonProperty("desc")]
         public string desc { get; set; }
+    }
+
+
+    //testing for rewrite below here
+
+    public class EpgListing
+    {
+        public string id { get; set; }
+        public string epg_id { get; set; }
+        public string title { get; set; }
+        public string lang { get; set; }
+        public string start { get; set; }
+        public string end { get; set; }
+        public string description { get; set; }
+        public string channel_id { get; set; }
+        public string start_timestamp { get; set; }
+        public string stop_timestamp { get; set; }
+        public int now_playing { get; set; }
+        public int has_archive { get; set; }
+    }
+
+    public class Channel24hrEPG
+    {
+        public List<EpgListing> epg_listings { get; set; }
     }
 }

@@ -19,16 +19,16 @@
                     <WrapPanel>
                         <!--<TextBlock Text="Name: " />-->
                         <TextBlock Text="{Binding category_name}" FontWeight="Bold" MouseDown="TextBlock_MouseDown"/>
-                        <!--<TextBlock Text=", " />
-                        <TextBlock Text="Age: " />
-                        <TextBlock Text="{Binding Age}" FontWeight="Bold" />-->
-                        <!--<TextBlock Text=" (" />
-                        <TextBlock Text="{Binding Mail}" TextDecorations="Underline" Foreground="Blue" Cursor="Hand" />
-                        <TextBlock Text=")" />-->
                     </WrapPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-
+        <RichTextBox x:Name="userInfoTxtBox" Grid.Column="2" Margin="337,21,45,217" ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <FlowDocument>
+                <Paragraph>
+                    <Run Text="RichTextBox"/>
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
     </Grid>
 </Window>
