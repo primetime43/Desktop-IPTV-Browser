@@ -98,7 +98,7 @@ namespace X_IPTV
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine(e);
+                        //Debug.WriteLine(e);
                         MessageBox.Show("No channels found for this category.");
                     }
                 }

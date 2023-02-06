@@ -67,7 +67,7 @@ namespace X_IPTV
                 // Read the content.
                 string responseFromServer = await reader.ReadToEndAsync();
                 // Display the content.
-                Debug.WriteLine(responseFromServer);
+                //Debug.WriteLine(responseFromServer);
 
                 PlayerInfo info = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerInfo>(responseFromServer);
 
@@ -116,7 +116,7 @@ namespace X_IPTV
 
             if (channel24hrEpgData.epg_listings.Count == 0)
             {
-                Debug.WriteLine("epg_listings is an empty list");
+                //Debug.WriteLine("epg_listings is an empty list");
                 channel.title = "No information";
                 channel.desc = "No information";
                 return;
@@ -176,7 +176,7 @@ namespace X_IPTV
             // Read the content.
             string responseFromServer = await reader.ReadToEndAsync();
             // Display the content.
-            Debug.WriteLine(responseFromServer);
+            //Debug.WriteLine(responseFromServer);
 
             //Channels are loaded here
             ChannelEntry[] channelInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelEntry[]>(responseFromServer);
@@ -233,7 +233,7 @@ namespace X_IPTV
             // Read the content.
             string responseFromServer = await reader.ReadToEndAsync();
             // Display the content.
-            Debug.WriteLine(responseFromServer);
+            //Debug.WriteLine(responseFromServer);
 
             ChannelGroups[] info = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelGroups[]>(responseFromServer);
 

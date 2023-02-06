@@ -22,7 +22,7 @@ namespace X_IPTV
     /// 
     public partial class UserLogin : Window
     {
-        private static string programVersion = "v1.5.1";
+        private static string programVersion = "v2.0.0";
         private static UserDataSaver.User _currentUser = new UserDataSaver.User();
         private static string assemblyFolder, saveDir, userFileFullPath;
         private static bool updateCheckDone = false;
