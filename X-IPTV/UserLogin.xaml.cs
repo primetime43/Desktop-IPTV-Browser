@@ -270,41 +270,6 @@ namespace GitHubReleaseChecker
             int versionInt = major * 10000 + minor * 100 + patch;
             return versionInt;
         }
-
-        private async void checkForUpdate()
-        {
-            var release = await ReleaseChecker.CheckForNewRelease("primetime43", "Xtream-Browser");
-            int latestReleaseInt = ReleaseChecker.convertVersionToInt(release.tag_name);
-            int localProgramVersionInt = ReleaseChecker.convertVersionToInt(programVersion);
-
-            if (release != null && latestReleaseInt > localProgramVersionInt)
-            {
-                MessageBoxResult result = MessageBox.Show("Current version: " + programVersion + "\nNew release available: " + release.name + " (" + release.tag_name + ")\nDo you want to download it?", "New Release", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    try
-                    {
-                        var startInfo = new ProcessStartInfo
-                        {
-                            FileName = ReleaseChecker.releaseURL,
-                            UseShellExecute = true
-                        };
-
-                        Process.Start(startInfo);
-                    }
-                    catch (System.ComponentModel.Win32Exception ex)
-                    {
-                        MessageBox.Show("An error occurred: " + ex.Message);
-                    }
-                }
-
-            }
-            else
-            {
-                Debug.WriteLine("No new releases available.");
-            }
-        }
     }
 }
 
