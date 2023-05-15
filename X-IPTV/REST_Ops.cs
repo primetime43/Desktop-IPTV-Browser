@@ -270,29 +270,42 @@ namespace X_IPTV
         {
             Instance.playlistDataMap = new Dictionary<string, ChannelStreamData>();
 
-            var stringTask = _clientTest.GetStringAsync($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/get.php?username={_user}&password={_pass}");
-            var serverResponse = await stringTask;
-
-            var playlist = serverResponse.Split("#EXTINF:");
-            var info = new ChannelStreamData[playlist.Length];
-
-            for (int index = 0; index < playlist.Length; index++)
+            try
             {
-                if (index == 0) continue;
+                var stringTask = _clientTest.GetStringAsync($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/get.php?username={_user}&password={_pass}");
+                var serverResponse = await stringTask;
 
-                var wordArray = playlist[index].Split('"').Select((element, i) => i % 2 == 0 ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) : new string[] { element }).SelectMany(element => element).ToList();
+                var playlist = serverResponse.Split("#EXTINF:");
+                var info = new ChannelStreamData[playlist.Length];
 
-                info[index] = new ChannelStreamData
+                for (int index = 1; index < playlist.Length; index++) // Start index at 1 to skip index 0
                 {
-                    xui_id = wordArray[2],
-                    tvg_id = wordArray[4],
-                    tvg_name = wordArray[6],
-                    tvg_logo = wordArray[8],
-                    group_title = wordArray[10],
-                    stream_url = playlist[index].Substring(playlist[index].LastIndexOf("https"))
-                };
+                    var wordArray = playlist[index].Split('"').Select((element, i) => i % 2 == 0 ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) : new string[] { element }).SelectMany(element => element).ToList();
 
-                AddToPlaylistDataMap(info[index]);
+                    var startIndex = playlist[index].LastIndexOf("https");
+                    if (startIndex >= 0)
+                    {
+                        info[index] = new ChannelStreamData
+                        {
+                            xui_id = wordArray[2],
+                            tvg_id = wordArray[4],
+                            tvg_name = wordArray[6],
+                            tvg_logo = wordArray[8],
+                            group_title = wordArray[10],
+                            stream_url = playlist[index].Substring(startIndex)
+                        };
+
+                        AddToPlaylistDataMap(info[index]);
+                    }
+                    else
+                    {
+                        throw new Exception("Failed to extract stream URL from playlist."); // Throw a custom exception with an error message
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
             }
         }
 
