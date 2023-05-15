@@ -68,6 +68,8 @@ namespace X_IPTV
         public string tvg_logo { get; set; }
         public string group_title { get; set; }
         public string tvg_id { get; set; }
+
+        public string timeshift { get; set; }
     }
 
     public class ChannelGroups

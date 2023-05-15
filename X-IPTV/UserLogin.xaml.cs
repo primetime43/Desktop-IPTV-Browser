@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,7 +22,7 @@ namespace X_IPTV
     /// 
     public partial class UserLogin : Window
     {
-        private static string programVersion = "v2.0.0";
+        private static string programVersion = "v2.1.0";
         private static UserDataSaver.User _currentUser = new UserDataSaver.User();
         private static string assemblyFolder, saveDir, userFileFullPath;
         private static bool updateCheckDone = false;
@@ -70,7 +70,10 @@ namespace X_IPTV
                 await StartLoop(nav);
             }
             else
+            {
                 busy_ind.IsBusy = false;
+                busy_ind.BusyContent = ""; // Clear the busy content if the connection fails
+            }
         }
         
         public async Task StartLoop(ChannelNav categoryNav)
@@ -182,32 +185,18 @@ namespace X_IPTV
             MessageBox.Show(_currentUser.UserName + "'s data saved");
         }
 
-        private void usrTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void showUpdatedConnectionString(object sender, RoutedEventArgs e)
         {
-            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-
-            textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-        }
-
-        private void passTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-
-            textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-        }
-
-        private void serverTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-
-            textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-        }
-
-        private void portTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-
-            textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            if ((bool)protocolCheckBox.IsChecked && textBoxServerConnectionString != null)
+            {
+                textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+                textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            }
+            else if(textBoxServerConnectionString != null)
+            {
+                textBoxServerConnectionString.Text = "http://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+                textBoxPlaylistDataConnectionString.Text = "http://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            }
         }
 
         private async void checkForUpdate()
@@ -280,6 +269,41 @@ namespace GitHubReleaseChecker
             int patch = int.Parse(parts[2]);
             int versionInt = major * 10000 + minor * 100 + patch;
             return versionInt;
+        }
+
+        private async void checkForUpdate()
+        {
+            var release = await ReleaseChecker.CheckForNewRelease("primetime43", "Xtream-Browser");
+            int latestReleaseInt = ReleaseChecker.convertVersionToInt(release.tag_name);
+            int localProgramVersionInt = ReleaseChecker.convertVersionToInt(programVersion);
+
+            if (release != null && latestReleaseInt > localProgramVersionInt)
+            {
+                MessageBoxResult result = MessageBox.Show("Current version: " + programVersion + "\nNew release available: " + release.name + " (" + release.tag_name + ")\nDo you want to download it?", "New Release", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        var startInfo = new ProcessStartInfo
+                        {
+                            FileName = ReleaseChecker.releaseURL,
+                            UseShellExecute = true
+                        };
+
+                        Process.Start(startInfo);
+                    }
+                    catch (System.ComponentModel.Win32Exception ex)
+                    {
+                        MessageBox.Show("An error occurred: " + ex.Message);
+                    }
+                }
+
+            }
+            else
+            {
+                Debug.WriteLine("No new releases available.");
+            }
         }
     }
 }
