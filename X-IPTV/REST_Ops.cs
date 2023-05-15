@@ -13,6 +13,7 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security.Policy;
 using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading.Channels;
@@ -38,28 +39,39 @@ namespace X_IPTV
      */
     public class REST_Ops
     {
-        private static readonly HttpClient _client = new HttpClient();
+        private static HttpClient _client = new HttpClient();
 
-        private static readonly string _user = Instance.currentUser.username;
-        private static readonly string _pass = Instance.currentUser.password;
-        private static readonly string _server = Instance.currentUser.server;
-        private static readonly string _port = Instance.currentUser.port;
-        private static readonly bool _useHttps = Instance.currentUser.useHttps;
+        private static string _user;
+        private static string _pass;
+        private static string _server;
+        private static string _port;
+        private static bool _useHttps;
         //use get_live_categories for categories
 
         //not needed other than to get basic account info
         //keep for misc reasons and base url
         public static async Task<bool> CheckLoginConnection()
         {
-            // Create a request for the URL. 		
-            WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}");
-            // If required by the server, set the credentials.
-            request.Credentials = CredentialCache.DefaultCredentials;
-            
             try
             {
+                _user = Instance.currentUser.username;
+                _pass = Instance.currentUser.password;
+                _server = Instance.currentUser.server;
+                _port = Instance.currentUser.port;
+                _useHttps = Instance.currentUser.useHttps;
+
+                string url = $"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}";
+                Debug.WriteLine("Request URL: " + url);
+
+                // Create a request for the URL.
+                WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}");
+                
+                // If required by the server, set the credentials.
+                request.Credentials = CredentialCache.DefaultCredentials;
+
                 // Get the response.
                 HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+
                 // Get the stream containing content returned by the server.
                 Stream dataStream = response.GetResponseStream();
                 // Open the stream using a StreamReader for easy access.
@@ -90,7 +102,6 @@ namespace X_IPTV
                         // Handle the 404 Not Found response
                         System.Windows.MessageBox.Show("404 Not Found");
                     }
-
                 }
                 return false; // Connection was not successful
             }

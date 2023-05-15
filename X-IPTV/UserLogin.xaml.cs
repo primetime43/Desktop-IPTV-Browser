@@ -70,7 +70,10 @@ namespace X_IPTV
                 await StartLoop(nav);
             }
             else
+            {
                 busy_ind.IsBusy = false;
+                busy_ind.BusyContent = ""; // Clear the busy content if the connection fails
+            }
         }
         
         public async Task StartLoop(ChannelNav categoryNav)
@@ -181,31 +184,6 @@ namespace X_IPTV
             loadUsersFromDirectory();
             MessageBox.Show(_currentUser.UserName + "'s data saved");
         }
-
-        /*private void usrTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            showUpdatedConnectionString();
-        }
-
-        private void passTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            showUpdatedConnectionString();
-        }
-
-        private void serverTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            showUpdatedConnectionString();
-        }
-
-        private void protocolCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            showUpdatedConnectionString();
-        }
-
-        private void portTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            showUpdatedConnectionString();
-        }*/
 
         private void showUpdatedConnectionString(object sender, RoutedEventArgs e)
         {
