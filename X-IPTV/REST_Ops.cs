@@ -1,4 +1,4 @@
-﻿using Microsoft.SqlServer.Server;
+using Microsoft.SqlServer.Server;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
