@@ -182,32 +182,43 @@ namespace X_IPTV
             MessageBox.Show(_currentUser.UserName + "'s data saved");
         }
 
-        private void usrTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        /*private void usrTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-
-            textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            showUpdatedConnectionString();
         }
 
         private void passTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-
-            textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            showUpdatedConnectionString();
         }
 
         private void serverTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            showUpdatedConnectionString();
+        }
 
-            textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+        private void protocolCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            showUpdatedConnectionString();
         }
 
         private void portTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            showUpdatedConnectionString();
+        }*/
 
-            textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+        private void showUpdatedConnectionString(object sender, RoutedEventArgs e)
+        {
+            if ((bool)protocolCheckBox.IsChecked && textBoxServerConnectionString != null)
+            {
+                textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+                textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            }
+            else if(textBoxServerConnectionString != null)
+            {
+                textBoxServerConnectionString.Text = "http://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+                textBoxPlaylistDataConnectionString.Text = "http://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+            }
         }
 
         private async void checkForUpdate()
