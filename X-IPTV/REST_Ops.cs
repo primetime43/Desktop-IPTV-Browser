@@ -16,6 +16,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Policy;
 using System.ServiceModel.Channels;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Web.Services.Description;
@@ -65,7 +66,7 @@ namespace X_IPTV
 
                 // Create a request for the URL.
                 WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}");
-                
+
                 // If required by the server, set the credentials.
                 request.Credentials = CredentialCache.DefaultCredentials;
 
@@ -79,7 +80,7 @@ namespace X_IPTV
                 // Read the content.
                 string responseFromServer = await reader.ReadToEndAsync();
                 // Display the content.
-                //Debug.WriteLine(responseFromServer);
+                Debug.WriteLine("Response from server: " + responseFromServer);
 
                 PlayerInfo info = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerInfo>(responseFromServer);
 
@@ -97,12 +98,19 @@ namespace X_IPTV
                 if (ex.Status == WebExceptionStatus.ProtocolError)
                 {
                     HttpWebResponse response = (HttpWebResponse)ex.Response;
-                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    using (Stream errorResponse = response.GetResponseStream())
                     {
-                        // Handle the 404 Not Found response
-                        System.Windows.MessageBox.Show("404 Not Found");
+                        if (errorResponse != null)
+                        {
+                            StreamReader errorReader = new StreamReader(errorResponse);
+                            string errorResponseText = await errorReader.ReadToEndAsync();
+                            // Display the content without HTML tags.
+                            string textOnly = System.Text.RegularExpressions.Regex.Replace(errorResponseText, "<.*?>", "");
+                            System.Windows.MessageBox.Show("Response from server: " + textOnly);
+                        }
                     }
                 }
+
                 return false; // Connection was not successful
             }
         }
@@ -110,60 +118,81 @@ namespace X_IPTV
         //testing for rewrite
         public static async Task GetEPGDataForIndividualChannel(ChannelEntry channel)
         {
-            // Create a request for the URL. 		
-            WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_simple_data_table&stream_id={channel.stream_id}");
-            // If required by the server, set the credentials.
-            request.Credentials = CredentialCache.DefaultCredentials;
-            // Get the response.
-            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-            // Get the stream containing content returned by the server.
-            Stream dataStream = response.GetResponseStream();
-            // Open the stream using a StreamReader for easy access.
-            StreamReader reader = new StreamReader(dataStream);
-            // Read the content.
-            string responseFromServer = await reader.ReadToEndAsync();
-
-            Channel24hrEPG channel24hrEpgData = JsonConvert.DeserializeObject<Channel24hrEPG>(responseFromServer);
-
-            if (channel24hrEpgData.epg_listings.Count == 0)
+            try
             {
-                //Debug.WriteLine("epg_listings is an empty list");
-                channel.title = "No information";
-                channel.desc = "No information";
-                return;
-            }
+                // Create a request for the URL. 		
+                WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_simple_data_table&stream_id={channel.stream_id}");
+                // If required by the server, set the credentials.
+                request.Credentials = CredentialCache.DefaultCredentials;
+                // Get the response.
+                HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+                // Get the stream containing content returned by the server.
+                Stream dataStream = response.GetResponseStream();
+                // Open the stream using a StreamReader for easy access.
+                StreamReader reader = new StreamReader(dataStream);
+                // Read the content.
+                string responseFromServer = await reader.ReadToEndAsync();
 
-            var nowPlaying = channel24hrEpgData.epg_listings.Where(x => x.now_playing == 1).FirstOrDefault();
-            if (nowPlaying != null)
+                Channel24hrEPG channel24hrEpgData = JsonConvert.DeserializeObject<Channel24hrEPG>(responseFromServer);
+
+                if (channel24hrEpgData.epg_listings.Count == 0)
+                {
+                    // Debug.WriteLine("epg_listings is an empty list");
+                    channel.title = "No information";
+                    channel.desc = "No information";
+                    return;
+                }
+
+                var nowPlaying = channel24hrEpgData.epg_listings.Where(x => x.now_playing == 1).FirstOrDefault();
+                if (nowPlaying != null)
+                {
+                    // System.Windows.MessageBox.Show("Now playing: " + DecodeFrom64(nowPlaying.title) + "\nDescription: " + DecodeFrom64(nowPlaying.description));
+                    channel.title = DecodeFrom64(nowPlaying.title);
+                    channel.desc = DecodeFrom64(nowPlaying.description);
+
+                    DateTime startTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(double.Parse(nowPlaying.start_timestamp));
+                    DateTime stopTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(double.Parse(nowPlaying.stop_timestamp));
+
+                    startTime = TimeZoneInfo.ConvertTimeFromUtc(startTime, TimeZoneInfo.Local);
+                    stopTime = TimeZoneInfo.ConvertTimeFromUtc(stopTime, TimeZoneInfo.Local);
+
+                    channel.start_timestamp = startTime.ToString("h:mm tt MM-dd-yyyy");
+                    channel.stop_timestamp = stopTime.ToString("h:mm tt MM-dd-yyyy");
+
+                    channel.start_end_timestamp = startTime.ToString("h:mm tt") + " - " + stopTime.ToString("h:mm tt");
+                }
+
+                // Instance.allChannelEPG_24HRS_Dict.Add(stream_id, myDeserializedClass);
+
+                // Cleanup the streams and the response.
+                reader.Close();
+                dataStream.Close();
+                response.Close();
+            }
+            catch (WebException ex)
             {
-                //System.Windows.MessageBox.Show("Now playing: " + DecodeFrom64(nowPlaying.title) + "\nDescription: " + DecodeFrom64(nowPlaying.description));
-                channel.title = DecodeFrom64(nowPlaying.title);
-                channel.desc = DecodeFrom64(nowPlaying.description);
-
-                DateTime startTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(double.Parse(nowPlaying.start_timestamp));
-                DateTime stopTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(double.Parse(nowPlaying.stop_timestamp));
-
-                startTime = TimeZoneInfo.ConvertTimeFromUtc(startTime, TimeZoneInfo.Local);
-                stopTime = TimeZoneInfo.ConvertTimeFromUtc(stopTime, TimeZoneInfo.Local);
-
-                channel.start_timestamp = startTime.ToString("h:mm tt MM-dd-yyyy");
-                channel.stop_timestamp = stopTime.ToString("h:mm tt MM-dd-yyyy");
-
-                channel.start_end_timestamp = startTime.ToString("h:mm tt") + " - " + stopTime.ToString("h:mm tt");
-
-
-                /*channel.start_timestamp = nowPlaying.start;
-                channel.stop_timestamp = nowPlaying.end;*/
-                //Debug.WriteLine("Added epg for " + channel.title + " - " + nowPlaying.channel_id);
+                if (ex.Status == WebExceptionStatus.ProtocolError)
+                {
+                    HttpWebResponse response = (HttpWebResponse)ex.Response;
+                    using (Stream errorResponse = response.GetResponseStream())
+                    {
+                        if (errorResponse != null)
+                        {
+                            StreamReader errorReader = new StreamReader(errorResponse);
+                            string errorResponseText = await errorReader.ReadToEndAsync();
+                            // Display the content without HTML tags.
+                            string textOnly = System.Text.RegularExpressions.Regex.Replace(errorResponseText, "<.*?>", "");
+                            System.Windows.MessageBox.Show("Response from server: " + textOnly);
+                        }
+                    }
+                }
             }
-
-            //Instance.allChannelEPG_24HRS_Dict.Add(stream_id, myDeserializedClass);
-
-            // Cleanup the streams and the response.
-            reader.Close();
-            dataStream.Close();
-            response.Close();
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show("Error: " + ex.Message);
+            }
         }
+
 
         //Retrieves each individual channel data
         //keep pass action as parameter
@@ -173,97 +202,128 @@ namespace X_IPTV
             //action=get_live_categories    use this to get the categories (already is used, should be fine)
             //action=get_simple_data_table&stream_id=X  use this to get the channel data for a specific channel (EPG)
 
-
-            // Create a request for the URL. 	
-            WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_live_streams");
-            // If required by the server, set the credentials.
-            request.Credentials = CredentialCache.DefaultCredentials;
-            // Get the response.
-            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-            // Get the stream containing content returned by the server.
-            Stream dataStream = response.GetResponseStream();
-            // Open the stream using a StreamReader for easy access.
-            StreamReader reader = new StreamReader(dataStream);
-            // Read the content.
-            string responseFromServer = await reader.ReadToEndAsync();
-            // Display the content.
-            //Debug.WriteLine(responseFromServer);
-
-            //Channels are loaded here
-            ChannelEntry[] channelInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelEntry[]>(responseFromServer);
-
-            //add each ChannelEntry to categoryToChannelMap based on the category_id
-            /*foreach (ChannelEntry channel in channelInfo)
+            try
             {
-                if (Instance.categoryToChannelMap.ContainsKey(channel.category_id))
-                    Instance.categoryToChannelMap[channel.category_id].Add(channel);
-                else
-                    Instance.categoryToChannelMap.Add(channel.category_id, new List<ChannelEntry>() { channel });
-            }*/
+                // Create a request for the URL. 	
+                WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_live_streams");
+                // If required by the server, set the credentials.
+                request.Credentials = CredentialCache.DefaultCredentials;
+                // Get the response.
+                HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+                // Get the stream containing content returned by the server.
+                Stream dataStream = response.GetResponseStream();
+                // Open the stream using a StreamReader for easy access.
+                StreamReader reader = new StreamReader(dataStream);
+                // Read the content.
+                string responseFromServer = await reader.ReadToEndAsync();
+                // Display the content.
+                //Debug.WriteLine(responseFromServer);
 
-            int counter = 0;
-            int total = channelInfo.Length;
-            foreach (ChannelEntry channel in channelInfo)
-            {
-                busy_ind.BusyContent = $"Processing channel data... ({counter + 1}/{total})";
-                if (Instance.categoryToChannelMap.ContainsKey(channel.category_id))
-                    Instance.categoryToChannelMap[channel.category_id].Add(channel);
-                else
-                    Instance.categoryToChannelMap.Add(channel.category_id, new List<ChannelEntry>() { channel });
-                counter++;
+                //Channels are loaded here
+                ChannelEntry[] channelInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelEntry[]>(responseFromServer);
+
+                int counter = 0;
+                int total = channelInfo.Length;
+                foreach (ChannelEntry channel in channelInfo)
+                {
+                    busy_ind.BusyContent = $"Processing channel data... ({counter + 1}/{total})";
+                    if (Instance.categoryToChannelMap.ContainsKey(channel.category_id))
+                        Instance.categoryToChannelMap[channel.category_id].Add(channel);
+                    else
+                        Instance.categoryToChannelMap.Add(channel.category_id, new List<ChannelEntry>() { channel });
+                    counter++;
+                }
+
+                Instance.ChannelsArray = channelInfo;
+
+                //busy_ind.IsBusy = false;
+
+                // Cleanup the streams and the response.
+                reader.Close();
+                dataStream.Close();
+                response.Close();
+
+                //await LoadPlaylistChannelData(user, pass, server, port);//hide this call from where RetrieveChannelData is called
+
+                await LoadPlaylistDataAsync();//hide this call from where RetrieveChannelData is called
             }
-
-            Instance.ChannelsArray = channelInfo;
-
-            //busy_ind.IsBusy = false;
-
-            // Cleanup the streams and the response.
-            reader.Close();
-            dataStream.Close();
-            response.Close();
-
-            //await LoadPlaylistChannelData(user, pass, server, port);//hide this call from where RetrieveChannelData is called
-
-            await LoadPlaylistDataAsync();//hide this call from where RetrieveChannelData is called
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.ProtocolError)
+                {
+                    HttpWebResponse response = (HttpWebResponse)ex.Response;
+                    using (Stream errorResponse = response.GetResponseStream())
+                    {
+                        if (errorResponse != null)
+                        {
+                            StreamReader errorReader = new StreamReader(errorResponse);
+                            string errorResponseText = await errorReader.ReadToEndAsync();
+                            // Display the content without HTML tags.
+                            string textOnly = Regex.Replace(errorResponseText, "<.*?>", "");
+                            System.Windows.MessageBox.Show("Response from server: " + textOnly);
+                        }
+                    }
+                }
+            }
         }
 
         //keep but join in other functions, pass the action as a parameter
         public static async Task RetrieveCategories()
         {
-
-            // Create a request for the URL.
-            WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_live_categories");
-            // If required by the server, set the credentials.
-            request.Credentials = CredentialCache.DefaultCredentials;
-            // Get the response.
-            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-            // Get the stream containing content returned by the server.
-            Stream dataStream = response.GetResponseStream();
-            // Open the stream using a StreamReader for easy access.
-            StreamReader reader = new StreamReader(dataStream);
-            // Read the content.
-            string responseFromServer = await reader.ReadToEndAsync();
-            // Display the content.
-            //Debug.WriteLine(responseFromServer);
-
-            ChannelGroups[] info = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelGroups[]>(responseFromServer);
-
-            //add each category_id to the categoryToChannelMap as a key and the values null
-            foreach (ChannelGroups entry in info)
+            try
             {
-                if (!Instance.categoryToChannelMap.ContainsKey(entry.category_id))
-                    Instance.categoryToChannelMap.Add(entry.category_id, new List<ChannelEntry>());
-                else
-                    Debug.WriteLine("Key already exists in categoryToChannelMap dictionary");
+                // Create a request for the URL.
+                WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_live_categories");
+                // If required by the server, set the credentials.
+                request.Credentials = CredentialCache.DefaultCredentials;
+                // Get the response.
+                HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+                // Get the stream containing content returned by the server.
+                Stream dataStream = response.GetResponseStream();
+                // Open the stream using a StreamReader for easy access.
+                StreamReader reader = new StreamReader(dataStream);
+                // Read the content.
+                string responseFromServer = await reader.ReadToEndAsync();
+                // Display the content.
+                //Debug.WriteLine(responseFromServer);
+
+                ChannelGroups[] info = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelGroups[]>(responseFromServer);
+
+                //add each category_id to the categoryToChannelMap as a key and the values null
+                foreach (ChannelGroups entry in info)
+                {
+                    if (!Instance.categoryToChannelMap.ContainsKey(entry.category_id))
+                        Instance.categoryToChannelMap.Add(entry.category_id, new List<ChannelEntry>());
+                    else
+                        Debug.WriteLine("Key already exists in categoryToChannelMap dictionary");
+                }
+
+
+                Instance.ChannelGroupsArray = info;
+
+                // Cleanup the streams and the response.
+                reader.Close();
+                dataStream.Close();
+                response.Close();
             }
-
-
-            Instance.ChannelGroupsArray = info;
-
-            // Cleanup the streams and the response.
-            reader.Close();
-            dataStream.Close();
-            response.Close();
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.ProtocolError)
+                {
+                    HttpWebResponse response = (HttpWebResponse)ex.Response;
+                    using (Stream errorResponse = response.GetResponseStream())
+                    {
+                        if (errorResponse != null)
+                        {
+                            StreamReader errorReader = new StreamReader(errorResponse);
+                            string errorResponseText = await errorReader.ReadToEndAsync();
+                            // Display the content without HTML tags.
+                            string textOnly = Regex.Replace(errorResponseText, "<.*?>", "");
+                            System.Windows.MessageBox.Show("Response from server: " + textOnly);
+                        }
+                    }
+                }
+            }
         }
 
         private static readonly HttpClient _clientTest = CreateHttpClient();
@@ -280,7 +340,6 @@ namespace X_IPTV
         public static async Task LoadPlaylistDataAsync()
         {
             Instance.playlistDataMap = new Dictionary<string, ChannelStreamData>();
-
             try
             {
                 var stringTask = _clientTest.GetStringAsync($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/get.php?username={_user}&password={_pass}");
@@ -291,32 +350,73 @@ namespace X_IPTV
 
                 for (int index = 1; index < playlist.Length; index++) // Start index at 1 to skip index 0
                 {
-                    var wordArray = playlist[index].Split('"').Select((element, i) => i % 2 == 0 ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) : new string[] { element }).SelectMany(element => element).ToList();
+                    var playlistItem = playlist[index];
+                    //Debug.WriteLine("Playlist Item: " + playlistItem);
 
-                    var startIndex = playlist[index].LastIndexOf("https");
-                    if (startIndex >= 0)
+                    var attributeValuePairs = playlistItem.Split(' ')
+                    .Select(item => item.Trim())
+                    .Where(item => !string.IsNullOrEmpty(item))
+                    .Select(item => item.Split('='))
+                    .Where(parts => parts.Length > 1) // Exclude items without both attribute and value
+                    .Select(parts => new { Attribute = parts[0], Value = parts[1].Trim('"') })
+                    .ToDictionary(pair => pair.Attribute, pair => pair.Value);
+
+                    // Extract the last HTTPS or HTTP URL from the playlist item
+                    MatchCollection urls;
+                    if (_useHttps)
+                        urls = Regex.Matches(playlistItem, @"https://[^""]+");
+                    else
+                        urls = Regex.Matches(playlistItem, @"http://[^""]+");
+
+                    string lastHttpsUrl = urls.Cast<Match>().LastOrDefault()?.Value;
+
+                    if (!string.IsNullOrEmpty(lastHttpsUrl))
                     {
-                        info[index] = new ChannelStreamData
+                        var channelData = new ChannelStreamData
                         {
-                            xui_id = wordArray[2],
-                            tvg_id = wordArray[4],
-                            tvg_name = wordArray[6],
-                            tvg_logo = wordArray[8],
-                            group_title = wordArray[10],
-                            stream_url = playlist[index].Substring(startIndex)
+                            xui_id = attributeValuePairs.GetValueOrDefault("xui-id"),
+                            tvg_id = attributeValuePairs.GetValueOrDefault("tvg-id"),
+                            tvg_name = attributeValuePairs.GetValueOrDefault("tvg-name"),
+                            tvg_logo = attributeValuePairs.GetValueOrDefault("tvg-logo"),
+                            group_title = attributeValuePairs.GetValueOrDefault("group-title"),
+                            stream_url = lastHttpsUrl
                         };
 
-                        AddToPlaylistDataMap(info[index]);
+                        if (attributeValuePairs.ContainsKey("timeshift"))
+                        {
+                            channelData.timeshift = attributeValuePairs.GetValueOrDefault("timeshift");
+                        }
+
+                        AddToPlaylistDataMap(channelData);
                     }
                     else
                     {
-                        throw new Exception("Failed to extract stream URL from playlist."); // Throw a custom exception with an error message
+                        Debug.WriteLine("Errored on Playlist Item: " + playlistItem);
+                        throw new Exception("Failed to extract stream URL from playlist.");
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.ProtocolError)
+                {
+                    HttpWebResponse response = (HttpWebResponse)ex.Response;
+                    using (Stream errorResponse = response.GetResponseStream())
+                    {
+                        if (errorResponse != null)
+                        {
+                            StreamReader errorReader = new StreamReader(errorResponse);
+                            string errorResponseText = await errorReader.ReadToEndAsync();
+                            // Display the content without HTML tags.
+                            string textOnly = Regex.Replace(errorResponseText, "<.*?>", "");
+                            System.Windows.MessageBox.Show("Response from server: " + textOnly);
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                System.Windows.MessageBox.Show("Error: " + ex.Message);
             }
         }
 
@@ -328,8 +428,7 @@ namespace X_IPTV
             }
             else
             {
-                System.Windows.MessageBox.Show("Duplicate key: " + data.xui_id + "\rClosing application");
-                Application.Current.Shutdown();
+                Debug.WriteLine("Duplicate key: " + data.xui_id);
             }
         }
 
@@ -337,8 +436,8 @@ namespace X_IPTV
         {
             try
             {
-                byte[] encodedDataAsBytes = System.Convert.FromBase64String(encodedData);
-                string returnValue = System.Text.Encoding.UTF8.GetString(encodedDataAsBytes);
+                byte[] encodedDataAsBytes = Convert.FromBase64String(encodedData);
+                string returnValue = Encoding.UTF8.GetString(encodedDataAsBytes);
                 return returnValue;
             }
             catch (FormatException e)

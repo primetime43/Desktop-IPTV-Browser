@@ -65,7 +65,12 @@ namespace X_IPTV
             tempCE = entry;
             richTextBox.Document.Blocks.Clear();
 
-            streamURLtxtBox.Text = Instance.playlistDataMap[entry.stream_id.ToString()].stream_url;
+            //streamURLtxtBox.Text = Instance.playlistDataMap[entry.stream_id.ToString()].stream_url;
+
+            if (Instance.playlistDataMap.TryGetValue(entry.stream_id.ToString(), out ChannelStreamData streamData))
+                streamURLtxtBox.Text = streamData.stream_url;
+            else
+                streamURLtxtBox.Text = "URL not available";
 
             foreach (PropertyInfo ce in typeof(ChannelEntry).GetProperties())
             {
