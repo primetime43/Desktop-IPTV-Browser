@@ -372,22 +372,21 @@ namespace X_IPTV
 
                     if (!string.IsNullOrEmpty(lastHttpsUrl))
                     {
+                        string trimmedLastHttpsUrl = lastHttpsUrl.Trim();
+                        var idMatch = Regex.Match(trimmedLastHttpsUrl, @"/(?<id>\d+)(?:\.ts)?$");
+                        string channelId = idMatch.Groups["id"].Value;
+
                         var channelData = new ChannelStreamData
                         {
-                            xui_id = attributeValuePairs.GetValueOrDefault("xui-id"),
                             tvg_id = attributeValuePairs.GetValueOrDefault("tvg-id"),
                             tvg_name = attributeValuePairs.GetValueOrDefault("tvg-name"),
                             tvg_logo = attributeValuePairs.GetValueOrDefault("tvg-logo"),
                             group_title = attributeValuePairs.GetValueOrDefault("group-title"),
-                            stream_url = lastHttpsUrl
+                            stream_url = lastHttpsUrl,
+                            channel_id = channelId
                         };
 
-                        if (attributeValuePairs.ContainsKey("timeshift"))
-                        {
-                            channelData.timeshift = attributeValuePairs.GetValueOrDefault("timeshift");
-                        }
-
-                        AddToPlaylistDataMap(channelData);
+                        AddToPlaylistDataMap(channelData, channelId);
                     }
                     else
                     {
@@ -420,15 +419,15 @@ namespace X_IPTV
             }
         }
 
-        private static void AddToPlaylistDataMap(ChannelStreamData data)
+        private static void AddToPlaylistDataMap(ChannelStreamData data, string channelId)
         {
-            if (!Instance.playlistDataMap.ContainsKey(data.xui_id))
+            if (!Instance.playlistDataMap.ContainsKey(channelId))
             {
-                Instance.playlistDataMap.Add(data.xui_id, data);
+                Instance.playlistDataMap.Add(channelId, data);
             }
             else
             {
-                Debug.WriteLine("Duplicate key: " + data.xui_id);
+                Debug.WriteLine("Duplicate key: " + channelId);
             }
         }
 

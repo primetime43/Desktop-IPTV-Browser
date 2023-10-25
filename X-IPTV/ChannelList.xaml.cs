@@ -29,6 +29,7 @@ namespace X_IPTV
             InitializeComponent();
 
             ChannelModel model = new ChannelModel();
+            model.Initialize();
 
             //the model is the array that holds all of the ChannelEntry Objects set in the ChannelModel class
             ChannelLst.DataContext = model;
@@ -74,21 +75,33 @@ namespace X_IPTV
             dateTime = dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
             return dateTime;
         }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            ChannelNav channelNavWindow = new ChannelNav();
+            channelNavWindow.Show();
+        }
     }
 
     public class ChannelModel
     {
+        private bool isInitialized = false;
+
         public ChannelModel()
         {
-            //load all channels
             MyListBoxItems = new ObservableCollection<ChannelEntry>();
+        }
+
+        public void Initialize()
+        {
+            if (isInitialized) return; // Ensure logic runs only once
+
             foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
             {
                 if (Instance.selectedCategory == entry.category_name)
                 {
                     string selectedCategoryID = entry.category_id.ToString();
 
-                    //add each value from the categoryToChannelMap to the MyListBoxItems array
                     try
                     {
                         foreach (ChannelEntry channelEntry in Instance.categoryToChannelMap[selectedCategoryID])
@@ -98,11 +111,12 @@ namespace X_IPTV
                     }
                     catch (Exception e)
                     {
-                        //Debug.WriteLine(e);
                         MessageBox.Show("No channels found for this category.");
                     }
                 }
             }
+
+            isInitialized = true; // Mark as initialized
         }
 
         public ObservableCollection<ChannelEntry> MyListBoxItems { get; set; }

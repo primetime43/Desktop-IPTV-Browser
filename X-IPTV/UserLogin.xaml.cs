@@ -67,8 +67,7 @@ namespace X_IPTV
                 busy_ind.IsBusy = false;
 
                 ChannelNav nav = new ChannelNav();
-
-                await StartLoop(nav);
+                nav.ShowDialog();
             }
             else
             {
@@ -76,41 +75,6 @@ namespace X_IPTV
                 busy_ind.BusyContent = ""; // Clear the busy content if the connection fails
             }
         }
-        
-        public async Task StartLoop(ChannelNav categoryNav)
-        {
-            categoryNav.ShowDialog();
-            while (true)
-            {
-                if (UserLogin.ReturnToLogin)
-                    break;
-                busy_ind.IsBusy = true;
-                int counter = 0;
-                foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
-                {
-                    if (Instance.selectedCategory == entry.category_name)
-                    {
-                        string selectedCategoryID = entry.category_id.ToString();
-
-                        List<ChannelEntry> channels = Instance.categoryToChannelMap[selectedCategoryID];
-
-                        //int counter = 0;
-                        foreach (ChannelEntry channel in channels)
-                        {
-                            busy_ind.BusyContent = $"Loading epg data for {entry.category_name}... ({counter + 1}/{channels.Count})";
-                            await REST_Ops.GetEPGDataForIndividualChannel(channel);
-                            counter++;
-                        }
-                    }
-                }
-                
-                busy_ind.IsBusy = false;
-                ChannelList channelWindow = new ChannelList();
-                if(counter > 0)
-                    channelWindow.ShowDialog();
-            }
-        }
-
 
         private void loadUsersFromDirectory()
         {

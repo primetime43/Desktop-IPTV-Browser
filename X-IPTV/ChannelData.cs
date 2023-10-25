@@ -61,7 +61,6 @@ namespace X_IPTV
     //server:port/get.php?username=X&password=X
     public class ChannelStreamData
     {
-        public string xui_id { get; set; }
         public string stream_url { get; set; }
         
         public string tvg_name { get; set; } //this ASTRO | SUPERSPORT 01 (MY)
@@ -70,6 +69,7 @@ namespace X_IPTV
         public string tvg_id { get; set; }
 
         public string timeshift { get; set; }
+        public string channel_id { get; set; } //this is replacing the xui_id for the channel map
     }
 
     public class ChannelGroups

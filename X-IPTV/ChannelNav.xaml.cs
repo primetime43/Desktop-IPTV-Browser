@@ -91,7 +91,36 @@ namespace X_IPTV
         {
             var tb = sender as TextBlock;
             Instance.selectedCategory = tb.Text;
-            this.Close();
+
+            busy_ind.IsBusy = true;
+            int counter = 0;
+            foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
+            {
+                if (Instance.selectedCategory == entry.category_name)
+                {
+                    string selectedCategoryID = entry.category_id.ToString();
+
+                    List<ChannelEntry> channels = Instance.categoryToChannelMap[selectedCategoryID];
+
+                    //int counter = 0;
+                    foreach (ChannelEntry channel in channels)
+                    {
+                        busy_ind.BusyContent = $"Loading epg data for {entry.category_name}... ({counter + 1}/{channels.Count})";
+                        await REST_Ops.GetEPGDataForIndividualChannel(channel);
+                        counter++;
+                    }
+                }
+            }
+
+            busy_ind.IsBusy = false;
+            ChannelList channelWindow = new ChannelList();
+            if (counter > 0)
+            {
+                channelWindow.ShowDialog();
+                this.Close();
+            }
+            else
+                Xceed.Wpf.Toolkit.MessageBox.Show("No channels available in " + Instance.selectedCategory);
         }
     }
 }

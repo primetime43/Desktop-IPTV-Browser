@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:X_IPTV"
         mc:Ignorable="d"
-        Title="Channel Guide - Hover Over A Channel For Description" Height="450" Width="800">
+        Title="Channel Guide - Hover Over A Channel For Description" Height="450" Width="800"
+        Closed="Window_Closed">
     <Window.Resources>
         <local:MyMockClass x:Key="DesignViewModel"/>
 
