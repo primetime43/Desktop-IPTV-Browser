@@ -17,6 +17,7 @@ using System.Security.Policy;
 using System.ServiceModel.Channels;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Web.Services.Description;
@@ -51,10 +52,12 @@ namespace X_IPTV
 
         //not needed other than to get basic account info
         //keep for misc reasons and base url
-        public static async Task<bool> CheckLoginConnection()
+        public static async Task<bool> CheckLoginConnection(CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
+
                 _user = Instance.currentUser.username;
                 _pass = Instance.currentUser.password;
                 _server = Instance.currentUser.server;
@@ -106,20 +109,28 @@ namespace X_IPTV
                             string errorResponseText = await errorReader.ReadToEndAsync();
                             // Display the content without HTML tags.
                             string textOnly = System.Text.RegularExpressions.Regex.Replace(errorResponseText, "<.*?>", "");
-                            System.Windows.MessageBox.Show("Response from server: " + textOnly);
+                            Xceed.Wpf.Toolkit.MessageBox.Show("Response from server: " + textOnly);
                         }
                     }
                 }
 
                 return false; // Connection was not successful
             }
+            catch (OperationCanceledException)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Login Canceled.");
+                return false;
+            }
         }
 
         //testing for rewrite
-        public static async Task GetEPGDataForIndividualChannel(ChannelEntry channel)
+        public static async Task GetEPGDataForIndividualChannel(ChannelEntry channel, CancellationToken token)
         {
             try
             {
+                // Periodically check if cancellation is requested
+                token.ThrowIfCancellationRequested();
+
                 // Create a request for the URL. 		
                 WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_simple_data_table&stream_id={channel.stream_id}");
                 // If required by the server, set the credentials.
@@ -181,22 +192,23 @@ namespace X_IPTV
                             StreamReader errorReader = new StreamReader(errorResponse);
                             string errorResponseText = await errorReader.ReadToEndAsync();
                             // Display the content without HTML tags.
-                            string textOnly = System.Text.RegularExpressions.Regex.Replace(errorResponseText, "<.*?>", "");
-                            System.Windows.MessageBox.Show("Response from server: " + textOnly);
+                            string textOnly = Regex.Replace(errorResponseText, "<.*?>", "");
+                            Xceed.Wpf.Toolkit.MessageBox.Show("Response from server: " + textOnly);
                         }
                     }
                 }
             }
+            catch (OperationCanceledException) {}
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("Error: " + ex.Message);
+                Xceed.Wpf.Toolkit.MessageBox.Show("Error: " + ex.Message);
             }
         }
 
 
         //Retrieves each individual channel data
         //keep pass action as parameter
-        public static async Task RetrieveChannelData(BusyIndicator busy_ind)//maybe pass in the action as a string and use this for all action calls
+        public static async Task RetrieveChannelData(BusyIndicator busy_ind, CancellationToken token)//maybe pass in the action as a string and use this for all action calls
         {
             //action=get_live_streams  use this to get all the channels and their data
             //action=get_live_categories    use this to get the categories (already is used, should be fine)
@@ -204,6 +216,8 @@ namespace X_IPTV
 
             try
             {
+                token.ThrowIfCancellationRequested();
+
                 // Create a request for the URL. 	
                 WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_live_streams");
                 // If required by the server, set the credentials.
@@ -243,8 +257,6 @@ namespace X_IPTV
                 dataStream.Close();
                 response.Close();
 
-                //await LoadPlaylistChannelData(user, pass, server, port);//hide this call from where RetrieveChannelData is called
-
                 await LoadPlaylistDataAsync();//hide this call from where RetrieveChannelData is called
             }
             catch (WebException ex)
@@ -260,18 +272,24 @@ namespace X_IPTV
                             string errorResponseText = await errorReader.ReadToEndAsync();
                             // Display the content without HTML tags.
                             string textOnly = Regex.Replace(errorResponseText, "<.*?>", "");
-                            System.Windows.MessageBox.Show("Response from server: " + textOnly);
+                            Xceed.Wpf.Toolkit.MessageBox.Show("Response from server: " + textOnly);
                         }
                     }
                 }
             }
+            catch (OperationCanceledException)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Login Canceled.");
+            }
         }
 
         //keep but join in other functions, pass the action as a parameter
-        public static async Task RetrieveCategories()
+        public static async Task RetrieveCategories(CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
+
                 // Create a request for the URL.
                 WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_live_categories");
                 // If required by the server, set the credentials.
@@ -319,10 +337,14 @@ namespace X_IPTV
                             string errorResponseText = await errorReader.ReadToEndAsync();
                             // Display the content without HTML tags.
                             string textOnly = Regex.Replace(errorResponseText, "<.*?>", "");
-                            System.Windows.MessageBox.Show("Response from server: " + textOnly);
+                            Xceed.Wpf.Toolkit.MessageBox.Show("Response from server: " + textOnly);
                         }
                     }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Login Canceled.");
             }
         }
 
@@ -408,14 +430,14 @@ namespace X_IPTV
                             string errorResponseText = await errorReader.ReadToEndAsync();
                             // Display the content without HTML tags.
                             string textOnly = Regex.Replace(errorResponseText, "<.*?>", "");
-                            System.Windows.MessageBox.Show("Response from server: " + textOnly);
+                            Xceed.Wpf.Toolkit.MessageBox.Show("Response from server: " + textOnly);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("Error: " + ex.Message);
+                Xceed.Wpf.Toolkit.MessageBox.Show("Error: " + ex.Message);
             }
         }
 

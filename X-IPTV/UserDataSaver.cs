@@ -70,7 +70,7 @@ namespace X_IPTV
                             loadedUser.Port = words[1];
                             break;
                         default:
-                            MessageBox.Show("Error trying to set " + words[0] + " property");
+                            Xceed.Wpf.Toolkit.MessageBox.Show("Error trying to set " + words[0] + " property");
                             break;
                     }
                 }

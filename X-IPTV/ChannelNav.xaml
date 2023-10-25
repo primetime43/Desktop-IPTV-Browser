@@ -6,7 +6,37 @@
         xmlns:local="clr-namespace:X_IPTV" xmlns:extToolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="Channel Group Guide" Height="450" Width="800">
-    <extToolkit:BusyIndicator x:Name="busy_ind" IsBusy="False" BusyContent="Authenticating...">
+
+    <Window.Resources>
+        <!-- BusyIndicator Style with Cancel Button -->
+        <Style x:Key="BusyIndicatorStyle" TargetType="extToolkit:BusyIndicator">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="extToolkit:BusyIndicator">
+                        <Grid>
+                            <ContentControl Content="{TemplateBinding Content}" />
+                            <Grid x:Name="busyGrid" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                                <Rectangle Fill="White" Opacity="0.75"/>
+                                <Border Background="WhiteSmoke" CornerRadius="10" Padding="10">
+                                    <StackPanel>
+                                        <TextBlock x:Name="busyContent" Text="{TemplateBinding BusyContent}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                        <ProgressBar Width="180" Height="15" IsIndeterminate="True" VerticalAlignment="Top" Margin="10,10,10,5"/>
+                                        <Button Content="Cancel" Width="80" Height="25" HorizontalAlignment="Center" Click="CancelButton_Click"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsBusy" Value="True">
+                                <Setter TargetName="busyGrid" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <extToolkit:BusyIndicator x:Name="busy_ind" IsBusy="False" BusyContent="Authenticating..." Style="{StaticResource BusyIndicatorStyle}">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="13*"/>

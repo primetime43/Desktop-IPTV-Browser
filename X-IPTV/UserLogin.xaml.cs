@@ -26,6 +26,7 @@ namespace X_IPTV
         private static UserDataSaver.User _currentUser = new UserDataSaver.User();
         private static string assemblyFolder, saveDir, userFileFullPath;
         private static bool updateCheckDone = false;
+        private CancellationTokenSource cts = new CancellationTokenSource();
         public static bool ReturnToLogin { get; set; } = false;
 
         public UserLogin()
@@ -50,30 +51,44 @@ namespace X_IPTV
             Instance.currentUser.port = portTxt.Text;
             Instance.currentUser.useHttps = (bool)protocolCheckBox.IsChecked;
 
+            if (string.IsNullOrWhiteSpace(Instance.currentUser.username) ||
+                string.IsNullOrWhiteSpace(Instance.currentUser.password) ||
+                string.IsNullOrWhiteSpace(Instance.currentUser.server) ||
+                string.IsNullOrWhiteSpace(Instance.currentUser.port))
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Please ensure all fields are filled out before attempting to connect.");
+                return; // Exit early as not all fields are filled.
+            }
+
             busy_ind.IsBusy = true;
             UserLogin.ReturnToLogin = false;
             busy_ind.BusyContent = "Attempting to connect...";
-
-            if (await REST_Ops.CheckLoginConnection())//Connect to the server
+            try
             {
-                busy_ind.BusyContent = "Loading groups/categories data...";
+                if (await REST_Ops.CheckLoginConnection(cts.Token))//Connect to the server
+                {
+                    busy_ind.BusyContent = "Loading groups/categories data...";
+                    await REST_Ops.RetrieveCategories(cts.Token); // Load epg into the channels array
 
-                await REST_Ops.RetrieveCategories();//Load epg it into the channels array
+                    busy_ind.BusyContent = "Loading channel data...";
+                    await REST_Ops.RetrieveChannelData(busy_ind, cts.Token);
 
-                busy_ind.BusyContent = "Loading channel data...";
-
-                await REST_Ops.RetrieveChannelData(busy_ind);
-
-                busy_ind.IsBusy = false;
-
-                ChannelNav nav = new ChannelNav();
-                nav.ShowDialog();
+                    busy_ind.IsBusy = false;
+                    if (!cts.IsCancellationRequested)
+                    {
+                        ChannelNav nav = new ChannelNav();
+                        nav.ShowDialog();
+                    }
+                }
+                else
+                {
+                    busy_ind.IsBusy = false;
+                    busy_ind.BusyContent = ""; // Clear the busy content if the connection fails
+                }
             }
-            else
-            {
-                busy_ind.IsBusy = false;
-                busy_ind.BusyContent = ""; // Clear the busy content if the connection fails
-            }
+            catch (OperationCanceledException) {}
+
+            cts = new CancellationTokenSource();//reset the token
         }
 
         private void loadUsersFromDirectory()
@@ -96,7 +111,7 @@ namespace X_IPTV
         {
             if (_currentUser?.UserName == null || _currentUser?.Password == null || _currentUser?.Server == null || _currentUser?.Port == null)
             {
-                MessageBox.Show("User data is missing, unable to load " + UsercomboBox.SelectedValue.ToString());
+                Xceed.Wpf.Toolkit.MessageBox.Show("User data is missing, unable to load " + UsercomboBox.SelectedValue.ToString());
                 return;
             }
 
@@ -109,7 +124,7 @@ namespace X_IPTV
         {
             if (UsercomboBox.SelectedItem == null)
             {
-                MessageBox.Show("You must select a user to load");
+                Xceed.Wpf.Toolkit.MessageBox.Show("You must select a user to load");
                 return;
             }
 
@@ -127,7 +142,7 @@ namespace X_IPTV
             }
             else
             {
-                MessageBox.Show("You must select a user");
+                Xceed.Wpf.Toolkit.MessageBox.Show("You must select a user");
                 return null;
             }
         }
@@ -136,7 +151,7 @@ namespace X_IPTV
         {
             if (usrTxt.Text == null || usrTxt.Text.Length <= 0)
             {
-                MessageBox.Show("Username input field is blank");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Username input field is blank");
                 return;
             }
 
@@ -146,7 +161,7 @@ namespace X_IPTV
             _currentUser.Port = portTxt.Text;
             UserDataSaver.SaveUserData(_currentUser);
             loadUsersFromDirectory();
-            MessageBox.Show(_currentUser.UserName + "'s data saved");
+            Xceed.Wpf.Toolkit.MessageBox.Show(_currentUser.UserName + "'s data saved");
         }
 
         private void showUpdatedConnectionString(object sender, RoutedEventArgs e)
@@ -163,6 +178,12 @@ namespace X_IPTV
             }
         }
 
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            busy_ind.IsBusy = false;
+            cts.Cancel();
+        }
+
         private async void checkForUpdate()
         {
             var release = await ReleaseChecker.CheckForNewRelease("primetime43", "Xtream-Browser");
@@ -171,7 +192,7 @@ namespace X_IPTV
 
             if (release != null && latestReleaseInt > localProgramVersionInt)
             {
-                MessageBoxResult result = MessageBox.Show("Current version: " + programVersion + "\nNew release available: " + release.name + " (" + release.tag_name + ")\nDo you want to download it?", "New Release", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                MessageBoxResult result = Xceed.Wpf.Toolkit.MessageBox.Show("Current version: " + programVersion + "\nNew release available: " + release.name + " (" + release.tag_name + ")\nDo you want to download it?", "New Release", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
                 {
@@ -187,7 +208,7 @@ namespace X_IPTV
                     }
                     catch (System.ComponentModel.Win32Exception ex)
                     {
-                        MessageBox.Show("An error occurred: " + ex.Message);
+                        Xceed.Wpf.Toolkit.MessageBox.Show("An error occurred: " + ex.Message);
                     }
                 }
 

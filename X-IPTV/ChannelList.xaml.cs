@@ -51,8 +51,8 @@ namespace X_IPTV
             //Console.WriteLine(Instance.playlistDataMap[entry.stream_id.ToString()].stream_url);
 
             //fix
-            channelOp.displaySelectedChannelData(entry);
-            channelOp.Show();
+            if(channelOp.displaySelectedChannelData(entry))
+                channelOp.Show();
         }
 
         private void listBox1_MouseDown(object sender, RoutedEventArgs e)
@@ -111,7 +111,7 @@ namespace X_IPTV
                     }
                     catch (Exception e)
                     {
-                        MessageBox.Show("No channels found for this category.");
+                        Xceed.Wpf.Toolkit.MessageBox.Show("No channels found for this category.");
                     }
                 }
             }

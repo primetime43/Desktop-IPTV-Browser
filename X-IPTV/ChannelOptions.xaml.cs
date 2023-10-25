@@ -58,26 +58,35 @@ namespace X_IPTV
             Process.Start(startInfo);
         }
 
-        public void displaySelectedChannelData(ChannelEntry entry)
+        public bool displaySelectedChannelData(ChannelEntry entry)
         {
-            this.Title = entry.name;
-            this.Icon = new BitmapImage(new Uri(entry.stream_icon));
-            tempCE = entry;
-            richTextBox.Document.Blocks.Clear();
-
-            //streamURLtxtBox.Text = Instance.playlistDataMap[entry.stream_id.ToString()].stream_url;
-
-            if (Instance.playlistDataMap.TryGetValue(entry.stream_id.ToString(), out ChannelStreamData streamData))
-                streamURLtxtBox.Text = streamData.stream_url;
-            else
-                streamURLtxtBox.Text = "URL not available";
-
-            foreach (PropertyInfo ce in typeof(ChannelEntry).GetProperties())
+            try
             {
-                if (ce.Name == "added")
-                    richTextBox.AppendText(ce.Name + ": " + convertUnixToRealTIme(Convert.ToInt32(ce.GetValue(entry))) + "\r");
+                this.Title = entry.name;
+                this.Icon = new BitmapImage(new Uri(entry.stream_icon));
+                tempCE = entry;
+                richTextBox.Document.Blocks.Clear();
+
+                //streamURLtxtBox.Text = Instance.playlistDataMap[entry.stream_id.ToString()].stream_url;
+
+                if (Instance.playlistDataMap.TryGetValue(entry.stream_id.ToString(), out ChannelStreamData streamData))
+                    streamURLtxtBox.Text = streamData.stream_url;
                 else
-                    richTextBox.AppendText(ce.Name + ": " + ce.GetValue(entry) + "\r");
+                    streamURLtxtBox.Text = "URL not available";
+
+                foreach (PropertyInfo ce in typeof(ChannelEntry).GetProperties())
+                {
+                    if (ce.Name == "added")
+                        richTextBox.AppendText(ce.Name + ": " + convertUnixToRealTIme(Convert.ToInt32(ce.GetValue(entry))) + "\r");
+                    else
+                        richTextBox.AppendText(ce.Name + ": " + ce.GetValue(entry) + "\r");
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("An error occurred: " + ex.Message);
+                return false;
             }
         }
 

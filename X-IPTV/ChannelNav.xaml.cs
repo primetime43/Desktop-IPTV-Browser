@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,8 +15,10 @@ namespace X_IPTV
     /// <summary>
     /// Interaction logic for ChannelNav.xaml
     /// </summary>
+    /// 
     public partial class ChannelNav : Window
     {
+        private CancellationTokenSource cts;
         public ChannelNav()
         {
             InitializeComponent();
@@ -89,6 +92,8 @@ namespace X_IPTV
 
         private async void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            cts = new CancellationTokenSource();
+
             var tb = sender as TextBlock;
             Instance.selectedCategory = tb.Text;
 
@@ -102,25 +107,38 @@ namespace X_IPTV
 
                     List<ChannelEntry> channels = Instance.categoryToChannelMap[selectedCategoryID];
 
-                    //int counter = 0;
                     foreach (ChannelEntry channel in channels)
                     {
-                        busy_ind.BusyContent = $"Loading epg data for {entry.category_name}... ({counter + 1}/{channels.Count})";
-                        await REST_Ops.GetEPGDataForIndividualChannel(channel);
-                        counter++;
+                        if (!cts.IsCancellationRequested)//checks if its been canceled
+                        {
+                            busy_ind.BusyContent = $"Loading epg data for {entry.category_name}... ({counter + 1}/{channels.Count})";
+                            await REST_Ops.GetEPGDataForIndividualChannel(channel, cts.Token);
+                            counter++;
+                        }
+                        else
+                            break;
                     }
                 }
             }
 
             busy_ind.IsBusy = false;
             ChannelList channelWindow = new ChannelList();
-            if (counter > 0)
+            if (counter > 0 && !cts.IsCancellationRequested)
             {
                 channelWindow.ShowDialog();
                 this.Close();
             }
-            else
+            else if(counter == 0)
                 Xceed.Wpf.Toolkit.MessageBox.Show("No channels available in " + Instance.selectedCategory);
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (cts != null)
+            {
+                cts.Cancel();
+            }
+            busy_ind.IsBusy = false;
         }
     }
 }
