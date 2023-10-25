@@ -26,6 +26,7 @@ namespace X_IPTV
         private static UserDataSaver.User _currentUser = new UserDataSaver.User();
         private static string assemblyFolder, saveDir, userFileFullPath;
         private static bool updateCheckDone = false;
+        public static bool ReturnToLogin { get; set; } = false;
 
         public UserLogin()
         {
@@ -50,7 +51,7 @@ namespace X_IPTV
             Instance.currentUser.useHttps = (bool)protocolCheckBox.IsChecked;
 
             busy_ind.IsBusy = true;
-
+            UserLogin.ReturnToLogin = false;
             busy_ind.BusyContent = "Attempting to connect...";
 
             if (await REST_Ops.CheckLoginConnection())//Connect to the server
@@ -81,6 +82,8 @@ namespace X_IPTV
             categoryNav.ShowDialog();
             while (true)
             {
+                if (UserLogin.ReturnToLogin)
+                    break;
                 busy_ind.IsBusy = true;
                 int counter = 0;
                 foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
@@ -105,9 +108,6 @@ namespace X_IPTV
                 ChannelList channelWindow = new ChannelList();
                 if(counter > 0)
                     channelWindow.ShowDialog();
-
-                ChannelNav nav = new ChannelNav();
-                nav.ShowDialog();
             }
         }
 

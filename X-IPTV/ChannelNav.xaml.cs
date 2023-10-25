@@ -81,6 +81,12 @@ namespace X_IPTV
             Environment.Exit(1);
         }
 
+        private void backToLoginBtn_Click(object sender, RoutedEventArgs e)
+        {
+            UserLogin.ReturnToLogin = true;
+            this.Close();
+        }
+
         private async void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var tb = sender as TextBlock;

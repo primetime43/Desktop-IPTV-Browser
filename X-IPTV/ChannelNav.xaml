@@ -13,6 +13,7 @@
             <ColumnDefinition Width="135*"/>
         </Grid.ColumnDefinitions>
         <Button x:Name="quitBtn" Content="Quit" HorizontalAlignment="Left" Height="45" Margin="530,354,0,0" VerticalAlignment="Top" Width="115" Click="quitBtn_Click" Grid.Column="2"/>
+        <Button x:Name="backToLoginBtn" Content="Back to Login" HorizontalAlignment="Left" Height="45" Margin="390,354,0,0" VerticalAlignment="Top" Width="115" Click="backToLoginBtn_Click" Grid.Column="2"/>
         <ListView x:Name="listViewTest" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.ColumnSpan="3" Margin="0,0,595,0">
             <ListView.ItemTemplate>
                 <DataTemplate>
