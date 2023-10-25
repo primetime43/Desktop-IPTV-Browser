@@ -90,12 +90,26 @@ namespace X_IPTV
             this.Close();
         }
 
-        private async void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
+        private void ListViewItem_Selected(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                var selectedItem = e.AddedItems[0] as ChannelGroups;
+
+                if (selectedItem != null)
+                {
+                    string selectedText = selectedItem.category_name;
+                    loadSelectedCategory(selectedText);
+                }
+            }
+        }
+
+
+        private async void loadSelectedCategory(string categoryName)
         {
             cts = new CancellationTokenSource();
 
-            var tb = sender as TextBlock;
-            Instance.selectedCategory = tb.Text;
+            Instance.selectedCategory = categoryName;
 
             busy_ind.IsBusy = true;
             int counter = 0;
