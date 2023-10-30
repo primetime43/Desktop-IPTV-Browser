@@ -449,7 +449,7 @@ namespace X_IPTV
             }
             else
             {
-                Debug.WriteLine("Duplicate key: " + channelId);
+                //Debug.WriteLine("Duplicate key: " + channelId);
             }
         }
 

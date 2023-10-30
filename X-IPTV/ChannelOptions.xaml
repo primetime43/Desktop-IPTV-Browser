@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:X_IPTV"
         mc:Ignorable="d"
         Title="Channel Information Options" Height="450" Width="735">
-    <Grid>
+    <Grid Background="LightGray">
         <Grid.RowDefinitions>
             <RowDefinition Height="59*"/>
             <RowDefinition Height="375*"/>
@@ -17,8 +17,8 @@
             <ColumnDefinition Width="115*"/>
             <ColumnDefinition Width="0*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="openVLCbtn" Content="Open in VLC" HorizontalAlignment="Left" Height="40" Margin="210,235,0,0" VerticalAlignment="Top" Width="100" Click="openVLCbtn_Click" Grid.Column="1" Grid.Row="1"/>
-        <Button x:Name="closeBtn" Content="Close" HorizontalAlignment="Left" Height="40" Margin="350,235,0,0" VerticalAlignment="Top" Width="110" Click="closeBtn_Click" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1"/>
+        <Button x:Name="openVLCbtn" Content="Open in VLC" Background="White" HorizontalAlignment="Left" Height="40" Margin="210,235,0,0" VerticalAlignment="Top" Width="100" Click="openVLCbtn_Click" Grid.Column="1" Grid.Row="1"/>
+        <Button x:Name="closeBtn" Content="Close" Background="White" HorizontalAlignment="Left" Height="40" Margin="350,235,0,0" VerticalAlignment="Top" Width="110" Click="closeBtn_Click" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1"/>
         <RichTextBox x:Name="richTextBox" HorizontalAlignment="Left" Height="220" Margin="140,44,0,0" VerticalAlignment="Top" Width="390" Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="2">
             <FlowDocument>
                 <Paragraph>
