@@ -14,6 +14,8 @@ using System.Diagnostics;
 using System.Net.Http.Json;
 using GitHubReleaseChecker;
 using Newtonsoft.Json.Linq;
+using static X_IPTV.UserDataSaver;
+using Microsoft.Win32;
 
 namespace X_IPTV
 {
@@ -162,18 +164,6 @@ namespace X_IPTV
             serverTxt.Text = _currentUser.Server;
             portTxt.Text = _currentUser.Port;
         }
-        private void loadUserDataBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (UsercomboBox.SelectedItem == null)
-            {
-                Xceed.Wpf.Toolkit.MessageBox.Show("You must select a user to load");
-                return;
-            }
-
-            _currentUser = UserDataSaver.GetUserData(UsercomboBox.SelectedValue.ToString(), getUserFileLocalPath());
-            loadDataIntoTextFields();
-            UsercomboBox.SelectedItem = null;
-        }
 
         private void XtreamCodes_Checked(object sender, RoutedEventArgs e)
         {
@@ -203,6 +193,19 @@ namespace X_IPTV
             }
         }
 
+        private void loadUserDataBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (UsercomboBox.SelectedItem == null)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("You must select a user to load");
+                return;
+            }
+
+            _currentUser = UserDataSaver.GetUserData(UsercomboBox.SelectedValue.ToString(), getUserFileLocalPath());
+            loadDataIntoTextFields();
+            UsercomboBox.SelectedItem = null;
+        }
+
         private void saveUserDataBtn_Click(object sender, RoutedEventArgs e)
         {
             if (usrTxt.Text == null || usrTxt.Text.Length <= 0)
@@ -218,6 +221,61 @@ namespace X_IPTV
             UserDataSaver.SaveUserData(_currentUser);
             loadUsersFromDirectory();
             Xceed.Wpf.Toolkit.MessageBox.Show(_currentUser.UserName + "'s data saved");
+        }
+
+        private void M3U_loadButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "M3U Files (*.txt)|*.txt",
+                InitialDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "M3U")
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string filenameWithoutExtension = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+                M3UData m3uData = UserDataSaver.GetM3UData(filenameWithoutExtension);
+
+                if (m3uData != null)
+                {
+                    m3uURLTxtbox.Text = m3uData.PlaylistURL;
+                    m3uEpgUrlTxtbox.Text = m3uData.EPGURL;
+                    MessageBox.Show(filenameWithoutExtension + " loaded successfully.");
+                }
+            }
+        }
+
+        private void M3U_saveButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(m3uURLTxtbox.Text))
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("The playlist URL is empty.");
+                return;
+            }
+
+            string playlistName = Microsoft.VisualBasic.Interaction.InputBox("Please enter a name for the playlist:", "Save Playlist", "DefaultPlaylistName");
+
+            // Check if the InputBox was cancelled by the user.
+            if (playlistName == "")
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(playlistName))
+            {
+                M3UData m3uData = new M3UData
+                {
+                    PlaylistURL = m3uURLTxtbox.Text,
+                    EPGURL = m3uEpgUrlTxtbox.Text
+                };
+
+                UserDataSaver.SaveM3UData(m3uData, playlistName);
+                MessageBox.Show("Playlist saved successfully as " + playlistName);
+            }
+            else
+            {
+                MessageBox.Show("You must enter a name for the playlist.");
+            }
         }
 
         private void showUpdatedConnectionString(object sender, RoutedEventArgs e)

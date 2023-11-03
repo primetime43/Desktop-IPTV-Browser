@@ -35,6 +35,36 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="LoadButtonStyle" TargetType="Button">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Text, ElementName=m3uURLTxtbox}" Value="">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsChecked, ElementName=m3uCheckBox}" Value="False"/>
+                        <Condition Binding="{Binding Text, ElementName=m3uURLTxtbox}" Value=""/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SaveButtonStyle" TargetType="Button">
+            <Setter Property="Visibility" Value="Visible"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Text, ElementName=m3uURLTxtbox}" Value="">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsChecked, ElementName=m3uCheckBox}" Value="True"/>
+                        <Condition Binding="{Binding Text, ElementName=m3uURLTxtbox}" Value="{x:Null}"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Visibility" Value="Visible"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
     </Window.Resources>
     <extToolkit:BusyIndicator x:Name="busy_ind" IsBusy="False" BusyContent="Authenticating..." Style="{StaticResource BusyIndicatorStyle}">
@@ -64,6 +94,8 @@
             <TextBox x:Name="m3uURLTxtbox" HorizontalAlignment="Center" Height="23" Margin="0,144,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="264" Visibility="{Binding ElementName=m3uCheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
             <Label Content="EPG URL (optional):" Margin="267,177,400,199" Visibility="{Binding ElementName=m3uCheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
             <TextBox x:Name="m3uEpgUrlTxtbox" HorizontalAlignment="Center" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="263" Margin="0,212,0,0" Visibility="{Binding ElementName=m3uCheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <Button x:Name="M3U_saveButton" Content="Save Playlist" HorizontalAlignment="Left" Margin="302,300,0,0" VerticalAlignment="Top" Height="25" Width="142" Background="White" Style="{StaticResource SaveButtonStyle}" Click="M3U_saveButton_Click"/>
+            <Button x:Name="M3U_loadButton" Content="Load Playlist" HorizontalAlignment="Left" Margin="302,300,0,0" VerticalAlignment="Top" Height="25" Width="142" Background="White" Style="{StaticResource LoadButtonStyle}" Click="M3U_loadButton_Click"/>
         </Grid>
     </extToolkit:BusyIndicator>
 </Window>
