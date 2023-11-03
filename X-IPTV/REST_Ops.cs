@@ -8,25 +8,18 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security.Policy;
-using System.ServiceModel.Channels;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Web.Services.Description;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Media.Media3D;
-using System.Xml;
+using System.Xml.Linq;
 using Xceed.Wpf.Toolkit;
+using static X_IPTV.M3UPlaylist;
 
 namespace X_IPTV
 {
@@ -39,7 +32,7 @@ namespace X_IPTV
      * 
      * get.php
      */
-    public class REST_Ops
+    public class XstreamCodes
     {
         private static HttpClient _client = new HttpClient();
 
@@ -465,6 +458,308 @@ namespace X_IPTV
             {
                 Console.WriteLine("An error occurred while decoding the base64 encoded string: " + e.Message);
                 return null;
+            }
+        }
+    }
+
+    public class M3UPlaylist
+    {
+        public M3UPlaylist() { }
+
+        public interface IChannel
+        {
+            string DisplayName { get; }
+            string IconUrl { get; }
+            string Title { get; }
+            string Description { get; }
+        }
+
+        public class M3UChannel : IChannel
+        {
+            public string ChannelNumber { get; set; }
+            public string ChannelId { get; set; }
+            public string ChannelName { get; set; }
+            public string LogoUrl { get; set; }
+            public string GroupTitle { get; set; }
+            public string StreamUrl { get; set; }
+
+            public M3UEPGData EPGData { get; set; }
+
+            public string DisplayName => this.ChannelName;
+            public string IconUrl => this.LogoUrl;
+            public string Title => this.EPGData?.ProgramTitle;
+            public string Description => this.EPGData?.Description;
+        }
+
+        public class M3UEPGData
+        {
+            public string ChannelId { get; set; }
+            public string ProgramTitle { get; set; }
+            public DateTime StartTime { get; set; }
+            public DateTime EndTime { get; set; }
+            public string Description { get; set; }
+        }
+
+        public static async Task RetrieveM3UPlaylistData(string m3uPlaylistUrl, CancellationToken token)
+        {
+            try
+            {
+                token.ThrowIfCancellationRequested();
+
+                // Create a request for the URL.
+                WebRequest request = WebRequest.Create(m3uPlaylistUrl);
+                // If required by the server, set the credentials.
+                request.Credentials = CredentialCache.DefaultCredentials;
+                // Get the response.
+                HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+                // Get the stream containing content returned by the server.
+                Stream dataStream = response.GetResponseStream();
+                // Open the stream using a StreamReader for easy access.
+                StreamReader reader = new StreamReader(dataStream);
+                // Read the content.
+                string responseFromServer = await reader.ReadToEndAsync();
+
+                // Now you have the M3U playlist data in responseFromServer, and you can parse it.
+                var channels = ParseM3UPlaylist(responseFromServer);
+                Instance.M3UChannels = channels;
+
+                // Link M3U channels to EPG data
+                LinkChannelsToEPG(Instance.M3UChannels, Instance.M3UEPGDataList);
+
+                // Here you can do something with the parsed channels
+                // For example, you could add them to a list in your application.
+
+                // Cleanup the streams and the response.
+                reader.Close();
+                dataStream.Close();
+                response.Close();
+            }
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.ProtocolError)
+                {
+                    HttpWebResponse response = (HttpWebResponse)ex.Response;
+                    using (Stream errorResponse = response.GetResponseStream())
+                    {
+                        if (errorResponse != null)
+                        {
+                            StreamReader errorReader = new StreamReader(errorResponse);
+                            string errorResponseText = await errorReader.ReadToEndAsync();
+                            // Display the content without HTML tags.
+                            string textOnly = Regex.Replace(errorResponseText, "<.*?>", "");
+                            Xceed.Wpf.Toolkit.MessageBox.Show("Response from server: " + textOnly);
+                        }
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Operation Canceled.");
+            }
+        }
+
+        private static void LinkChannelsToEPG(List<M3UChannel> channels, List<M3UEPGData> epgDataList)
+        {
+            foreach (var channel in channels)
+            {
+                // Find the EPG data for the current channel
+                var epgData = epgDataList.FirstOrDefault(e => e.ChannelId == channel.ChannelId);
+                if (epgData != null)
+                {
+                    channel.EPGData = epgData;
+                }
+            }
+        }
+
+        private static List<M3UChannel> ParseM3UPlaylist(string playlistData)
+        {
+            var channels = new List<M3UChannel>();
+            var lines = playlistData.Split('\n');
+            M3UChannel currentChannel = null;
+
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("#EXTINF:"))
+                {
+                    currentChannel = ParseChannelInfo(line);
+                }
+                else if (line.StartsWith("http") && currentChannel != null)
+                {
+                    currentChannel.StreamUrl = line.Trim();
+                    channels.Add(currentChannel);
+                    currentChannel = null;
+                }
+            }
+
+            return channels;
+        }
+
+        private static M3UChannel ParseChannelInfo(string infoLine)
+        {
+            var channel = new M3UChannel();
+            var attributesPart = infoLine.Substring(infoLine.IndexOf(':') + 1, infoLine.IndexOf(',') - infoLine.IndexOf(':') - 1);
+            var channelNamePart = infoLine.Substring(infoLine.IndexOf(',') + 1).Trim();
+
+            // Regular expression to match key-value pairs in the attributes part of the EXTINF line
+            var regex = new Regex(@"([\w-]+)=(""([^""]*)""|([^\s,]+))");
+            var matches = regex.Matches(attributesPart);
+
+            foreach (Match match in matches)
+            {
+                var key = match.Groups[1].Value;
+                var value = match.Groups[3].Success ? match.Groups[3].Value : match.Groups[4].Value;
+
+                switch (key)
+                {
+                    case "tvg-chno":
+                        channel.ChannelNumber = value;
+                        break;
+                    case "tvg-id":
+                        channel.ChannelId = value;
+                        break;
+                    case "tvg-name":
+                        channel.ChannelName = value;
+                        break;
+                    case "tvg-logo":
+                        channel.LogoUrl = value;
+                        break;
+                    case "group-title":
+                        channel.GroupTitle = value;
+                        break;
+                }
+            }
+
+            // Set the channel name
+            channel.ChannelName = channelNamePart;
+
+            return channel;
+        }
+
+
+        public static async Task<string> DownloadAndParseEPG(string epgUrl, CancellationToken token)
+        {
+            try
+            {
+                token.ThrowIfCancellationRequested();
+
+                // 1. Download the .gz file
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetAsync(epgUrl, token);
+                    response.EnsureSuccessStatusCode();
+
+                    // 2. Save the .gz file to a temporary location
+                    var tempFilePath = Path.GetTempFileName();
+                    using (var fs = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+                    {
+                        await response.Content.CopyToAsync(fs, token);
+                    }
+
+                    // 3. Extract the contents of the .gz file
+                    var extractedFilePath = Path.ChangeExtension(tempFilePath, ".xml");
+                    using (var originalFileStream = new FileStream(tempFilePath, FileMode.Open))
+                    using (var decompressedFileStream = File.Create(extractedFilePath))
+                    using (var decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
+                    {
+                        await decompressionStream.CopyToAsync(decompressedFileStream, 4096, token);
+                    }
+
+                    // 4. Parse the extracted XML file
+                    var epgData = await File.ReadAllTextAsync(extractedFilePath, token);
+
+                    // 5. Clean up temporary files
+                    File.Delete(tempFilePath);
+                    File.Delete(extractedFilePath);
+
+                    return epgData;
+                }
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Error: " + ex.Message);
+                return null;
+            }
+        }
+
+        public static async Task MatchChannelsWithEPG(string epgData, List<M3UChannel> channels)
+        {
+            try
+            {
+                var xdoc = XDocument.Parse(epgData);
+                var epgChannels = xdoc.Descendants("channel").Select(c => new
+                {
+                    Id = (string)c.Attribute("id"),
+                    DisplayName = (string)c.Element("display-name"),
+                    IconSrc = (string)c.Element("icon")?.Attribute("src")
+                }).ToList();
+
+                var programmesByChannel = xdoc.Descendants("programme")
+                    .GroupBy(p => (string)p.Attribute("channel"))
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var epgDataList = new List<M3UEPGData>();
+                foreach (var channel in channels)
+                {
+                    var matchedChannel = epgChannels.FirstOrDefault(c => c.Id == channel.ChannelId);
+                    if (matchedChannel != null)
+                    {
+                        // Match found, update channel information
+                        channel.ChannelName = matchedChannel.DisplayName;
+                        channel.LogoUrl = matchedChannel.IconSrc;
+                    }
+
+                    if (programmesByChannel.TryGetValue(channel.ChannelId, out var programmes))
+                    {
+                        foreach (var programme in programmes)
+                        {
+                            var epgData2 = new M3UEPGData
+                            {
+                                ChannelId = channel.ChannelId,
+                                ProgramTitle = (string)programme.Element("title"),
+                                StartTime = DateTime.ParseExact((string)programme.Attribute("start"), "yyyyMMddHHmmss zzzz", CultureInfo.InvariantCulture),
+                                EndTime = DateTime.ParseExact((string)programme.Attribute("stop"), "yyyyMMddHHmmss zzzz", CultureInfo.InvariantCulture),
+                                Description = (string)programme.Element("desc")
+                            };
+                            epgDataList.Add(epgData2);
+                        }
+                    }
+                }
+
+                // Store the EPG data in the Instance class
+                Instance.M3UEPGDataList = epgDataList;
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Error matching channels: " + ex.Message);
+            }
+        }
+
+        public static async Task PairEPGTOChannelM3U(List<M3UChannel> channels)
+        {
+            try
+            {
+                // Clear the existing map before starting the pairing
+                Instance.M3UChannelToEPGMap.Clear();
+
+                // Loop through all channels and pair with EPG data
+                foreach (var channel in channels)
+                {
+                    // Find the EPG data that matches the current channel's ID
+                    var epgData = Instance.M3UEPGDataList.FirstOrDefault(e => e.ChannelId == channel.ChannelId);
+
+                    // If matching EPG data is found, associate it with the channel
+                    if (epgData != null)
+                    {
+                        channel.EPGData = epgData;
+                    }
+
+                    // Add the channel with its EPG data to the map
+                    Instance.M3UChannelToEPGMap.Add(channel);
+                }
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show($"Error in PairEPGTOChannelM3U: {ex.Message}");
             }
         }
     }

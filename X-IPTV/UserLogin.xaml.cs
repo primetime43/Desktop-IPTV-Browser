@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Net.Http.Json;
 using GitHubReleaseChecker;
+using Newtonsoft.Json.Linq;
 
 namespace X_IPTV
 {
@@ -45,33 +46,71 @@ namespace X_IPTV
 
         private async void Con_btn_Click(object sender, RoutedEventArgs e)
         {
-            Instance.currentUser.username = usrTxt.Text;
-            Instance.currentUser.password = passTxt.Text;
-            Instance.currentUser.server = serverTxt.Text;
-            Instance.currentUser.port = portTxt.Text;
-            Instance.currentUser.useHttps = (bool)protocolCheckBox.IsChecked;
-
-            if (string.IsNullOrWhiteSpace(Instance.currentUser.username) ||
-                string.IsNullOrWhiteSpace(Instance.currentUser.password) ||
-                string.IsNullOrWhiteSpace(Instance.currentUser.server) ||
-                string.IsNullOrWhiteSpace(Instance.currentUser.port))
+            if (xStreamCodescheckBox?.IsChecked == true)
             {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Please ensure all fields are filled out before attempting to connect.");
-                return; // Exit early as not all fields are filled.
-            }
+                Instance.currentUser.username = usrTxt.Text;
+                Instance.currentUser.password = passTxt.Text;
+                Instance.currentUser.server = serverTxt.Text;
+                Instance.currentUser.port = portTxt.Text;
+                Instance.currentUser.useHttps = (bool)protocolCheckBox.IsChecked;
 
-            busy_ind.IsBusy = true;
-            UserLogin.ReturnToLogin = false;
-            busy_ind.BusyContent = "Attempting to connect...";
-            try
-            {
-                if (await REST_Ops.CheckLoginConnection(cts.Token))//Connect to the server
+                if (string.IsNullOrWhiteSpace(Instance.currentUser.username) ||
+                    string.IsNullOrWhiteSpace(Instance.currentUser.password) ||
+                    string.IsNullOrWhiteSpace(Instance.currentUser.server) ||
+                    string.IsNullOrWhiteSpace(Instance.currentUser.port))
                 {
-                    busy_ind.BusyContent = "Loading groups/categories data...";
-                    await REST_Ops.RetrieveCategories(cts.Token); // Load epg into the channels array
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Please ensure all fields are filled out before attempting to connect.");
+                    return; // Exit early as not all fields are filled.
+                }
 
-                    busy_ind.BusyContent = "Loading channel data...";
-                    await REST_Ops.RetrieveChannelData(busy_ind, cts.Token);
+                busy_ind.IsBusy = true;
+                UserLogin.ReturnToLogin = false;
+                busy_ind.BusyContent = "Attempting to connect...";
+                try
+                {
+                    if (await XstreamCodes.CheckLoginConnection(cts.Token))//Connect to the server
+                    {
+                        busy_ind.BusyContent = "Loading groups/categories data...";
+                        await XstreamCodes.RetrieveCategories(cts.Token); // Load epg into the channels array
+
+                        busy_ind.BusyContent = "Loading channel data...";
+                        await XstreamCodes.RetrieveChannelData(busy_ind, cts.Token);
+
+                        busy_ind.IsBusy = false;
+                        if (!cts.IsCancellationRequested)
+                        {
+                            ChannelNav nav = new ChannelNav();
+                            nav.ShowDialog();
+                        }
+                    }
+                    else
+                    {
+                        busy_ind.IsBusy = false;
+                        busy_ind.BusyContent = ""; // Clear the busy content if the connection fails
+                    }
+                }
+                catch (OperationCanceledException) { }
+
+                cts = new CancellationTokenSource();//reset the token
+            }
+            else if(m3uCheckBox?.IsChecked == true)
+            {
+                busy_ind.IsBusy = true;
+                UserLogin.ReturnToLogin = false;
+                busy_ind.BusyContent = "Attempting to connect...";
+                try
+                {
+                    busy_ind.BusyContent = "Loading playlist channel data...";
+                    await M3UPlaylist.RetrieveM3UPlaylistData(m3uURLTxtbox.Text, cts.Token); // Load epg into the channels array
+
+                    busy_ind.BusyContent = "Loading playlist epg data...";
+                    var epgData = await M3UPlaylist.DownloadAndParseEPG(m3uEpgUrlTxtbox.Text, cts.Token);
+                    if (epgData != null)
+                    {
+                        await M3UPlaylist.MatchChannelsWithEPG(epgData, Instance.M3UChannels);
+                    }
+
+                    //var epgDataForChannel = Instance.M3UEPGDataList.Where(e => e.ChannelId == "someChannelId").ToList();
 
                     busy_ind.IsBusy = false;
                     if (!cts.IsCancellationRequested)
@@ -79,16 +118,19 @@ namespace X_IPTV
                         ChannelNav nav = new ChannelNav();
                         nav.ShowDialog();
                     }
+                    else
+                    {
+                        busy_ind.IsBusy = false;
+                        busy_ind.BusyContent = ""; // Clear the busy content if the connection fails
+                    }
                 }
-                else
-                {
-                    busy_ind.IsBusy = false;
-                    busy_ind.BusyContent = ""; // Clear the busy content if the connection fails
-                }
-            }
-            catch (OperationCanceledException) {}
+                catch (OperationCanceledException) { }
 
-            cts = new CancellationTokenSource();//reset the token
+                cts = new CancellationTokenSource();//reset the token
+            }
+            else
+                Xceed.Wpf.Toolkit.MessageBox.Show("You must select a checkbox option.");
+
         }
 
         private void loadUsersFromDirectory()
@@ -131,6 +173,20 @@ namespace X_IPTV
             _currentUser = UserDataSaver.GetUserData(UsercomboBox.SelectedValue.ToString(), getUserFileLocalPath());
             loadDataIntoTextFields();
             UsercomboBox.SelectedItem = null;
+        }
+
+        private void XtreamCodes_Checked(object sender, RoutedEventArgs e)
+        {
+            m3uCheckBox.IsChecked = false;
+            Instance.M3uChecked = false;
+            Instance.XstreamCodesChecked = true;
+        }
+
+        private void M3UPlaylist_Checked(object sender, RoutedEventArgs e)
+        {
+            xStreamCodescheckBox.IsChecked = false;
+            Instance.M3uChecked = true;
+            Instance.XstreamCodesChecked = false;
         }
         private string getUserFileLocalPath()
         {

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static X_IPTV.M3UPlaylist;
 
 namespace X_IPTV
 {
@@ -77,6 +78,7 @@ namespace X_IPTV
         public string category_id { get; set; }
         public string category_name { get; set; }
         public int parent_id { get; set; }
+        public List<M3UChannel> Channels { get; set; } = new List<M3UChannel>();
 
         //testing
         public string category_name_id

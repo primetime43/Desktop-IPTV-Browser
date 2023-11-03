@@ -1,4 +1,4 @@
-﻿<Window x:Class="X_IPTV.ChannelList"
+﻿<Window x:Class="X_IPTV.XtreamChannelList"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,7 +8,7 @@
         Title="Channel Guide - Hover Over A Channel For Description" Height="450" Width="800"
         Closed="Window_Closed">
     <Window.Resources>
-        <local:MyMockClass x:Key="DesignViewModel"/>
+        <local:XtreamMyMockClass x:Key="DesignViewModel"/>
 
         <Style TargetType="{x:Type ListBox}">
             <Setter Property="ItemsPanel">
@@ -42,8 +42,8 @@
         </Style>
     </Window.Resources>
     <Grid Background="LightGray">
-        <ListBox Name="ChannelLst" d:DataContext="{Binding Source={StaticResource DesignViewModel}}"
-                 ItemsSource="{Binding MyListBoxItems}" SelectionChanged="ChannelLst_SelectionChanged" Background="LightGray">
+        <ListBox Name="XtreamChannelLst" d:DataContext="{Binding Source={StaticResource DesignViewModel}}"
+                 ItemsSource="{Binding MyListBoxItems}" SelectionChanged="XtreamChannelLst_SelectionChanged" Background="LightGray">
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Copy URL" Click="listBox1_MouseDown"/>

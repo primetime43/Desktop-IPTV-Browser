@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static X_IPTV.M3UPlaylist;
 
 namespace X_IPTV
 {
@@ -35,5 +36,15 @@ namespace X_IPTV
 
         public static Dictionary<string, List<EpgListing>> allChannelEPG_24HRS_Dict = new Dictionary<string, List<EpgListing>>(); //stores the channel id as key and the list is all 24hrs epg data for each channel
 
+        // Property to store the M3U channels
+        public static List<M3UChannel> M3UChannels { get; set; } = new List<M3UChannel>();
+
+        public static List<M3UEPGData> M3UEPGDataList { get; set; } = new List<M3UEPGData>();
+
+        public static List<M3UChannel> M3UChannelToEPGMap { get; set; } = new List<M3UChannel>();
+
+        public static bool M3uChecked { get; set; }
+
+        public static bool XstreamCodesChecked { get; set; }
     }
 }
