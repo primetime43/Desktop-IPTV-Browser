@@ -22,12 +22,7 @@ namespace X_IPTV
             XtreamChannelModel model = new XtreamChannelModel();
             model.Initialize();
 
-            //the model is the array that holds all of the ChannelEntry Objects set in the XtreamChannelModel class
-            if (Instance.M3uChecked)
-            {
-                XtreamChannelLst.DataContext = model.M3UListBoxItems;
-            }
-            else if (Instance.XstreamCodesChecked)
+            if (Instance.XstreamCodesChecked)
             {
                 XtreamChannelLst.DataContext = model;
             }
@@ -103,16 +98,7 @@ namespace X_IPTV
         {
             if (isInitialized) return; // Ensure logic runs only once
 
-            if (Instance.M3uChecked)
-            {
-                // Load M3U channels
-                var channels = Instance.M3UChannels.Where(c => c.GroupTitle == Instance.selectedCategory).ToList();
-                foreach (var channel in channels)
-                {
-                    M3UListBoxItems.Add(channel);
-                }
-            }
-            else if (Instance.XstreamCodesChecked)
+            if (Instance.XstreamCodesChecked)
             {
                 // Existing logic to load XstreamCodes channels
                 foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
@@ -152,19 +138,4 @@ namespace X_IPTV
         public ObservableCollection<ChannelEntry> MyListBoxItems { get; set; }
 
     }
-
-    //testing
-    public class XtreamChannelDataTemplateSelector : DataTemplateSelector
-    {
-        public DataTemplate XstreamCodesTemplate { get; set; }
-
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
-        {
-            if (item is ChannelEntry)
-                return XstreamCodesTemplate;
-
-            return base.SelectTemplate(item, container);
-        }
-    }
-
 }

@@ -117,8 +117,8 @@ namespace X_IPTV
                 LogoUrl = "http://f.iptv-pure.com/tf14k.png",
                 EPGData = new M3UEPGData
                 {
-                    ProgramTitle = "Title 1", // Set the title for the EPG data
-                    Description = "Description 1", // Set the description for the EPG data
+                    ProgramTitle = "Title 1",
+                    Description = "Description 1",
                     StartTime = DateTime.Now,
                 }
             },
@@ -129,7 +129,7 @@ namespace X_IPTV
                 EPGData = new M3UEPGData
                 {
                     ProgramTitle = "Title 2",
-                    Description = "Description 2", // Set the description for the EPG data
+                    Description = "Description 2",
                     StartTime = DateTime.Now.AddHours(1)
                 }
             }
@@ -137,19 +137,4 @@ namespace X_IPTV
         }
         public ObservableCollection<M3UChannel> MyListBoxItems { get; set; }
     }
-
-    //testing
-    public class M3UChannelDataTemplateSelector : DataTemplateSelector
-    {
-        public DataTemplate M3UTemplate { get; set; }
-
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
-        {
-            if (item is M3UChannel)
-                return M3UTemplate;
-
-            return base.SelectTemplate(item, container);
-        }
-    }
-
 }

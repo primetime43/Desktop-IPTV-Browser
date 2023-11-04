@@ -30,10 +30,11 @@
                                     <ColumnDefinition Width="100"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
+                                <!--Bind these to properties on the ChannelEntry object-->
                                 <Image Source="{Binding Path=stream_icon}" Stretch="Uniform" Height="120"/>
                                 <TextBlock Name="channelName" FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=name}" VerticalAlignment="Top"></TextBlock>
                                 <TextBlock Name="channelTitle" FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=title}" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,41,0,0" RenderTransformOrigin="0.487,1.728"></TextBlock>
-                                <TextBlock Name="channelDesc" FontSize="12" Padding="15,5,5,5" Text="{Binding Path=start_end_timestamp}" VerticalAlignment="Top" TextWrapping="Wrap" Margin="0,119,10,0" Height="25" RenderTransformOrigin="0.213,0.84" Grid.Column="1"/>
+                                <TextBlock Name="channelStartStopTime" FontSize="12" Padding="15,5,5,5" Text="{Binding Path=start_end_timestamp}" VerticalAlignment="Top" TextWrapping="Wrap" Margin="0,119,10,0" Height="25" RenderTransformOrigin="0.213,0.84" Grid.Column="1"/>
                             </Grid>
                         </Border>
                     </DataTemplate>

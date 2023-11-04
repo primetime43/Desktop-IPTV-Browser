@@ -116,6 +116,9 @@ namespace X_IPTV
             }
         }
 
+        // Define a static HttpClient for the application's lifetime
+        public static readonly HttpClient httpClient = new HttpClient();
+
         //testing for rewrite
         public static async Task GetEPGDataForIndividualChannel(ChannelEntry channel, CancellationToken token)
         {
@@ -124,54 +127,49 @@ namespace X_IPTV
                 // Periodically check if cancellation is requested
                 token.ThrowIfCancellationRequested();
 
-                // Create a request for the URL. 		
-                WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_simple_data_table&stream_id={channel.stream_id}");
-                // If required by the server, set the credentials.
-                request.Credentials = CredentialCache.DefaultCredentials;
-                // Get the response.
-                HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-                // Get the stream containing content returned by the server.
-                Stream dataStream = response.GetResponseStream();
-                // Open the stream using a StreamReader for easy access.
-                StreamReader reader = new StreamReader(dataStream);
-                // Read the content.
-                string responseFromServer = await reader.ReadToEndAsync();
+                // Create a request for the URL.
+                string requestUri = $"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}&action=get_simple_data_table&stream_id={channel.stream_id}";
+                Debug.WriteLine("Request URL: " + requestUri);
 
-                Channel24hrEPG channel24hrEpgData = JsonConvert.DeserializeObject<Channel24hrEPG>(responseFromServer);
+                // Send the request and get the response
+                HttpResponseMessage response = await httpClient.GetAsync(requestUri, token);
+                response.EnsureSuccessStatusCode();
 
-                if (channel24hrEpgData.epg_listings.Count == 0)
+                // Deserialize the JSON content directly from the stream
+                using (var stream = await response.Content.ReadAsStreamAsync())
                 {
-                    // Debug.WriteLine("epg_listings is an empty list");
-                    channel.title = "No information";
-                    channel.desc = "No information";
-                    return;
+                    Channel24hrEPG channel24hrEpgData = await System.Text.Json.JsonSerializer.DeserializeAsync<Channel24hrEPG>(stream, cancellationToken: token);
+
+                    // Check if there are no EPG listings
+                    if (channel24hrEpgData.epg_listings.Count == 0)
+                    {
+                        channel.title = "No information";
+                        channel.desc = "No information";
+                        return;
+                    }
+
+                    // Find the now playing entry
+                    var nowPlaying = channel24hrEpgData.epg_listings.FirstOrDefault(x => x.now_playing == 1);
+                    if (nowPlaying != null)
+                    {
+                        // Decode title and description from base64
+                        channel.title = DecodeFrom64(nowPlaying.title);
+                        channel.desc = DecodeFrom64(nowPlaying.description);
+
+                        // Convert timestamps to DateTime objects
+                        DateTime startTime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(nowPlaying.start_timestamp)).DateTime;
+                        DateTime stopTime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(nowPlaying.stop_timestamp)).DateTime;
+
+                        // Convert UTC to local time
+                        startTime = TimeZoneInfo.ConvertTimeFromUtc(startTime, TimeZoneInfo.Local);
+                        stopTime = TimeZoneInfo.ConvertTimeFromUtc(stopTime, TimeZoneInfo.Local);
+
+                        // Format the timestamps
+                        channel.start_timestamp = startTime.ToString("h:mm tt MM-dd-yyyy");
+                        channel.stop_timestamp = stopTime.ToString("h:mm tt MM-dd-yyyy");
+                        channel.start_end_timestamp = startTime.ToString("h:mm tt") + " - " + stopTime.ToString("h:mm tt");
+                    }
                 }
-
-                var nowPlaying = channel24hrEpgData.epg_listings.Where(x => x.now_playing == 1).FirstOrDefault();
-                if (nowPlaying != null)
-                {
-                    // System.Windows.MessageBox.Show("Now playing: " + DecodeFrom64(nowPlaying.title) + "\nDescription: " + DecodeFrom64(nowPlaying.description));
-                    channel.title = DecodeFrom64(nowPlaying.title);
-                    channel.desc = DecodeFrom64(nowPlaying.description);
-
-                    DateTime startTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(double.Parse(nowPlaying.start_timestamp));
-                    DateTime stopTime = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(double.Parse(nowPlaying.stop_timestamp));
-
-                    startTime = TimeZoneInfo.ConvertTimeFromUtc(startTime, TimeZoneInfo.Local);
-                    stopTime = TimeZoneInfo.ConvertTimeFromUtc(stopTime, TimeZoneInfo.Local);
-
-                    channel.start_timestamp = startTime.ToString("h:mm tt MM-dd-yyyy");
-                    channel.stop_timestamp = stopTime.ToString("h:mm tt MM-dd-yyyy");
-
-                    channel.start_end_timestamp = startTime.ToString("h:mm tt") + " - " + stopTime.ToString("h:mm tt");
-                }
-
-                // Instance.allChannelEPG_24HRS_Dict.Add(stream_id, myDeserializedClass);
-
-                // Cleanup the streams and the response.
-                reader.Close();
-                dataStream.Close();
-                response.Close();
             }
             catch (WebException ex)
             {
@@ -489,6 +487,18 @@ namespace X_IPTV
             public string IconUrl => this.LogoUrl;
             public string Title => this.EPGData?.ProgramTitle;
             public string Description => this.EPGData?.Description;
+
+            public string FormattedTimeRange
+            {
+                get
+                {
+                    if (EPGData != null)
+                    {
+                        return $"{EPGData.StartTime:hh:mm tt} - {EPGData.EndTime:hh:mm tt}";
+                    }
+                    return string.Empty;
+                }
+            }
         }
 
         public class M3UEPGData
@@ -697,7 +707,10 @@ namespace X_IPTV
                     .GroupBy(p => (string)p.Attribute("channel"))
                     .ToDictionary(g => g.Key, g => g.ToList());
 
-                var epgDataList = new List<M3UEPGData>();
+                DateTime now = DateTime.Now; // Get the current local time
+
+                var epgDataList = new List<M3UEPGData>(); // Initialize the EPG data list
+
                 foreach (var channel in channels)
                 {
                     var matchedChannel = epgChannels.FirstOrDefault(c => c.Id == channel.ChannelId);
@@ -710,22 +723,29 @@ namespace X_IPTV
 
                     if (programmesByChannel.TryGetValue(channel.ChannelId, out var programmes))
                     {
-                        foreach (var programme in programmes)
-                        {
-                            var epgData2 = new M3UEPGData
+                        // Find the current program based on the start and end times
+                        var currentProgram = programmes
+                            .Select(p => new M3UEPGData
                             {
                                 ChannelId = channel.ChannelId,
-                                ProgramTitle = (string)programme.Element("title"),
-                                StartTime = DateTime.ParseExact((string)programme.Attribute("start"), "yyyyMMddHHmmss zzzz", CultureInfo.InvariantCulture),
-                                EndTime = DateTime.ParseExact((string)programme.Attribute("stop"), "yyyyMMddHHmmss zzzz", CultureInfo.InvariantCulture),
-                                Description = (string)programme.Element("desc")
-                            };
-                            epgDataList.Add(epgData2);
+                                ProgramTitle = (string)p.Element("title"),
+                                StartTime = DateTime.ParseExact((string)p.Attribute("start"), "yyyyMMddHHmmss zzzz", CultureInfo.InvariantCulture),
+                                EndTime = DateTime.ParseExact((string)p.Attribute("stop"), "yyyyMMddHHmmss zzzz", CultureInfo.InvariantCulture),
+                                Description = (string)p.Element("desc")
+                            })
+                            .FirstOrDefault(epgData2 => epgData2.StartTime <= now && epgData2.EndTime > now);
+
+                        if (currentProgram != null)
+                        {
+                            // If there is a current program, add it to the EPG data list
+                            epgDataList.Add(currentProgram);
+                            // Also set it to the channel's EPGData
+                            channel.EPGData = currentProgram;
                         }
                     }
                 }
 
-                // Store the EPG data in the Instance class
+                // Store the list of current EPG data in the Instance class
                 Instance.M3UEPGDataList = epgDataList;
             }
             catch (Exception ex)

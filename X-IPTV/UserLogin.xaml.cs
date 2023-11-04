@@ -26,7 +26,7 @@ namespace X_IPTV
     public partial class UserLogin : Window
     {
         private static string programVersion = "v2.1.0";
-        private static UserDataSaver.User _currentUser = new UserDataSaver.User();
+        private static User _currentUser = new User();
         private static string assemblyFolder, saveDir, userFileFullPath;
         private static bool updateCheckDone = false;
         private CancellationTokenSource cts = new CancellationTokenSource();
@@ -97,6 +97,11 @@ namespace X_IPTV
             }
             else if(m3uCheckBox?.IsChecked == true)
             {
+                if (string.IsNullOrWhiteSpace(m3uEpgUrlTxtbox.Text))
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Please enter the M3U playlist url.");
+                    return;
+                }
                 busy_ind.IsBusy = true;
                 UserLogin.ReturnToLogin = false;
                 busy_ind.BusyContent = "Attempting to connect...";
@@ -201,8 +206,8 @@ namespace X_IPTV
                 return;
             }
 
-            _currentUser = UserDataSaver.GetUserData(UsercomboBox.SelectedValue.ToString(), getUserFileLocalPath());
-            loadDataIntoTextFields();
+            _currentUser = GetUserData(UsercomboBox.SelectedValue.ToString(), getUserFileLocalPath());
+            loadDataIntoTextFields();   
             UsercomboBox.SelectedItem = null;
         }
 
@@ -218,7 +223,7 @@ namespace X_IPTV
             _currentUser.Password = passTxt.Text;
             _currentUser.Server = serverTxt.Text;
             _currentUser.Port = portTxt.Text;
-            UserDataSaver.SaveUserData(_currentUser);
+            SaveUserData(_currentUser);
             loadUsersFromDirectory();
             Xceed.Wpf.Toolkit.MessageBox.Show(_currentUser.UserName + "'s data saved");
         }
@@ -234,13 +239,13 @@ namespace X_IPTV
             if (openFileDialog.ShowDialog() == true)
             {
                 string filenameWithoutExtension = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
-                M3UData m3uData = UserDataSaver.GetM3UData(filenameWithoutExtension);
+                M3UData m3uData = GetM3UData(filenameWithoutExtension);
 
                 if (m3uData != null)
                 {
                     m3uURLTxtbox.Text = m3uData.PlaylistURL;
                     m3uEpgUrlTxtbox.Text = m3uData.EPGURL;
-                    MessageBox.Show(filenameWithoutExtension + " loaded successfully.");
+                    Xceed.Wpf.Toolkit.MessageBox.Show(filenameWithoutExtension + " loaded successfully.");
                 }
             }
         }
@@ -269,7 +274,7 @@ namespace X_IPTV
                     EPGURL = m3uEpgUrlTxtbox.Text
                 };
 
-                UserDataSaver.SaveM3UData(m3uData, playlistName);
+                SaveM3UData(m3uData, playlistName);
                 MessageBox.Show("Playlist saved successfully as " + playlistName);
             }
             else
@@ -301,30 +306,35 @@ namespace X_IPTV
         private async void checkForUpdate()
         {
             var release = await ReleaseChecker.CheckForNewRelease("primetime43", "Xtream-Browser");
-            int latestReleaseInt = ReleaseChecker.convertVersionToInt(release.tag_name);
-            int localProgramVersionInt = ReleaseChecker.convertVersionToInt(programVersion);
 
-            if (release != null && latestReleaseInt > localProgramVersionInt)
+            if (release != null)
             {
-                MessageBoxResult result = Xceed.Wpf.Toolkit.MessageBox.Show("Current version: " + programVersion + "\nNew release available: " + release.name + " (" + release.tag_name + ")\nDo you want to download it?", "New Release", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                int latestReleaseInt = ReleaseChecker.convertVersionToInt(release.tag_name);
+                int localProgramVersionInt = ReleaseChecker.convertVersionToInt(programVersion);
 
-                if (result == MessageBoxResult.Yes)
+                if (latestReleaseInt > localProgramVersionInt)
                 {
-                    try
-                    {
-                        var startInfo = new ProcessStartInfo
-                        {
-                            FileName = ReleaseChecker.releaseURL,
-                            UseShellExecute = true
-                        };
+                    MessageBoxResult result = Xceed.Wpf.Toolkit.MessageBox.Show("Current version: " + programVersion + "\nNew release available: " + release.name + " (" + release.tag_name + ")\nDo you want to download it?", "New Release", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-                        Process.Start(startInfo);
-                    }
-                    catch (System.ComponentModel.Win32Exception ex)
+                    if (result == MessageBoxResult.Yes)
                     {
-                        Xceed.Wpf.Toolkit.MessageBox.Show("An error occurred: " + ex.Message);
+                        try
+                        {
+                            var startInfo = new ProcessStartInfo
+                            {
+                                FileName = ReleaseChecker.releaseURL,
+                                UseShellExecute = true
+                            };
+
+                            Process.Start(startInfo);
+                        }
+                        catch (System.ComponentModel.Win32Exception ex)
+                        {
+                            Xceed.Wpf.Toolkit.MessageBox.Show("An error occurred: " + ex.Message);
+                        }
                     }
                 }
+                Debug.WriteLine("Release null, skipping check.");
 
             }
             else
@@ -355,9 +365,35 @@ namespace GitHubReleaseChecker
         {
             var url = string.Format(apiUrl, owner, repo);
             releaseURL = string.Format(releaseURL, owner, repo);
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
-            var releases = await client.GetFromJsonAsync<List<Release>>(url);
-            return releases[0];
+
+            if (!client.DefaultRequestHeaders.Contains("User-Agent"))
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", "request");
+            }
+
+            try
+            {
+                var releases = await client.GetFromJsonAsync<List<Release>>(url);
+                return releases.FirstOrDefault(); // Returns the first or default if no releases found
+            }
+            catch (HttpRequestException ex)
+            {
+                // If it's a rate limit error or other 4xx/5xx errors, handle it here
+                if (ex.StatusCode == HttpStatusCode.Forbidden)
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show($"Error checking for new release: {ex.Message}\nPlease try again later.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show($"Error checking for new release: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
         }
 
         public static int convertVersionToInt(string version)

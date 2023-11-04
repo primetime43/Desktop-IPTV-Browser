@@ -30,10 +30,11 @@
                                     <ColumnDefinition Width="100"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
+                                <!--Bind these to properties on the M3UChannel object-->
                                 <Image Source="{Binding IconUrl}" Stretch="Uniform" Height="120"/>
                                 <TextBlock FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding DisplayName}" VerticalAlignment="Top"/>
                                 <TextBlock FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Title}" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,41,0,0"/>
-                                <TextBlock FontSize="12" Padding="15,5,5,5" Text="{Binding Description}" VerticalAlignment="Top" TextWrapping="Wrap" Margin="0,119,10,0" Height="25" Grid.Column="1"/>
+                                <TextBlock FontSize="12" Padding="15,5,5,5" Text="{Binding FormattedTimeRange}" VerticalAlignment="Top" TextWrapping="Wrap" Margin="0,119,10,0" Height="25" Grid.Column="1"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
