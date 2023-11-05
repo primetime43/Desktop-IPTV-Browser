@@ -43,8 +43,22 @@
         </Style>
     </Window.Resources>
     <Grid Background="LightGray">
-        <ListBox Name="XtreamChannelLst" d:DataContext="{Binding Source={StaticResource DesignViewModel}}"
-                 ItemsSource="{Binding MyListBoxItems}" SelectionChanged="XtreamChannelLst_SelectionChanged" Background="LightGray">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header for search box -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10">
+            <TextBlock Text="Search: " FontSize="16" VerticalAlignment="Center"/>
+            <TextBox x:Name="SearchTextBox" Width="200" Margin="5" VerticalAlignment="Center" TextChanged="XtreamSearchTextBox_TextChanged"/>
+        </StackPanel>
+
+        <!-- ListBox placed in the second row -->
+        <ListBox Grid.Row="1" Name="XtreamChannelLst" d:DataContext="{Binding Source={StaticResource DesignViewModel}}"
+                 ItemsSource="{Binding MyListBoxItems}" SelectionMode="Single"
+                 SelectionChanged="XtreamChannelLst_SelectionChanged" Background="LightGray">
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Copy URL" Click="listBox1_MouseDown"/>

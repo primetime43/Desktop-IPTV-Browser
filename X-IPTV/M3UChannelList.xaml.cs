@@ -15,18 +15,32 @@ namespace X_IPTV
     /// </summary>
     public partial class M3UChannelList : Window
     {
+        private M3UChannelModel model;
         public M3UChannelList()
         {
             InitializeComponent();
 
-            M3UChannelModel model = new M3UChannelModel();
-            model.Initialize();
+            this.model = new M3UChannelModel();
+            this.model.Initialize();
 
             //the model is the array that holds all of the M3UChannel Objects set in the M3UChannelModel class
             if (Instance.M3uChecked)
             {
-                //M3UChannelLst.DataContext = model.MyListBoxItems;
-                M3UChannelLst.DataContext = model;
+                M3UChannelLst.DataContext = this.model;
+            }
+        }
+
+        private void M3USearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (SearchTextBox != null && this.model != null)
+            {
+                var filterText = SearchTextBox.Text.ToLower();
+                var filteredItems = this.model.MyListBoxItems
+                    .Where(channel => (channel.ChannelName?.ToLower().Contains(filterText) ?? false) ||
+                                      (channel.EPGData?.Description?.ToLower().Contains(filterText) ?? false))
+                    .ToList();
+
+                M3UChannelLst.ItemsSource = filteredItems; // Update the ItemsSource of your ListBox
             }
         }
 

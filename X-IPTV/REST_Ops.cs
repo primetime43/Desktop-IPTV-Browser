@@ -58,7 +58,7 @@ namespace X_IPTV
                 _useHttps = Instance.currentUser.useHttps;
 
                 string url = $"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}";
-                Debug.WriteLine("Request URL: " + url);
+                //Debug.WriteLine("Request URL: " + url);
 
                 // Create a request for the URL.
                 WebRequest request = WebRequest.Create($"{(_useHttps ? "https" : "http")}://{_server}:{_port}/player_api.php?username={_user}&password={_pass}");
@@ -746,6 +746,7 @@ namespace X_IPTV
                 }
 
                 // Store the list of current EPG data in the Instance class
+                // Does not store any past or future epg data
                 Instance.M3UEPGDataList = epgDataList;
             }
             catch (Exception ex)

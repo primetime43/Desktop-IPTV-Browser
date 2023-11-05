@@ -15,16 +15,31 @@ namespace X_IPTV
     /// </summary>
     public partial class XtreamChannelList : Window
     {
+        private XtreamChannelModel model;
         public XtreamChannelList()
         {
             InitializeComponent();
 
-            XtreamChannelModel model = new XtreamChannelModel();
-            model.Initialize();
+            this.model = new XtreamChannelModel();
+            this.model.Initialize();
 
             if (Instance.XstreamCodesChecked)
             {
-                XtreamChannelLst.DataContext = model;
+                XtreamChannelLst.DataContext = this.model;
+            }
+        }
+
+        private void XtreamSearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (SearchTextBox != null && this.model != null)
+            {
+                var filterText = SearchTextBox.Text.ToLower();
+                var filteredItems = this.model.MyListBoxItems
+                    .Where(channel => (channel.name?.ToLower().Contains(filterText) ?? false) ||
+                                      (channel.desc?.ToLower().Contains(filterText) ?? false))
+                    .ToList();
+
+                XtreamChannelLst.ItemsSource = filteredItems; // Update the ItemsSource of your ListBox
             }
         }
 

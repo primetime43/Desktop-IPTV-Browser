@@ -43,7 +43,20 @@
         </Style>
     </Window.Resources>
     <Grid Background="LightGray">
-        <ListBox Name="M3UChannelLst" d:DataContext="{Binding Source={StaticResource DesignViewModel}}"
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header for search box -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10">
+            <TextBlock Text="Search: " FontSize="16" VerticalAlignment="Center"/>
+            <TextBox x:Name="SearchTextBox" Width="200" Margin="5" VerticalAlignment="Center" TextChanged="M3USearchTextBox_TextChanged"/>
+        </StackPanel>
+
+        <!-- ListBox placed in the second row -->
+        <ListBox Grid.Row="1" Name="M3UChannelLst" d:DataContext="{Binding Source={StaticResource DesignViewModel}}"
                  ItemsSource="{Binding MyListBoxItems}" SelectionChanged="M3UChannelLst_SelectionChanged" Background="LightGray">
             <ListBox.ContextMenu>
                 <ContextMenu>
