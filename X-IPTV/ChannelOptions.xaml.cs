@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using static X_IPTV.M3UPlaylist;
+using static X_IPTV.XtreamCodes;
 
 namespace X_IPTV
 {
@@ -58,12 +59,9 @@ namespace X_IPTV
                 {
                     string streamURL = "";
 
-                    if (tempChannel is ChannelEntry entry)
+                    if (tempChannel is XtreamChannel xtreamChannel)
                     {
-                        if (Instance.playlistDataMap.TryGetValue(entry.stream_id.ToString(), out ChannelStreamData streamData))
-                        {
-                            streamURL = streamData.stream_url;
-                        }
+                        streamURL = xtreamChannel.StreamUrl;
                     }
                     else if (tempChannel is M3UChannel m3uChannel)
                     {
@@ -109,10 +107,11 @@ namespace X_IPTV
                 streamURLtxtBox.Text = string.Empty;
 
                 // Check if the passed object is a ChannelEntry
-                if (channel is ChannelEntry entry)
+                if (channel is XtreamChannel xtreamChannel)
                 {
                     // Set properties specific to ChannelEntry
-                    DisplayChannelEntryDetails(entry);
+                    //DisplayChannelEntryDetails(entry); //delete?
+                    DisplayXtreamChannelDetails(xtreamChannel);
                 }
                 // Check if the passed object is a M3UChannel
                 else if (channel is M3UChannel m3uChannel)
@@ -134,26 +133,6 @@ namespace X_IPTV
             }
         }
 
-        private void DisplayChannelEntryDetails(ChannelEntry entry)
-        {
-            this.Title = entry.name;
-            this.Icon = new BitmapImage(new Uri(entry.stream_icon));
-            tempChannel = entry;
-
-            if (Instance.playlistDataMap.TryGetValue(entry.stream_id.ToString(), out ChannelStreamData streamData))
-                streamURLtxtBox.Text = streamData.stream_url;
-            else
-                streamURLtxtBox.Text = "URL not available";
-
-            foreach (PropertyInfo ce in typeof(ChannelEntry).GetProperties())
-            {
-                if (ce.Name == "added")
-                    richTextBox.AppendText(ce.Name + ": " + ConvertUnixToRealTime(Convert.ToInt64(ce.GetValue(entry))) + "\r");
-                else
-                    richTextBox.AppendText(ce.Name + ": " + ce.GetValue(entry) + "\r");
-            }
-        }
-
         private void DisplayM3UChannelDetails(M3UChannel m3uChannel)
         {
             this.Title = m3uChannel.ChannelName;
@@ -168,6 +147,23 @@ namespace X_IPTV
                 richTextBox.AppendText("Description: " + m3uChannel.EPGData.Description + "\r");
                 richTextBox.AppendText("Start Time: " + m3uChannel.EPGData.StartTime.ToString() + "\r");
                 richTextBox.AppendText("End Time: " + m3uChannel.EPGData.EndTime.ToString() + "\r");
+            }
+        }
+
+        private void DisplayXtreamChannelDetails(XtreamChannel xtreamChannel)
+        {
+            this.Title = xtreamChannel.ChannelName;
+            this.Icon = new BitmapImage(new Uri(xtreamChannel.LogoUrl));
+
+            streamURLtxtBox.Text = xtreamChannel.StreamUrl ?? "URL not available";
+
+            // Assuming you want to display the EPG data in the RichTextBox
+            if (xtreamChannel.EPGData != null)
+            {
+                richTextBox.AppendText("Title: " + xtreamChannel.EPGData.ProgramTitle + "\r");
+                richTextBox.AppendText("Description: " + xtreamChannel.EPGData.Description + "\r");
+                richTextBox.AppendText("Start Time: " + xtreamChannel.EPGData.StartTime.ToString() + "\r");
+                richTextBox.AppendText("End Time: " + xtreamChannel.EPGData.EndTime.ToString() + "\r");
             }
         }
 

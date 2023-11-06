@@ -48,7 +48,7 @@ namespace X_IPTV
 
         private async void Con_btn_Click(object sender, RoutedEventArgs e)
         {
-            if (xStreamCodescheckBox?.IsChecked == true)
+            if (XtreamCodescheckBox?.IsChecked == true)
             {
                 Instance.currentUser.username = usrTxt.Text;
                 Instance.currentUser.password = passTxt.Text;
@@ -67,16 +67,20 @@ namespace X_IPTV
 
                 busy_ind.IsBusy = true;
                 UserLogin.ReturnToLogin = false;
-                busy_ind.BusyContent = "Attempting to connect...";
                 try
                 {
-                    if (await XstreamCodes.CheckLoginConnection(cts.Token))//Connect to the server
+                    busy_ind.BusyContent = "Attempting to connect...";
+                    if (await XtreamCodes.CheckLoginConnection(cts.Token))//Connect to the server
                     {
                         busy_ind.BusyContent = "Loading groups/categories data...";
-                        await XstreamCodes.RetrieveCategories(cts.Token); // Load epg into the channels array
+                        await XtreamCodes.RetrieveCategories(cts.Token); // Load epg into the channels array
 
                         busy_ind.BusyContent = "Loading channel data...";
-                        await XstreamCodes.RetrieveChannelData(busy_ind, cts.Token);
+                        await XtreamCodes.RetrieveXtreamPlaylistData(busy_ind, cts.Token);
+
+                        busy_ind.BusyContent = "Downloading playlist epg...";
+                        var epgData = await XtreamCodes.DownloadEPGAndSaveToFile(cts.Token);
+                        await XtreamCodes.MatchChannelsWithEPG(epgData, Instance.XtreamChannels);
 
                         busy_ind.IsBusy = false;
                         if (!cts.IsCancellationRequested)
@@ -174,14 +178,14 @@ namespace X_IPTV
         {
             m3uCheckBox.IsChecked = false;
             Instance.M3uChecked = false;
-            Instance.XstreamCodesChecked = true;
+            Instance.XtreamCodesChecked = true;
         }
 
         private void M3UPlaylist_Checked(object sender, RoutedEventArgs e)
         {
-            xStreamCodescheckBox.IsChecked = false;
+            XtreamCodescheckBox.IsChecked = false;
             Instance.M3uChecked = true;
-            Instance.XstreamCodesChecked = false;
+            Instance.XtreamCodesChecked = false;
         }
         private string getUserFileLocalPath()
         {
@@ -288,12 +292,12 @@ namespace X_IPTV
             if ((bool)protocolCheckBox.IsChecked && textBoxServerConnectionString != null)
             {
                 textBoxServerConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-                textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+                textBoxPlaylistDataConnectionString.Text = "https://" + serverTxt.Text + ":" + portTxt.Text + "/xmltv.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
             }
             else if(textBoxServerConnectionString != null)
             {
                 textBoxServerConnectionString.Text = "http://" + serverTxt.Text + ":" + portTxt.Text + "/player_api.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
-                textBoxPlaylistDataConnectionString.Text = "http://" + serverTxt.Text + ":" + portTxt.Text + "/get.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
+                textBoxPlaylistDataConnectionString.Text = "http://" + serverTxt.Text + ":" + portTxt.Text + "/xmltv.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
             }
         }
 

@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using static X_IPTV.M3UPlaylist;
+using static X_IPTV.XtreamCodes;
 
 namespace X_IPTV
 {
@@ -23,7 +23,7 @@ namespace X_IPTV
             this.model = new XtreamChannelModel();
             this.model.Initialize();
 
-            if (Instance.XstreamCodesChecked)
+            if (Instance.XtreamCodesChecked)
             {
                 XtreamChannelLst.DataContext = this.model;
             }
@@ -35,8 +35,8 @@ namespace X_IPTV
             {
                 var filterText = SearchTextBox.Text.ToLower();
                 var filteredItems = this.model.MyListBoxItems
-                    .Where(channel => (channel.name?.ToLower().Contains(filterText) ?? false) ||
-                                      (channel.desc?.ToLower().Contains(filterText) ?? false))
+                    .Where(channel => (channel.ChannelName?.ToLower().Contains(filterText) ?? false) ||
+                                      (channel.EPGData?.Description.ToLower().Contains(filterText) ?? false))
                     .ToList();
 
                 XtreamChannelLst.ItemsSource = filteredItems; // Update the ItemsSource of your ListBox
@@ -49,19 +49,19 @@ namespace X_IPTV
             ChannelOptions channelOp = new ChannelOptions();
 
             // Check if there is at least one item selected and the XtreamCodes checkbox is checked.
-            if (e.AddedItems.Count > 0 && Instance.XstreamCodesChecked)
+            if (e.AddedItems.Count > 0 && Instance.XtreamCodesChecked)
             {
                 // Attempt to cast the selected item to a ChannelEntry.
-                ChannelEntry entry = e.AddedItems[0] as ChannelEntry;
+                XtreamChannel xtreamChannel = e.AddedItems[0] as XtreamChannel;
 
                 // If the cast is successful (i.e., the selected item is indeed a ChannelEntry).
-                if (entry != null)
+                if (xtreamChannel != null)
                 {
                     // Set the tempChannel property of the ChannelOptions instance.
-                    channelOp.tempChannel = entry;
+                    channelOp.tempChannel = xtreamChannel;
 
                     // Now display the selected channel data in the ChannelOptions window.
-                    if (channelOp.DisplaySelectedChannelData(entry))
+                    if (channelOp.DisplaySelectedChannelData(xtreamChannel))
                     {
                         // If the data is successfully displayed, show the ChannelOptions window.
                         channelOp.Show();
@@ -104,8 +104,7 @@ namespace X_IPTV
 
         public XtreamChannelModel()
         {
-            MyListBoxItems = new ObservableCollection<ChannelEntry>();
-            M3UListBoxItems = new ObservableCollection<M3UChannel>();
+            MyListBoxItems = new ObservableCollection<XtreamChannel>();
         }
 
 
@@ -113,44 +112,55 @@ namespace X_IPTV
         {
             if (isInitialized) return; // Ensure logic runs only once
 
-            if (Instance.XstreamCodesChecked)
+            if (Instance.XtreamCodesChecked)
             {
-                // Existing logic to load XstreamCodes channels
-                foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
+                // Get the category ID from the selected category name
+                int selectedCategory = int.Parse(Instance.XtreamCategoryList
+                    .FirstOrDefault(category => category.CategoryName == Instance.selectedCategory).CategoryId);
+
+                // Find all channels that belong to the selected category by CategoryId
+                var channelsInCategory = Instance.XtreamChannels
+                    .Where(channel => channel.CategoryIds.Contains(selectedCategory))
+                    .ToList();
+
+                foreach (var channel in channelsInCategory)
                 {
-                    if (Instance.selectedCategory == entry.category_name)
-                    {
-                        string selectedCategoryID = entry.category_id.ToString();
-                        try
-                        {
-                            foreach (ChannelEntry channelEntry in Instance.categoryToChannelMap[selectedCategoryID])
-                            {
-                                MyListBoxItems.Add(channelEntry);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Xceed.Wpf.Toolkit.MessageBox.Show("No channels found for this category.");
-                        }
-                    }
+                    MyListBoxItems.Add(channel);
                 }
             }
-
             isInitialized = true;
         }
-
-        public ObservableCollection<M3UChannel> M3UListBoxItems { get; set; }
-        public ObservableCollection<ChannelEntry> MyListBoxItems { get; set; }
+        public ObservableCollection<XtreamChannel> MyListBoxItems { get; set; }
     }
     public class XtreamMyMockClass
     {
         public XtreamMyMockClass()
         {
-            MyListBoxItems = new ObservableCollection<ChannelEntry>();
-            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| TF1 UHD", stream_icon = "http://f.iptv-pure.com/tf14k.png", title = "Title", start_end_timestamp = "Start Time" });
-            MyListBoxItems.Add(new ChannelEntry() { name = "|FR| CSTAR FHD", stream_icon = "http://f.iptv-pure.com/cstar.png", title = "Title 2", start_end_timestamp = "Start Time 2" });
+            MyListBoxItems = new ObservableCollection<XtreamChannel>();
+            MyListBoxItems.Add(new XtreamChannel()
+            {
+                ChannelName = "|FR| TF1 UHD",
+                LogoUrl = "http://f.iptv-pure.com/tf14k.png",
+                EPGData = new XtreamEPGData
+                {
+                    ProgramTitle = "Title 1",
+                    Description = "Description 1",
+                    StartTime = DateTime.Now,
+                }
+            });
+            MyListBoxItems.Add(new XtreamChannel()
+            {
+                ChannelName = "|FR| CSTAR FHD",
+                LogoUrl = "http://f.iptv-pure.com/cstar.png",
+                EPGData = new XtreamEPGData
+                {
+                    ProgramTitle = "Title 2",
+                    Description = "Description 2",
+                    StartTime = DateTime.Now.AddHours(1),
+                }
+            });
         }
-        public ObservableCollection<ChannelEntry> MyListBoxItems { get; set; }
+        public ObservableCollection<XtreamChannel> MyListBoxItems { get; set; }
 
     }
 }

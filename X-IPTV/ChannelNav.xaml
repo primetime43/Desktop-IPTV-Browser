@@ -49,7 +49,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <WrapPanel>
-                            <TextBlock Text="{Binding category_name}" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding CategoryName}" FontWeight="Bold"/>
                         </WrapPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>

@@ -8,7 +8,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Xceed.Wpf.Toolkit;
-
+using static X_IPTV.M3UPlaylist;
+using static X_IPTV.XtreamCodes;
 
 namespace X_IPTV
 {
@@ -23,7 +24,7 @@ namespace X_IPTV
         {
             InitializeComponent();
             loadCategories();//loads the categories into the listbox view
-            if(Instance.XstreamCodesChecked)
+            if(Instance.XtreamCodesChecked)
                 loadUserInfo();//displays the user's info in the text box
             else
                 userInfoTxtBox.Visibility = Visibility.Collapsed;
@@ -31,29 +32,16 @@ namespace X_IPTV
 
         private void loadCategories()
         {
-            if (Instance.XstreamCodesChecked)
+            if (Instance.XtreamCodesChecked)
             {
-                List<ChannelGroups> itemsTest = Instance.ChannelGroupsArray.OrderBy(x => x.category_name).ToList();
-                listViewTest.ItemsSource = itemsTest;
+                var groups = Instance.XtreamCategoryList.OrderBy(x => x.CategoryName).ToList();
+                listViewTest.ItemsSource = groups;
             }
             else if (Instance.M3uChecked)
             {
-                var groups = Instance.M3UChannels
-                    .GroupBy(c => c.GroupTitle)
-                    .Select(g => new ChannelGroups
-                    {
-                        category_name = g.Key,
-                        Channels = g.ToList()
-                    })
-                    .OrderBy(g => g.category_name)
-                    .ToList();
-
+                var groups = Instance.M3UCategoryList.OrderBy(x => x.CategoryName).ToList();
                 listViewTest.ItemsSource = groups;
             }
-
-
-            //Could eventually use an api call each time to just get the channels that are in the selected category.
-            //player_api.php?username=X&password=X&action=get_live_streams&category_id=X (This will get All LIVE Streams in the selected category ONLY)
         }
 
         private void searchForChannelByCurrentShow()
@@ -68,7 +56,7 @@ namespace X_IPTV
 
         private void loadUserInfo()
         {
-            if (Instance.XstreamCodesChecked)
+            if (Instance.XtreamCodesChecked)
             {
                 userInfoTxtBox.Document.Blocks.Clear();
 
@@ -117,13 +105,29 @@ namespace X_IPTV
         {
             if (e.AddedItems.Count > 0)
             {
-                var selectedItem = e.AddedItems[0] as ChannelGroups;
-
-                if (selectedItem != null)
+                // Assuming you have a flag like `Instance.XtreamCodesChecked` to know which checkbox is checked
+                if (Instance.XtreamCodesChecked)
                 {
-                    string selectedText = selectedItem.category_name;
-                    loadSelectedCategory(selectedText);
+                    var selectedItem = e.AddedItems[0] as XtreamCategory;
+
+                    if (selectedItem != null)
+                    {
+                        string selectedText = selectedItem.CategoryName;
+                        loadSelectedCategory(selectedText);
+                    }
                 }
+                else if(Instance.M3uChecked)
+                {
+                    var selectedItem = e.AddedItems[0] as M3UCategory;
+
+                    if (selectedItem != null)
+                    {
+                        string selectedText = selectedItem.CategoryName;
+                        loadSelectedCategory(selectedText);
+                    }
+                }
+                else
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Error with the selected category.");
             }
         }
 
@@ -135,34 +139,15 @@ namespace X_IPTV
             Instance.selectedCategory = categoryName;
 
             busy_ind.IsBusy = true;
-            if (Instance.XstreamCodesChecked)
+            if (Instance.XtreamCodesChecked)//need to fix this one
             {
                 int counter = 0;
-                foreach (ChannelGroups entry in Instance.ChannelGroupsArray)
-                {
-                    if (Instance.selectedCategory == entry.category_name)
-                    {
-                        string selectedCategoryID = entry.category_id.ToString();
 
-                        List<ChannelEntry> channels = Instance.categoryToChannelMap[selectedCategoryID];
-
-                        foreach (ChannelEntry channel in channels)
-                        {
-                            if (!cts.IsCancellationRequested)//checks if its been canceled
-                            {
-                                busy_ind.BusyContent = $"Loading epg data for {entry.category_name}... ({counter + 1}/{channels.Count})";
-                                await XstreamCodes.GetEPGDataForIndividualChannel(channel, cts.Token);
-                                counter++;
-                            }
-                            else
-                                break;
-                        }
-                    }
-                }
+                busy_ind.BusyContent = $"Loading {categoryName} channels...)";
 
                 busy_ind.IsBusy = false;
                 XtreamChannelList channelWindow = new XtreamChannelList();
-                if (counter > 0 && !cts.IsCancellationRequested)
+                if (!cts.IsCancellationRequested)
                 {
                     channelWindow.ShowDialog();
                     this.Close();
@@ -173,7 +158,7 @@ namespace X_IPTV
             else if(Instance.M3uChecked)
             {
                 // Logic for loading channels from M3U playlists
-                var channels = Instance.M3UChannels.Where(c => c.GroupTitle == categoryName).ToList();
+                var channels = Instance.M3UChannels.Where(c => c.CategoryName == categoryName).ToList();
                 if (channels.Count > 0)
                 {
                     await M3UPlaylist.PairEPGTOChannelM3U(channels);

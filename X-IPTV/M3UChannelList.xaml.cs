@@ -108,7 +108,7 @@ namespace X_IPTV
             if (Instance.M3uChecked)
             {
                 // Load M3U channels
-                var channels = Instance.M3UChannels.Where(c => c.GroupTitle == Instance.selectedCategory).ToList();
+                var channels = Instance.M3UChannels.Where(c => c.CategoryName == Instance.selectedCategory).ToList();
                 foreach (var channel in channels)
                 {
                     MyListBoxItems.Add(channel);
