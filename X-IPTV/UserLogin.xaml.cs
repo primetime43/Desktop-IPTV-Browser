@@ -85,7 +85,7 @@ namespace X_IPTV
                         busy_ind.IsBusy = false;
                         if (!cts.IsCancellationRequested)
                         {
-                            ChannelNav nav = new ChannelNav();
+                            CategoryNav nav = new CategoryNav();
                             nav.ShowDialog();
                         }
                     }
@@ -126,7 +126,7 @@ namespace X_IPTV
                     busy_ind.IsBusy = false;
                     if (!cts.IsCancellationRequested)
                     {
-                        ChannelNav nav = new ChannelNav();
+                        CategoryNav nav = new CategoryNav();
                         nav.ShowDialog();
                     }
                     else

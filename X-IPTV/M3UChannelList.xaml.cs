@@ -86,8 +86,8 @@ namespace X_IPTV
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            ChannelNav channelNavWindow = new ChannelNav();
-            channelNavWindow.Show();
+            CategoryNav categoryNavWindow = new CategoryNav();
+            categoryNavWindow.Show();
         }
     }
 

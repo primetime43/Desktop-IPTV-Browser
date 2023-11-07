@@ -14,13 +14,13 @@ using static X_IPTV.XtreamCodes;
 namespace X_IPTV
 {
     /// <summary>
-    /// Interaction logic for ChannelNav.xaml
+    /// Interaction logic for CategoryNav.xaml
     /// </summary>
     /// 
-    public partial class ChannelNav : Window
+    public partial class CategoryNav : Window
     {
         private CancellationTokenSource cts;
-        public ChannelNav()
+        public CategoryNav()
         {
             InitializeComponent();
             loadCategories();//loads the categories into the listbox view
@@ -42,16 +42,6 @@ namespace X_IPTV
                 var groups = Instance.M3UCategoryList.OrderBy(x => x.CategoryName).ToList();
                 listViewTest.ItemsSource = groups;
             }
-        }
-
-        private void searchForChannelByCurrentShow()
-        {
-
-        }
-
-        private static void searchForChannelByChannelName()
-        {
-
         }
 
         private void loadUserInfo()
@@ -105,7 +95,6 @@ namespace X_IPTV
         {
             if (e.AddedItems.Count > 0)
             {
-                // Assuming you have a flag like `Instance.XtreamCodesChecked` to know which checkbox is checked
                 if (Instance.XtreamCodesChecked)
                 {
                     var selectedItem = e.AddedItems[0] as XtreamCategory;
@@ -139,21 +128,14 @@ namespace X_IPTV
             Instance.selectedCategory = categoryName;
 
             busy_ind.IsBusy = true;
-            if (Instance.XtreamCodesChecked)//need to fix this one
+            if (Instance.XtreamCodesChecked)
             {
-                int counter = 0;
-
-                busy_ind.BusyContent = $"Loading {categoryName} channels...)";
-
-                busy_ind.IsBusy = false;
                 XtreamChannelList channelWindow = new XtreamChannelList();
                 if (!cts.IsCancellationRequested)
                 {
                     channelWindow.ShowDialog();
                     this.Close();
                 }
-                else if (counter == 0)
-                    Xceed.Wpf.Toolkit.MessageBox.Show("No channels available in " + Instance.selectedCategory);
             }
             else if(Instance.M3uChecked)
             {
