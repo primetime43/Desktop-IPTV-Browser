@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using static X_IPTV.M3UPlaylist;
+using static X_IPTV.XtreamCodes;
 
 namespace X_IPTV
 {
@@ -14,7 +16,7 @@ namespace X_IPTV
     /// </summary>
     public partial class ChannelOptions : Window
     {
-        public ChannelEntry tempCE = new ChannelEntry();
+        public object tempChannel;
         public ChannelOptions()
         {
             InitializeComponent();
@@ -22,63 +24,154 @@ namespace X_IPTV
 
         private void openVLCbtn_Click(object sender, RoutedEventArgs e)
         {
-            string vlcLocatedPath = "";
-            string vlcX64path = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
-            string vlcX86path = @"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe";
-
-            if (File.Exists(vlcX86path))
-                vlcLocatedPath = vlcX86path;
-            else if (File.Exists(vlcX64path))
-                vlcLocatedPath = vlcX64path;
-            else
+            try
             {
-                OpenFileDialog openFileDialog1 = new OpenFileDialog();
+                string vlcLocatedPath = "";
+                string vlcX64path = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
+                string vlcX86path = @"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe";
 
-                openFileDialog1.InitialDirectory = "c:\\";
-                openFileDialog1.Filter = "VLC Executable File (*.exe)|*.exe";
-                openFileDialog1.RestoreDirectory = true;
+                if (File.Exists(vlcX86path))
+                {
+                    vlcLocatedPath = vlcX86path;
+                }
+                else if (File.Exists(vlcX64path))
+                {
+                    vlcLocatedPath = vlcX64path;
+                }
+                else
+                {
+                    OpenFileDialog openFileDialog1 = new OpenFileDialog
+                    {
+                        InitialDirectory = "c:\\",
+                        Filter = "VLC Executable File (*.exe)|*.exe",
+                        RestoreDirectory = true
+                    };
 
-                bool? result = openFileDialog1.ShowDialog();
+                    bool? result = openFileDialog1.ShowDialog();
 
-                if (result == true)
-                    vlcLocatedPath = openFileDialog1.FileName;
+                    if (result == true)
+                    {
+                        vlcLocatedPath = openFileDialog1.FileName;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(vlcLocatedPath))
+                {
+                    string streamURL = "";
+
+                    if (tempChannel is XtreamChannel xtreamChannel)
+                    {
+                        streamURL = xtreamChannel.StreamUrl;
+                    }
+                    else if (tempChannel is M3UChannel m3uChannel)
+                    {
+                        streamURL = m3uChannel.StreamUrl;
+                    }
+
+                    if (!string.IsNullOrEmpty(streamURL))
+                    {
+                        ProcessStartInfo startInfo = new ProcessStartInfo
+                        {
+                            FileName = "cmd.exe",
+                            Arguments = $"/C \"{vlcLocatedPath}\" {streamURL}",
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        };
+
+                        Process.Start(startInfo);
+                    }
+                    else
+                    {
+                        Xceed.Wpf.Toolkit.MessageBox.Show("Stream URL not available.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                else
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("VLC path not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-
-            ProcessStartInfo processStartInfo = new ProcessStartInfo(vlcLocatedPath, Instance.playlistDataMap[tempCE.stream_id.ToString()].stream_url);
-            string streamURL = Instance.playlistDataMap[tempCE.stream_id.ToString()].stream_url;
-
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = $"/C \"{vlcLocatedPath}\" {streamURL}";
-            startInfo.RedirectStandardOutput = true;
-            startInfo.RedirectStandardError = true;
-            startInfo.UseShellExecute = false;
-            startInfo.CreateNoWindow = true;
-
-            Process.Start(startInfo);
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show($"Failed to open VLC: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        public void displaySelectedChannelData(ChannelEntry entry)
+        public bool DisplaySelectedChannelData(object channel)
         {
-            this.Title = entry.name;
-            this.Icon = new BitmapImage(new Uri(entry.stream_icon));
-            tempCE = entry;
-            richTextBox.Document.Blocks.Clear();
-
-            //streamURLtxtBox.Text = Instance.playlistDataMap[entry.stream_id.ToString()].stream_url;
-
-            if (Instance.playlistDataMap.TryGetValue(entry.stream_id.ToString(), out ChannelStreamData streamData))
-                streamURLtxtBox.Text = streamData.stream_url;
-            else
-                streamURLtxtBox.Text = "URL not available";
-
-            foreach (PropertyInfo ce in typeof(ChannelEntry).GetProperties())
+            try
             {
-                if (ce.Name == "added")
-                    richTextBox.AppendText(ce.Name + ": " + convertUnixToRealTIme(Convert.ToInt32(ce.GetValue(entry))) + "\r");
+                // Clear any existing content
+                richTextBox.Document.Blocks.Clear();
+                streamURLtxtBox.Text = string.Empty;
+
+                // Check if the passed object is a ChannelEntry
+                if (channel is XtreamChannel xtreamChannel)
+                {
+                    // Set properties specific to ChannelEntry
+                    //DisplayChannelEntryDetails(entry); //delete?
+                    DisplayXtreamChannelDetails(xtreamChannel);
+                }
+                // Check if the passed object is a M3UChannel
+                else if (channel is M3UChannel m3uChannel)
+                {
+                    // Set properties specific to M3UChannel
+                    DisplayM3UChannelDetails(m3uChannel);
+                }
                 else
-                    richTextBox.AppendText(ce.Name + ": " + ce.GetValue(entry) + "\r");
+                {
+                    throw new ArgumentException("Invalid channel type", nameof(channel));
+                }
+
+                return true;
             }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("An error occurred: " + ex.Message);
+                return false;
+            }
+        }
+
+        private void DisplayM3UChannelDetails(M3UChannel m3uChannel)
+        {
+            this.Title = m3uChannel.ChannelName;
+            this.Icon = new BitmapImage(new Uri(m3uChannel.LogoUrl));
+
+            streamURLtxtBox.Text = m3uChannel.StreamUrl ?? "URL not available";
+
+            // Assuming you want to display the EPG data in the RichTextBox
+            if (m3uChannel.EPGData != null)
+            {
+                richTextBox.AppendText("Title: " + m3uChannel.EPGData.ProgramTitle + "\r");
+                richTextBox.AppendText("Description: " + m3uChannel.EPGData.Description + "\r");
+                richTextBox.AppendText("Start Time: " + m3uChannel.EPGData.StartTime.ToString() + "\r");
+                richTextBox.AppendText("End Time: " + m3uChannel.EPGData.EndTime.ToString() + "\r");
+            }
+        }
+
+        private void DisplayXtreamChannelDetails(XtreamChannel xtreamChannel)
+        {
+            this.Title = xtreamChannel.ChannelName;
+            this.Icon = new BitmapImage(new Uri(xtreamChannel.LogoUrl));
+
+            streamURLtxtBox.Text = xtreamChannel.StreamUrl ?? "URL not available";
+
+            // Assuming you want to display the EPG data in the RichTextBox
+            if (xtreamChannel.EPGData != null)
+            {
+                richTextBox.AppendText("Title: " + xtreamChannel.EPGData.ProgramTitle + "\r");
+                richTextBox.AppendText("Description: " + xtreamChannel.EPGData.Description + "\r");
+                richTextBox.AppendText("Start Time: " + xtreamChannel.EPGData.StartTime.ToString() + "\r");
+                richTextBox.AppendText("End Time: " + xtreamChannel.EPGData.EndTime.ToString() + "\r");
+            }
+        }
+
+        // Helper method to convert Unix timestamp to DateTime
+        private static string ConvertUnixToRealTime(long unixTime)
+        {
+            DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTime);
+            return dateTimeOffset.LocalDateTime.ToString();
         }
 
         private void closeBtn_Click(object sender, RoutedEventArgs e)

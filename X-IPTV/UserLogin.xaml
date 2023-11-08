@@ -8,26 +8,94 @@
         mc:Ignorable="d"
         Title="User Login" Height="450" Width="800">
     <Window.Resources>
+        <!-- BusyIndicator Style with Cancel Button -->
+        <Style x:Key="BusyIndicatorStyle" TargetType="extToolkit:BusyIndicator">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="extToolkit:BusyIndicator">
+                        <Grid>
+                            <ContentControl Content="{TemplateBinding Content}" />
+                            <Grid x:Name="busyGrid" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                                <Rectangle Fill="White" Opacity="0.75"/>
+                                <Border Background="WhiteSmoke" CornerRadius="10" Padding="10">
+                                    <StackPanel>
+                                        <TextBlock x:Name="busyContent" Text="{TemplateBinding BusyContent}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                        <ProgressBar Width="180" Height="15" IsIndeterminate="True" VerticalAlignment="Top" Margin="10,10,10,5"/>
+                                        <Button Content="Cancel" Width="80" Height="25" HorizontalAlignment="Center" Click="CancelButton_Click"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsBusy" Value="True">
+                                <Setter TargetName="busyGrid" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="LoadButtonStyle" TargetType="Button">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Text, ElementName=m3uURLTxtbox}" Value="">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsChecked, ElementName=m3uCheckBox}" Value="False"/>
+                        <Condition Binding="{Binding Text, ElementName=m3uURLTxtbox}" Value=""/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SaveButtonStyle" TargetType="Button">
+            <Setter Property="Visibility" Value="Visible"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Text, ElementName=m3uURLTxtbox}" Value="">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsChecked, ElementName=m3uCheckBox}" Value="True"/>
+                        <Condition Binding="{Binding Text, ElementName=m3uURLTxtbox}" Value="{x:Null}"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Visibility" Value="Visible"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
     </Window.Resources>
-    <Grid>
-        <Label Content="Username:" Margin="267,115,0,0"/>
-        <Label Content="Password:" HorizontalAlignment="Left" Margin="267,146,0,0" VerticalAlignment="Top"/>
-        <Label Content="Server:" HorizontalAlignment="Left" Margin="267,176,0,0" VerticalAlignment="Top"/>
-        <Label Content="Port:" HorizontalAlignment="Left" Margin="267,207,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="usrTxt" HorizontalAlignment="Left" Height="23" Margin="363,119,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="showUpdatedConnectionString"/>
-        <TextBox x:Name="passTxt" HorizontalAlignment="Left" Height="23" Margin="363,150,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="showUpdatedConnectionString"/>
-        <TextBox x:Name="serverTxt" HorizontalAlignment="Left" Height="23" Margin="363,180,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="showUpdatedConnectionString"/>
-        <TextBox x:Name="portTxt" HorizontalAlignment="Left" Height="23" Margin="363,211,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="showUpdatedConnectionString"/>
-        <Button x:Name="con_btn" Content="Connect" HorizontalAlignment="Left" Margin="301,270,0,0" VerticalAlignment="Top" Width="143" Height="25" Click="Con_btn_Click" RenderTransformOrigin="0.902,0.562"/>
-        <CheckBox x:Name="protocolCheckBox" Content="HTTPS" HorizontalAlignment="Left" Height="20" Margin="495,185,0,0" VerticalAlignment="Top" Width="90" ToolTip="HTTP will be used by default if not checked" IsChecked="True" Checked="showUpdatedConnectionString" Unchecked="showUpdatedConnectionString"/>
-        <extToolkit:BusyIndicator x:Name="busy_ind" IsBusy="False" BusyContent="Authenticating..." Margin="157,34,170,70"></extToolkit:BusyIndicator>
-        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="136" Margin="10,69,0,0" VerticalAlignment="Top" Width="165"/>
-        <Button x:Name="saveUserDataBtn" Content="Save User Login" HorizontalAlignment="Left" Margin="30,164,0,0" VerticalAlignment="Top" Height="25" Width="122" Click="saveUserDataBtn_Click"/>
-        <ComboBox x:Name="UsercomboBox" HorizontalAlignment="Left" Margin="30,77,0,0" VerticalAlignment="Top" Width="120"></ComboBox>
-        <Button x:Name="loadUserDataBtn" Content="Load User Login" HorizontalAlignment="Left" Margin="28,118,0,0" VerticalAlignment="Top" Height="25" Width="122" Click="loadUserDataBtn_Click"/>
-        <Label x:Name="serverConnectionStringlbl" Content="Connection String" Margin="28,356,625,14" Target="{Binding ElementName=textBoxServerConnectionString}"/>
-        <Label x:Name="serverPlaylistDataConnectionlbl" Content="EPG Data Connection String" Margin="28,311,560,40" Target="{Binding ElementName=textBoxPlaylistDataConnectionString}"/>
-        <TextBox x:Name="textBoxServerConnectionString"  HorizontalAlignment="Center" TextAlignment="Center" Margin="0,379,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740"/>
-        <TextBox x:Name="textBoxPlaylistDataConnectionString" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,337,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740" Height="20"/>
-    </Grid>
+    <extToolkit:BusyIndicator x:Name="busy_ind" IsBusy="False" BusyContent="Authenticating..." Style="{StaticResource BusyIndicatorStyle}">
+        <Grid Background="LightGray">
+            <Label Content="Username:" Margin="267,115,400,261" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <Label Content="Password:" HorizontalAlignment="Left" Margin="267,146,0,0" VerticalAlignment="Top" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <Label Content="Server:" HorizontalAlignment="Left" Margin="267,176,0,0" VerticalAlignment="Top" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <Label Content="Port:" HorizontalAlignment="Left" Margin="267,207,0,0" VerticalAlignment="Top" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <TextBox x:Name="usrTxt" HorizontalAlignment="Left" Height="23" Margin="363,119,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="showUpdatedConnectionString" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <TextBox x:Name="passTxt" HorizontalAlignment="Left" Height="23" Margin="363,150,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="showUpdatedConnectionString" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <TextBox x:Name="serverTxt" HorizontalAlignment="Left" Height="23" Margin="363,180,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="showUpdatedConnectionString" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <TextBox x:Name="portTxt" HorizontalAlignment="Left" Height="23" Margin="363,211,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="showUpdatedConnectionString" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <Button x:Name="con_btn" Content="Connect" Background="White" HorizontalAlignment="Left" Margin="301,270,0,0" VerticalAlignment="Top" Width="143" Height="25" Click="Con_btn_Click" RenderTransformOrigin="0.902,0.562"/>
+            <CheckBox x:Name="protocolCheckBox" Content="HTTPS" HorizontalAlignment="Left" Height="20" Margin="495,185,0,0" VerticalAlignment="Top" Width="90" ToolTip="HTTP will be used by default if not checked" IsChecked="True" Checked="showUpdatedConnectionString" Unchecked="showUpdatedConnectionString" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="136" Margin="10,69,0,0" VerticalAlignment="Top" Width="165" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <Button x:Name="saveUserDataBtn" Background="White" Content="Save User Login" HorizontalAlignment="Left" Margin="30,164,0,0" VerticalAlignment="Top" Height="25" Width="122" Click="saveUserDataBtn_Click" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <ComboBox x:Name="UsercomboBox" HorizontalAlignment="Left" Margin="30,77,0,0" VerticalAlignment="Top" Width="120" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"></ComboBox>
+            <Button x:Name="loadUserDataBtn" Background="White" Content="Load User Login" HorizontalAlignment="Left" Margin="30,118,0,0" VerticalAlignment="Top" Height="25" Width="122" Click="loadUserDataBtn_Click" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <Label x:Name="serverConnectionStringlbl" Content="Connection String" Margin="28,356,625,14" Target="{Binding ElementName=textBoxServerConnectionString}" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <Label x:Name="serverPlaylistDataConnectionlbl" Content="EPG Data Connection String" Margin="28,311,560,40" Target="{Binding ElementName=textBoxPlaylistDataConnectionString}" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <TextBox x:Name="textBoxServerConnectionString"  HorizontalAlignment="Center" TextAlignment="Center" Margin="0,379,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <TextBox x:Name="textBoxPlaylistDataConnectionString" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,337,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740" Height="20" Visibility="{Binding ElementName=XtreamCodescheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <CheckBox x:Name="XtreamCodescheckBox" Content="Xtream Codes" HorizontalAlignment="Left" Margin="284,84,0,0" VerticalAlignment="Top" Checked="XtreamCodes_Checked"/>
+            <CheckBox x:Name="m3uCheckBox" Content="M3U Playlist" HorizontalAlignment="Left" Margin="400,84,0,0" VerticalAlignment="Top" Checked="M3UPlaylist_Checked"/>
+            <!--M3U Playlist UI-->
+            <Label Content="Playlist URL:" Margin="267,115,400,261" Visibility="{Binding ElementName=m3uCheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <TextBox x:Name="m3uURLTxtbox" HorizontalAlignment="Center" Height="23" Margin="0,144,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="264" Visibility="{Binding ElementName=m3uCheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <Label Content="EPG URL (optional):" Margin="267,177,400,199" Visibility="{Binding ElementName=m3uCheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <TextBox x:Name="m3uEpgUrlTxtbox" HorizontalAlignment="Center" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="263" Margin="0,212,0,0" Visibility="{Binding ElementName=m3uCheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibility}}"/>
+            <Button x:Name="M3U_saveButton" Content="Save Playlist Login" HorizontalAlignment="Left" Margin="302,300,0,0" VerticalAlignment="Top" Height="25" Width="142" Background="White" Style="{StaticResource SaveButtonStyle}" Click="M3U_saveButton_Click"/>
+            <Button x:Name="M3U_loadButton" Content="Load Playlist Login" HorizontalAlignment="Left" Margin="302,300,0,0" VerticalAlignment="Top" Height="25" Width="142" Background="White" Style="{StaticResource LoadButtonStyle}" Click="M3U_loadButton_Click"/>
+        </Grid>
+    </extToolkit:BusyIndicator>
 </Window>
