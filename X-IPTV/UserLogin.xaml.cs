@@ -25,7 +25,7 @@ namespace X_IPTV
     /// 
     public partial class UserLogin : Window
     {
-        private static string programVersion = "v2.1.0";
+        private static string programVersion = "v3.0.0";
         private static User _currentUser = new User();
         private static string assemblyFolder, saveDir, userFileFullPath;
         private static bool updateCheckDone = false;
