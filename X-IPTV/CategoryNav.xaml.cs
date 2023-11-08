@@ -165,5 +165,11 @@ namespace X_IPTV
             }
             busy_ind.IsBusy = false;
         }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            UniversalSearchList searchWindow = new UniversalSearchList();
+            searchWindow.Show();
+        }
     }
 }

@@ -61,6 +61,7 @@
                     </Paragraph>
                 </FlowDocument>
             </RichTextBox>
+            <Button x:Name="button" Grid.Column="2" Content="Search All Channels" Background="White" HorizontalAlignment="Left" Margin="225,354,0,0" VerticalAlignment="Top" Height="45" Width="135" Click="button_Click"/>
         </Grid>
     </extToolkit:BusyIndicator>
 </Window>
