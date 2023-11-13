@@ -36,7 +36,7 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <extToolkit:BusyIndicator x:Name="busy_ind" IsBusy="False" BusyContent="Authenticating..." Style="{StaticResource BusyIndicatorStyle}">
+    <extToolkit:BusyIndicator x:Name="busy_ind" IsBusy="False" Style="{StaticResource BusyIndicatorStyle}">
         <Grid Background="LightGray">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="13*"/>
@@ -44,7 +44,7 @@
                 <ColumnDefinition Width="135*"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="quitBtn" Content="Quit" Background="White" HorizontalAlignment="Left" Height="45" Margin="530,354,0,0" VerticalAlignment="Top" Width="115" Click="quitBtn_Click" Grid.Column="2"/>
-            <Button x:Name="backToLoginBtn" Content="Back to Login" Background="White" HorizontalAlignment="Left" Height="45" Margin="390,354,0,0" VerticalAlignment="Top" Width="115" Click="backToLoginBtn_Click" Grid.Column="2"/>
+            <Button x:Name="backToLoginBtn" Content="Back to Login" Background="White" HorizontalAlignment="Left" Height="45" Margin="530,297,0,0" VerticalAlignment="Top" Width="115" Click="backToLoginBtn_Click" Grid.Column="2"/>
             <ListView x:Name="listViewTest" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.ColumnSpan="3" Margin="0,0,595,0" SelectionChanged="ListViewItem_Selected">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -62,6 +62,7 @@
                 </FlowDocument>
             </RichTextBox>
             <Button x:Name="button" Grid.Column="2" Content="Search All Channels" Background="White" HorizontalAlignment="Left" Margin="225,354,0,0" VerticalAlignment="Top" Height="45" Width="135" Click="button_Click"/>
+            <Button x:Name="updateEpgBtn" Grid.Column="2" Content="Update EPG" Background="White" HorizontalAlignment="Left" Margin="385,354,0,0" VerticalAlignment="Top" Height="45" Width="115" Click="updateEpgBtn_Click"/>
         </Grid>
     </extToolkit:BusyIndicator>
 </Window>

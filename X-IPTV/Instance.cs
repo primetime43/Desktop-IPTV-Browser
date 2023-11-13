@@ -18,7 +18,7 @@ namespace X_IPTV
         //Contains the User_Info and Server_Info objects
         public static PlayerInfo PlayerInfo = null;
 
-        public static string selectedCategory { get; set; }
+        public static string allXtreamEpgData { get; set; }
 
         // Property to store the Xtream categories
         public static List<XtreamCategory> XtreamCategoryList { get; set; } = new List<XtreamCategory>();
@@ -42,11 +42,15 @@ namespace X_IPTV
 
         //check this
         public static List<M3UChannel> M3UChannelToEPGMap { get; set; } = new List<M3UChannel>();
+
+        public static string allM3uEpgData { get; set; }
         #endregion
 
         #region Global helpers
         public static bool M3uChecked { get; set; }
         public static bool XtreamCodesChecked { get; set; }
+
+        public static string selectedCategory { get; set; }
         #endregion
     }
 }

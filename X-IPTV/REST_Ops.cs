@@ -314,11 +314,15 @@ namespace X_IPTV
             }
         }
 
-        public static async Task MatchChannelsWithEPG(string epgData, List<XtreamChannel> channels)
+        //matches the channels with the epg data
+        public static async Task UpdateChannelsEpgData(List<XtreamChannel> channels)
         {
+            if(Instance.XtreamEPGDataList.Count > 0)//clear it out so if the epg is being updated
+                Instance.XtreamEPGDataList.Clear();
+
             try
             {
-                var xdoc = XDocument.Parse(epgData);
+                var xdoc = XDocument.Parse(Instance.allXtreamEpgData);
                 var epgChannels = xdoc.Descendants("channel").Select(c => new
                 {
                     Id = (string)c.Attribute("id"),
@@ -633,11 +637,14 @@ namespace X_IPTV
             }
         }
 
-        public static async Task MatchChannelsWithEPG(string epgData, List<M3UChannel> channels)
+        public static async Task UpdateChannelsEpgData(List<M3UChannel> channels)
         {
+            if (Instance.M3UEPGDataList.Count > 0)//clear it out so if the epg is being updated
+                Instance.M3UEPGDataList.Clear();
+
             try
             {
-                var xdoc = XDocument.Parse(epgData);
+                var xdoc = XDocument.Parse(Instance.allM3uEpgData);
                 var epgChannels = xdoc.Descendants("channel").Select(c => new
                 {
                     Id = (string)c.Attribute("id"),

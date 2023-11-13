@@ -79,8 +79,8 @@ namespace X_IPTV
                         await XtreamCodes.RetrieveXtreamPlaylistData(busy_ind, cts.Token);
 
                         busy_ind.BusyContent = "Downloading playlist epg...";
-                        var epgData = await XtreamCodes.DownloadEPGAndSaveToFile(cts.Token);
-                        await XtreamCodes.MatchChannelsWithEPG(epgData, Instance.XtreamChannels);
+                        Instance.allXtreamEpgData = await XtreamCodes.DownloadEPGAndSaveToFile(cts.Token);
+                        await XtreamCodes.UpdateChannelsEpgData(Instance.XtreamChannels);
 
                         busy_ind.IsBusy = false;
                         if (!cts.IsCancellationRequested)
@@ -115,10 +115,10 @@ namespace X_IPTV
                     await M3UPlaylist.RetrieveM3UPlaylistData(m3uURLTxtbox.Text, cts.Token); // Load epg into the channels array
 
                     busy_ind.BusyContent = "Loading playlist epg data...";
-                    var epgData = await M3UPlaylist.DownloadAndParseEPG(m3uEpgUrlTxtbox.Text, cts.Token);
-                    if (epgData != null)
+                    Instance.allM3uEpgData = await M3UPlaylist.DownloadAndParseEPG(m3uEpgUrlTxtbox.Text, cts.Token);
+                    if (Instance.allM3uEpgData != null)
                     {
-                        await M3UPlaylist.MatchChannelsWithEPG(epgData, Instance.M3UChannels);
+                        await M3UPlaylist.UpdateChannelsEpgData(Instance.M3UChannels);
                     }
 
                     //var epgDataForChannel = Instance.M3UEPGDataList.Where(e => e.ChannelId == "someChannelId").ToList();

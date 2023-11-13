@@ -133,6 +133,7 @@ namespace X_IPTV
                 XtreamChannelList channelWindow = new XtreamChannelList();
                 if (!cts.IsCancellationRequested)
                 {
+                    busy_ind.IsBusy = false;
                     channelWindow.ShowDialog();
                     this.Close();
                 }
@@ -170,6 +171,12 @@ namespace X_IPTV
         {
             UniversalSearchList searchWindow = new UniversalSearchList();
             searchWindow.Show();
+        }
+
+        private async void updateEpgBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await XtreamCodes.UpdateChannelsEpgData(Instance.XtreamChannels);
+            Xceed.Wpf.Toolkit.MessageBox.Show("EPG Updated!");
         }
     }
 }

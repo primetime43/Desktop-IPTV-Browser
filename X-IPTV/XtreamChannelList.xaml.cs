@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using static X_IPTV.XtreamCodes;
@@ -16,12 +17,14 @@ namespace X_IPTV
     public partial class XtreamChannelList : Window
     {
         private XtreamChannelModel model;
+        private DateTime windowOpenTime; // Store the window open time
         public XtreamChannelList()
         {
             InitializeComponent();
 
             this.model = new XtreamChannelModel();
             this.model.Initialize();
+            this.windowOpenTime = DateTime.Now;
 
             if (Instance.XtreamCodesChecked)
             {
@@ -93,8 +96,36 @@ namespace X_IPTV
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            //only auto update the epg on 15 min increments if the window has been open that long
+            //(actually this needs fixed because if no windows aren't open longer than 15 min increments, it won't
+            //ever auto update; unless manually update is clicked)
+            //Add an check eventually that checks the last time the epg data was updated and update it
+            DateTime now = DateTime.Now;
+            if (now.Subtract(windowOpenTime).TotalMinutes >= 15 || ShouldUpdateOnInterval(now))
+            {
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        await XtreamCodes.UpdateChannelsEpgData(Instance.XtreamChannels);
+                        Debug.WriteLine("EPG updated...");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error updating EPG: {ex.Message}");
+                    }
+                });
+            }
+            else
+                Debug.WriteLine("EPG not updated...");
+
             CategoryNav categoryNavWindow = new CategoryNav();
             categoryNavWindow.Show();
+        }
+
+        private bool ShouldUpdateOnInterval(DateTime currentTime)
+        {
+            return currentTime.Minute % 15 == 0 && currentTime.Second == 0;
         }
     }
 
