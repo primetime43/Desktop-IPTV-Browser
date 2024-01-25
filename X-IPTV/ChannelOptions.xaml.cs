@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using System.Windows.Controls;
 using static X_IPTV.M3UPlaylist;
 using static X_IPTV.XtreamCodes;
 
@@ -14,12 +15,14 @@ namespace X_IPTV
     /// <summary>
     /// Interaction logic for ChannelOptions.xaml
     /// </summary>
-    public partial class ChannelOptions : Window
+    public partial class ChannelOptions : Page
     {
         public object tempChannel;
-        public ChannelOptions()
+        public ChannelOptions(object selectedChannel)
         {
             InitializeComponent();
+            tempChannel = selectedChannel;
+            DisplaySelectedChannelData();
         }
 
         private void openVLCbtn_Click(object sender, RoutedEventArgs e)
@@ -98,13 +101,32 @@ namespace X_IPTV
             }
         }
 
-        public bool DisplaySelectedChannelData(object channel)
+        private void DisplaySelectedChannelData()
+        {
+            try
+            {
+                if (tempChannel is M3UChannel m3uChannel)
+                {
+                    DisplayM3UChannelDetails(m3uChannel);
+                }
+                else if (tempChannel is XtreamChannel xtreamChannel)
+                {
+                    DisplayXtreamChannelDetails(xtreamChannel);
+                }
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("An error occurred: " + ex.Message);
+            }
+        }
+
+        /*public bool DisplaySelectedChannelData()
         {
             try
             {
                 // Clear any existing content
-                richTextBox.Document.Blocks.Clear();
-                streamURLtxtBox.Text = string.Empty;
+                //richTextBox.Document.Blocks.Clear();
+                //streamURLtxtBox.Text = string.Empty;
 
                 // Check if the passed object is a ChannelEntry
                 if (channel is XtreamChannel xtreamChannel)
@@ -123,7 +145,6 @@ namespace X_IPTV
                 {
                     throw new ArgumentException("Invalid channel type", nameof(channel));
                 }
-
                 return true;
             }
             catch (Exception ex)
@@ -131,12 +152,12 @@ namespace X_IPTV
                 Xceed.Wpf.Toolkit.MessageBox.Show("An error occurred: " + ex.Message);
                 return false;
             }
-        }
+        }*/
 
         private void DisplayM3UChannelDetails(M3UChannel m3uChannel)
         {
             this.Title = m3uChannel.ChannelName;
-            this.Icon = new BitmapImage(new Uri(m3uChannel.LogoUrl));
+            //this.Icon = new BitmapImage(new Uri(m3uChannel.LogoUrl));
 
             streamURLtxtBox.Text = m3uChannel.StreamUrl ?? "URL not available";
 
@@ -153,7 +174,7 @@ namespace X_IPTV
         private void DisplayXtreamChannelDetails(XtreamChannel xtreamChannel)
         {
             this.Title = xtreamChannel.ChannelName;
-            this.Icon = new BitmapImage(new Uri(xtreamChannel.LogoUrl));
+            //this.Icon = new BitmapImage(new Uri(xtreamChannel.LogoUrl));
 
             streamURLtxtBox.Text = xtreamChannel.StreamUrl ?? "URL not available";
 
@@ -167,16 +188,9 @@ namespace X_IPTV
             }
         }
 
-        // Helper method to convert Unix timestamp to DateTime
-        private static string ConvertUnixToRealTime(long unixTime)
-        {
-            DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTime);
-            return dateTimeOffset.LocalDateTime.ToString();
-        }
-
         private void closeBtn_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            //this.Close();
         }
 
         public static string convertUnixToRealTIme(int unixTime)

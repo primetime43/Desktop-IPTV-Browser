@@ -17,7 +17,7 @@ namespace X_IPTV
     /// Interaction logic for CategoryNav.xaml
     /// </summary>
     /// 
-    public partial class CategoryNav : Window
+    public partial class CategoryNav : UserControl
     {
         private CancellationTokenSource cts;
         public CategoryNav()
@@ -87,8 +87,8 @@ namespace X_IPTV
 
         private void backToLoginBtn_Click(object sender, RoutedEventArgs e)
         {
-            UserLogin.ReturnToLogin = true;
-            this.Close();
+            /*UserLogin.ReturnToLogin = true;
+            this.Close();*/
         }
 
         private void ListViewItem_Selected(object sender, SelectionChangedEventArgs e)
@@ -124,8 +124,8 @@ namespace X_IPTV
         private async void loadSelectedCategory(string categoryName)
         {
             cts = new CancellationTokenSource();
-
             Instance.selectedCategory = categoryName;
+            var mw = Application.Current.MainWindow as MainWindow;
 
             busy_ind.IsBusy = true;
             if (Instance.XtreamCodesChecked)
@@ -134,13 +134,15 @@ namespace X_IPTV
                 if (!cts.IsCancellationRequested)
                 {
                     busy_ind.IsBusy = false;
-                    channelWindow.ShowDialog();
-                    this.Close();
+                    //channelWindow.ShowDialog();
+                    mw.ContentFrame.Navigate(channelWindow);
                 }
+
+                //this.NavigationService.Navigate(new Uri("XtreamChannelList.xaml", UriKind.Relative));
+                busy_ind.IsBusy = false;
             }
-            else if(Instance.M3uChecked)
+            else if (Instance.M3uChecked)
             {
-                // Logic for loading channels from M3U playlists
                 var channels = Instance.M3UChannels.Where(c => c.CategoryName == categoryName).ToList();
                 if (channels.Count > 0)
                 {
@@ -148,8 +150,11 @@ namespace X_IPTV
                     busy_ind.IsBusy = false;
 
                     M3UChannelList channelWindow = new M3UChannelList();
-                    channelWindow.ShowDialog();
-                    this.Close();
+                    //channelWindow.ShowDialog();
+                    /*mw.CategoriesItem.IsSelected = true;
+                    mw.ContentFrame.Navigate(channelWindow);*/
+
+                    //this.NavigationService.Navigate(new Uri("M3UChannelsList.xaml", UriKind.Relative));
                 }
                 else
                 {
@@ -165,12 +170,6 @@ namespace X_IPTV
                 cts.Cancel();
             }
             busy_ind.IsBusy = false;
-        }
-
-        private void button_Click(object sender, RoutedEventArgs e)
-        {
-            UniversalSearchList searchWindow = new UniversalSearchList();
-            searchWindow.Show();
         }
 
         private async void updateEpgBtn_Click(object sender, RoutedEventArgs e)

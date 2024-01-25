@@ -1,0 +1,74 @@
+﻿<Window
+    x:Class="X_IPTV.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:X_IPTV"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="MainWindow"
+    ResizeMode="CanMinimize"
+    SizeToContent="WidthAndHeight"
+    mc:Ignorable="d">
+
+    <DockPanel>
+        <!--  Side Menu  -->
+        <ListBox
+            x:Name="SideMenu"
+            Width="200"
+            Background="DarkGray"
+            DockPanel.Dock="Left"
+            Foreground="White"
+            SelectionChanged="MenuList_SelectionChanged"
+            Style="{StaticResource MaterialDesignListBox}">
+            <!--<ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Height" Value="50"/>
+                    <Setter Property="Padding" Value="10"/>
+                    <Setter Property="Margin" Value="5"/>
+                    <Setter Property="Background" Value="Gray"/>
+            -->
+            <!--  ListBoxItem background color  -->
+            <!--
+                    <Setter Property="Foreground" Value="Black"/>
+            -->
+            <!--  ListBoxItem text color  -->
+            <!--
+                </Style>
+            </ListBox.ItemContainerStyle>-->
+            <ListBox.ItemContainerStyle>
+                <Style BasedOn="{StaticResource MaterialDesignListBoxItem}" TargetType="ListBoxItem">
+                    <Setter Property="Height" Value="50" />
+                    <Setter Property="Padding" Value="10" />
+                    <Setter Property="Margin" Value="5" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+
+            <ListBoxItem x:Name="LoginItem" Content="Login" />
+            <ListBoxItem x:Name="XtreamLoginPage" Content="Xtream Login" />
+            <ListBoxItem x:Name="M3ULoginPage" Content="M3U Login" />
+            <ListBoxItem
+                x:Name="CategoriesItem"
+                Content="Categories"
+                Visibility="Collapsed" />
+            <!--<ListBoxItem x:Name="Channels" Content="Channels" Visibility="Collapsed"/>-->
+            <ListBoxItem
+                x:Name="ChannelOptions"
+                Content="ChannelOptions"
+                Visibility="Collapsed" />
+            <ListBoxItem
+                x:Name="AllChannelsSearch"
+                Content="Search"
+                Visibility="Collapsed" />
+            <ListBoxItem x:Name="AppSettings" Content="Settings" />
+            <!--  ... more items ...  -->
+        </ListBox>
+
+        <!--  Content Frame  -->
+        <Frame
+            x:Name="ContentFrame"
+            Background="WhiteSmoke"
+            NavigationUIVisibility="Hidden">
+            <!--  Pages will be displayed here  -->
+        </Frame>
+    </DockPanel>
+</Window>

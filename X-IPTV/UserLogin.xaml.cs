@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Net.Http.Json;
 using GitHubReleaseChecker;
+using System.Windows.Controls;
 using Newtonsoft.Json.Linq;
 using static X_IPTV.UserDataSaver;
 using Microsoft.Win32;
@@ -23,7 +24,7 @@ namespace X_IPTV
     /// Interaction logic for UserLogin.xaml
     /// </summary>
     /// 
-    public partial class UserLogin : Window
+    public partial class UserLogin : Page
     {
         private static string programVersion = "v3.0.0";
         private static User _currentUser = new User();
@@ -44,10 +45,15 @@ namespace X_IPTV
             assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             saveDir = assemblyFolder + @"\Users\";
             loadUsersFromDirectory();
+
+            string mySetting = ConfigurationManager.GetSetting("MySettingKey");
+            //MessageBox.Show("Setting: " + mySetting);
         }
 
         private async void Con_btn_Click(object sender, RoutedEventArgs e)
         {
+            // Access the current MainWindow instance
+            var mw = Application.Current.MainWindow as MainWindow;
             if (XtreamCodescheckBox?.IsChecked == true)
             {
                 Instance.currentUser.username = usrTxt.Text;
@@ -85,8 +91,12 @@ namespace X_IPTV
                         busy_ind.IsBusy = false;
                         if (!cts.IsCancellationRequested)
                         {
-                            CategoryNav nav = new CategoryNav();
-                            nav.ShowDialog();
+                            /*CategoryNav nav = new CategoryNav();
+                            nav.ShowDialog();*/
+                            /*mw.CategoriesItem.Visibility = Visibility.Visible;
+                            mw.AllChannelsSearch.Visibility = Visibility.Visible;
+                            mw.CategoriesItem.IsSelected = true;
+                            mw.ContentFrame.Navigate(new Uri("CategoryNav.xaml", UriKind.Relative));*/
                         }
                     }
                     else
@@ -97,15 +107,16 @@ namespace X_IPTV
                 }
                 catch (OperationCanceledException) { }
 
-                cts = new CancellationTokenSource();//reset the token
+                catch (Exception ex)
+                {
+                    busy_ind.IsBusy = false;
+                    busy_ind.BusyContent = ""; // Clear the busy content
+                    Xceed.Wpf.Toolkit.MessageBox.Show($"Failed to connect. Error: {ex.Message}");
+                }
+                    cts = new CancellationTokenSource(); // Reset the token
             }
             else if(m3uCheckBox?.IsChecked == true)
             {
-                if (string.IsNullOrWhiteSpace(m3uEpgUrlTxtbox.Text))
-                {
-                    Xceed.Wpf.Toolkit.MessageBox.Show("Please enter the M3U playlist url.");
-                    return;
-                }
                 busy_ind.IsBusy = true;
                 UserLogin.ReturnToLogin = false;
                 busy_ind.BusyContent = "Attempting to connect...";
@@ -114,20 +125,39 @@ namespace X_IPTV
                     busy_ind.BusyContent = "Loading playlist channel data...";
                     await M3UPlaylist.RetrieveM3UPlaylistData(m3uURLTxtbox.Text, cts.Token); // Load epg into the channels array
 
-                    busy_ind.BusyContent = "Loading playlist epg data...";
-                    Instance.allM3uEpgData = await M3UPlaylist.DownloadAndParseEPG(m3uEpgUrlTxtbox.Text, cts.Token);
-                    if (Instance.allM3uEpgData != null)
+                    if (!string.IsNullOrWhiteSpace(m3uEpgUrlTxtbox.Text))
                     {
-                        await M3UPlaylist.UpdateChannelsEpgData(Instance.M3UChannels);
+                        busy_ind.BusyContent = "Loading playlist epg data...";
+                        Instance.allM3uEpgData = await M3UPlaylist.DownloadAndParseEPG(m3uEpgUrlTxtbox.Text, cts.Token);
+
+                        if (Instance.allM3uEpgData != null)
+                        {
+                            await M3UPlaylist.UpdateChannelsEpgData(Instance.M3UChannels);
+                        }
                     }
 
                     //var epgDataForChannel = Instance.M3UEPGDataList.Where(e => e.ChannelId == "someChannelId").ToList();
 
                     busy_ind.IsBusy = false;
-                    if (!cts.IsCancellationRequested)
+                    if (!cts.IsCancellationRequested && Instance.allM3uEpgData != null && Instance.allM3uEpgData.Length > 0)
                     {
-                        CategoryNav nav = new CategoryNav();
-                        nav.ShowDialog();
+                        /*CategoryNav nav = new CategoryNav();
+                        nav.ShowDialog();*/
+                        //mw.CategoriesItem.Visibility = Visibility.Visible;
+                    }
+                    else if(!cts.IsCancellationRequested && Instance.allM3uEpgData == null) //loading an individual playlist that has channels
+                    {
+                        var channels = Instance.M3UChannels.ToList();
+                        if (channels.Count > 0)
+                        {
+                            M3UChannelList channelWindow = new M3UChannelList();
+                            mw.ContentFrame.Navigate(channelWindow);
+                            //channelWindow.ShowDialog();
+                        }
+                        else
+                        {
+                            Xceed.Wpf.Toolkit.MessageBox.Show("No channels available in " + Instance.selectedCategory);
+                        }
                     }
                     else
                     {
@@ -137,7 +167,13 @@ namespace X_IPTV
                 }
                 catch (OperationCanceledException) { }
 
-                cts = new CancellationTokenSource();//reset the token
+                catch (Exception ex)
+                {
+                    busy_ind.IsBusy = false;
+                    busy_ind.BusyContent = ""; // Clear the busy content
+                    Xceed.Wpf.Toolkit.MessageBox.Show($"Failed to connect. Error: {ex.Message}");
+                }
+                    cts = new CancellationTokenSource(); // Reset the token
             }
             else
                 Xceed.Wpf.Toolkit.MessageBox.Show("You must select a checkbox option.");
@@ -300,6 +336,12 @@ namespace X_IPTV
                 textBoxPlaylistDataConnectionString.Text = "http://" + serverTxt.Text + ":" + portTxt.Text + "/xmltv.php?username=" + usrTxt.Text + "&password=" + passTxt.Text;
             }
         }
+
+        /*private void button_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow mw = new MainWindow();
+            mw.Show();
+        }*/
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {

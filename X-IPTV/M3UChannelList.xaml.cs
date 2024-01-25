@@ -14,7 +14,7 @@ namespace X_IPTV
     /// <summary>
     /// Interaction logic for M3UChannelList.xaml
     /// </summary>
-    public partial class M3UChannelList : Window
+    public partial class M3UChannelList : Page
     {
         private M3UChannelModel model;
         private DateTime windowOpenTime; // Store the window open time
@@ -49,30 +49,21 @@ namespace X_IPTV
 
         private void M3UChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Create an instance of ChannelOptions.
-            ChannelOptions channelOp = new ChannelOptions();
+            var mw = Application.Current.MainWindow as MainWindow;
 
-            // Check if there is at least one item selected and the M3U checkbox is checked.
             if (e.AddedItems.Count > 0 && Instance.M3uChecked)
             {
-                // Attempt to cast the selected item to an M3UChannel.
                 M3UChannel m3uChannel = e.AddedItems[0] as M3UChannel;
-
-                // If the cast is successful (i.e., the selected item is indeed an M3UChannel).
                 if (m3uChannel != null)
                 {
-                    // Set the tempChannel property of the ChannelOptions instance.
-                    channelOp.tempChannel = m3uChannel;
-
-                    // Now display the selected channel data in the ChannelOptions window.
-                    if (channelOp.DisplaySelectedChannelData(m3uChannel))
-                    {
-                        // If the data is successfully displayed, show the ChannelOptions window.
-                        channelOp.Show();
-                    }
+                    ChannelOptions channelOptionsPage = new ChannelOptions(m3uChannel);
+                    /*mw.ChannelOptions.Visibility = Visibility.Visible;
+                    mw.CategoriesItem.IsSelected = true;
+                    mw.ContentFrame.Navigate(channelOptionsPage);*/
                 }
             }
         }
+
 
         private void listBox1_MouseDown(object sender, RoutedEventArgs e)
         {
@@ -113,7 +104,7 @@ namespace X_IPTV
                 Debug.WriteLine("EPG not updated...");
 
             CategoryNav categoryNavWindow = new CategoryNav();
-            categoryNavWindow.Show();
+            //categoryNavWindow.Show();
         }
 
         private bool ShouldUpdateOnInterval(DateTime currentTime)
@@ -136,10 +127,18 @@ namespace X_IPTV
         {
             if (isInitialized) return; // Ensure logic runs only once
 
+            List<M3UChannel> channels;
             if (Instance.M3uChecked)
             {
                 // Load M3U channels
-                var channels = Instance.M3UChannels.Where(c => c.CategoryName == Instance.selectedCategory).ToList();
+                if (Instance.allM3uEpgData != null)
+                {
+                    channels = Instance.M3UChannels.Where(c => c.CategoryName == Instance.selectedCategory).ToList();
+                }
+                else
+                {
+                    channels = Instance.M3UChannels.ToList();
+                }
                 foreach (var channel in channels)
                 {
                     MyListBoxItems.Add(channel);

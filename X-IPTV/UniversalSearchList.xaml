@@ -1,22 +1,22 @@
-﻿<Window x:Class="X_IPTV.UniversalSearchList"
+﻿<UserControl x:Class="X_IPTV.UniversalSearchList"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:X_IPTV"
         mc:Ignorable="d"
-        Title="Channel Guide - Hover Over A Channel For Description" Height="450" Width="800">
-    <Window.Resources>
-        <local:UniversalSearchMyMockClass x:Key="DesignViewModel"/>
+        d:DesignHeight="450" d:DesignWidth="800" MinHeight="450" MinWidth="800">
+    <UserControl.Resources>
+        <!--<local:UniversalSearchMyMockClass x:Key="DesignViewModel"/>-->
 
-        <Style TargetType="{x:Type ListBox}">
-            <Setter Property="ItemsPanel">
+        <!--<Style TargetType="{x:Type ListBox}">
+            --><!--<Setter Property="ItemsPanel">
                 <Setter.Value>
                     <ItemsPanelTemplate>
                         <local:VirtualizingWrapPanel />
                     </ItemsPanelTemplate>
                 </Setter.Value>
-            </Setter>
+            </Setter>--><!--
 
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
 
@@ -29,7 +29,7 @@
                                     <ColumnDefinition Width="100"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <!--Bind these to properties on the ChannelEntry object-->
+                                --><!--Bind these to properties on the ChannelEntry object--><!--
                                 <Image Source="{Binding Path=IconUrl}" Stretch="Uniform" Height="120"/>
                                 <TextBlock Name="channelName" FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=DisplayName}" VerticalAlignment="Top"></TextBlock>
                                 <TextBlock Name="channelTitle" FontSize="16" Padding="15,5,5,5" Grid.Column="1" Text="{Binding Path=Title}" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,41,0,0" RenderTransformOrigin="0.487,1.728"></TextBlock>
@@ -39,23 +39,24 @@
                     </DataTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>
-    </Window.Resources>
-    <Grid Background="LightGray">
+        </Style>-->
+    </UserControl.Resources>
+    <!--<Grid Background="LightGray" MaxHeight="{Binding Path=ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" 
+    MaxWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}">
 
-        <Grid.RowDefinitions>
+        <Grid.RowDefinitions >
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header for search box -->
+        --><!-- Header for search box --><!--
         <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10">
             <TextBlock Text="Search: " FontSize="16" VerticalAlignment="Center"/>
             <TextBox x:Name="USearchTextBox" Width="200" Margin="5" VerticalAlignment="Center" TextChanged="USearchTextBox_TextChanged"/>
         </StackPanel>
 
-        <!-- ListBox placed in the second row -->
-        <ListBox Grid.Row="1" Name="USearchChannelLst" d:DataContext="{Binding Source={StaticResource DesignViewModel}}"
+        --><!-- ListBox placed in the second row --><!--
+        <ListBox Grid.Row="1" Name="USearchChannelLst"
              ItemsSource="{Binding MyListBoxItems}" SelectionMode="Single"
              SelectionChanged="USearchChannelLst_SelectionChanged" Background="LightGray">
             <ListBox.ContextMenu>
@@ -64,5 +65,5 @@
                 </ContextMenu>
             </ListBox.ContextMenu>
         </ListBox>
-    </Grid>
-</Window>
+    </Grid>-->
+</UserControl>

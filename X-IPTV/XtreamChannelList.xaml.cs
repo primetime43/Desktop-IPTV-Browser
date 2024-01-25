@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using static X_IPTV.M3UPlaylist;
 using static X_IPTV.XtreamCodes;
 
 namespace X_IPTV
@@ -14,7 +15,7 @@ namespace X_IPTV
     /// <summary>
     /// Interaction logic for XtreamChannelList.xaml
     /// </summary>
-    public partial class XtreamChannelList : Window
+    public partial class XtreamChannelList : UserControl
     {
         private XtreamChannelModel model;
         private DateTime windowOpenTime; // Store the window open time
@@ -48,27 +49,16 @@ namespace X_IPTV
 
         private void XtreamChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Create an instance of ChannelOptions.
-            ChannelOptions channelOp = new ChannelOptions();
+            var mw = Application.Current.MainWindow as MainWindow;
 
-            // Check if there is at least one item selected and the XtreamCodes checkbox is checked.
             if (e.AddedItems.Count > 0 && Instance.XtreamCodesChecked)
             {
-                // Attempt to cast the selected item to a ChannelEntry.
                 XtreamChannel xtreamChannel = e.AddedItems[0] as XtreamChannel;
-
-                // If the cast is successful (i.e., the selected item is indeed a ChannelEntry).
                 if (xtreamChannel != null)
                 {
-                    // Set the tempChannel property of the ChannelOptions instance.
-                    channelOp.tempChannel = xtreamChannel;
-
-                    // Now display the selected channel data in the ChannelOptions window.
-                    if (channelOp.DisplaySelectedChannelData(xtreamChannel))
-                    {
-                        // If the data is successfully displayed, show the ChannelOptions window.
-                        channelOp.Show();
-                    }
+                    ChannelOptions channelOptionsPage = new ChannelOptions(xtreamChannel);
+                    /*mw.ChannelOptions.Visibility = Visibility.Visible;
+                    mw.ContentFrame.Navigate(channelOptionsPage);*/
                 }
             }
         }
@@ -120,7 +110,7 @@ namespace X_IPTV
                 Debug.WriteLine("EPG not updated...");
 
             CategoryNav categoryNavWindow = new CategoryNav();
-            categoryNavWindow.Show();
+            //categoryNavWindow.Show();
         }
 
         private bool ShouldUpdateOnInterval(DateTime currentTime)

@@ -21,7 +21,7 @@ namespace X_IPTV
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
-    public partial class UniversalSearchList : Window
+    public partial class UniversalSearchList : UserControl
     {
         private UniversalSearchModel model;
         public UniversalSearchList()
@@ -31,7 +31,7 @@ namespace X_IPTV
             model.Initialize(); // populate the allChannels list
         }
 
-        private void USearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        /*private void USearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (USearchTextBox != null)
             {
@@ -54,48 +54,32 @@ namespace X_IPTV
                 // The UI will now update to show only filtered items
                 USearchChannelLst.ItemsSource = currentList;
             }
-        }
+        }*/
 
         private void USearchChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Create an instance of ChannelOptions.
-            ChannelOptions channelOp = new ChannelOptions();
+            var mw = Application.Current.MainWindow as MainWindow;
 
-            // Check if there is at least one item selected and the XtreamCodes checkbox is checked.
             if (e.AddedItems.Count > 0 && Instance.XtreamCodesChecked)
             {
-                // Attempt to cast the selected item to a ChannelEntry.
                 XtreamChannel xtreamChannel = e.AddedItems[0] as XtreamChannel;
-
-                // If the cast is successful (i.e., the selected item is indeed a ChannelEntry).
                 if (xtreamChannel != null)
                 {
-                    // Set the tempChannel property of the ChannelOptions instance.
-                    channelOp.tempChannel = xtreamChannel;
-
-                    // Now display the selected channel data in the ChannelOptions window.
-                    if (channelOp.DisplaySelectedChannelData(xtreamChannel))
-                    {
-                        // If the data is successfully displayed, show the ChannelOptions window.
-                        channelOp.Show();
-                    }
+                    ChannelOptions channelOptionsPage = new ChannelOptions(xtreamChannel);
+                    /*mw.ChannelOptions.Visibility = Visibility.Visible;
+                    mw.CategoriesItem.IsSelected = true;
+                    mw.ContentFrame.Navigate(channelOptionsPage);*/
                 }
             }
-            else if(e.AddedItems.Count > 0 && Instance.M3uChecked)
+            else if (e.AddedItems.Count > 0 && Instance.M3uChecked)
             {
                 M3UChannel m3uChannel = e.AddedItems[0] as M3UChannel;
-
                 if (m3uChannel != null)
                 {
-                    // Set the tempChannel property of the ChannelOptions instance.
-                    channelOp.tempChannel = m3uChannel;
-
-                    // Now display the selected channel data in the ChannelOptions window.
-                    if (channelOp.DisplaySelectedChannelData(m3uChannel))
-                    {
-                        // If the data is successfully displayed, show the ChannelOptions window.
-                        channelOp.Show();
-                    }
+                    ChannelOptions channelOptionsPage = new ChannelOptions(m3uChannel);
+                    /*mw.ChannelOptions.Visibility = Visibility.Visible;
+                    mw.CategoriesItem.IsSelected = true;
+                    mw.ContentFrame.Navigate(channelOptionsPage);*/
                 }
             }
         }

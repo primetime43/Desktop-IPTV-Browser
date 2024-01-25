@@ -1,4 +1,4 @@
-﻿<Window x:Class="X_IPTV.ChannelOptions"
+﻿<Page x:Class="X_IPTV.ChannelOptions"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -30,4 +30,4 @@
         <Label x:Name="streamLbl" Grid.Column="1" Content="Stream URL:" HorizontalAlignment="Left" Margin="35,294,0,0" Grid.Row="1" VerticalAlignment="Top" Height="35" Width="101"/>
 
     </Grid>
-</Window>
+</Page>
