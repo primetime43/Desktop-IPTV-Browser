@@ -49,16 +49,16 @@
             <ListBoxItem
                 x:Name="CategoriesItem"
                 Content="Categories"
-                Visibility="Collapsed" />
+                Visibility="Visible" />
             <!--<ListBoxItem x:Name="Channels" Content="Channels" Visibility="Collapsed"/>-->
             <ListBoxItem
                 x:Name="ChannelOptions"
                 Content="ChannelOptions"
-                Visibility="Collapsed" />
+                Visibility="Visible" />
             <ListBoxItem
                 x:Name="AllChannelsSearch"
                 Content="Search"
-                Visibility="Collapsed" />
+                Visibility="Visible" />
             <ListBoxItem x:Name="AppSettings" Content="Settings" />
             <!--  ... more items ...  -->
         </ListBox>

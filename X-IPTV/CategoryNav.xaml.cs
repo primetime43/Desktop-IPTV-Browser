@@ -24,10 +24,10 @@ namespace X_IPTV
         {
             InitializeComponent();
             loadCategories();//loads the categories into the listbox view
-            if(Instance.XtreamCodesChecked)
+            /*if(Instance.XtreamCodesChecked)
                 loadUserInfo();//displays the user's info in the text box
             else
-                userInfoTxtBox.Visibility = Visibility.Collapsed;
+                userInfoTxtBox.Visibility = Visibility.Collapsed;*/
         }
 
         private void loadCategories()
