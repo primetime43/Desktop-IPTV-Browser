@@ -49,6 +49,8 @@ namespace X_IPTV
 
         private void XtreamChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            MessageBox.Show("XtreamChannelLst_SelectionChanged");
+
             var mw = Application.Current.MainWindow as MainWindow;
 
             if (e.AddedItems.Count > 0 && Instance.XtreamCodesChecked)
@@ -56,9 +58,9 @@ namespace X_IPTV
                 XtreamChannel xtreamChannel = e.AddedItems[0] as XtreamChannel;
                 if (xtreamChannel != null)
                 {
+                    //testing (not working currently)
                     ChannelOptions channelOptionsPage = new ChannelOptions(xtreamChannel);
-                    /*mw.ChannelOptions.Visibility = Visibility.Visible;
-                    mw.ContentFrame.Navigate(channelOptionsPage);*/
+                    mw.ContentFrame.Navigate(channelOptionsPage);
                 }
             }
         }
@@ -157,8 +159,9 @@ namespace X_IPTV
     {
         public XtreamMyMockClass()
         {
-            MyListBoxItems = new ObservableCollection<XtreamChannel>();
-            MyListBoxItems.Add(new XtreamChannel()
+            MyListBoxItems = new ObservableCollection<XtreamChannel>
+            { 
+            /*MyListBoxItems.Add(new XtreamChannel()
             {
                 ChannelName = "|FR| TF1 UHD",
                 LogoUrl = "http://f.iptv-pure.com/tf14k.png",
@@ -179,7 +182,30 @@ namespace X_IPTV
                     Description = "Description 2",
                     StartTime = DateTime.Now.AddHours(1),
                 }
-            });
+            });*/
+            new XtreamChannel
+            {
+                ChannelName = "|FR| TF1 UHD",
+                LogoUrl = "http://f.iptv-pure.com/tf14k.png",
+                EPGData = new XtreamEPGData
+                {
+                    ProgramTitle = "Title 1",
+                    Description = "Description 1",
+                    StartTime = DateTime.Now,
+                }
+            },
+            new XtreamChannel
+            {
+                ChannelName = "|FR| CSTAR FHD",
+                LogoUrl = "http://f.iptv-pure.com/cstar.png",
+                EPGData = new XtreamEPGData
+                {
+                    ProgramTitle = "Title 2",
+                    Description = "Description 2",
+                    StartTime = DateTime.Now.AddHours(1),
+                }
+            }
+            };
         }
         public ObservableCollection<XtreamChannel> MyListBoxItems { get; set; }
 

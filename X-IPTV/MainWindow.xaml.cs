@@ -56,6 +56,9 @@ namespace X_IPTV
                         /*case "Channels":
                             ContentFrame.Navigate(new Uri("ChannelOptions.xaml", UriKind.Relative));
                             break;*/
+                        case "XtreamChannels":
+                            ContentFrame.Navigate(new Uri("XtreamChannelList.xaml", UriKind.Relative));
+                            break;
                         case "ChannelOptions":
                             ContentFrame.Navigate(new Uri("ChannelOptions.xaml", UriKind.Relative));
                             break;

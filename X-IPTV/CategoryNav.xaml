@@ -1,4 +1,4 @@
-﻿<UserControl
+﻿<Page
     x:Class="X_IPTV.CategoryNav"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,13 +8,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     MinWidth="800"
     MinHeight="450"
-    MaxWidth="800"
-    MaxHeight="450"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
 
-    <UserControl.Resources>
+    <Page.Resources>
         <!--  BusyIndicator Style with Cancel Button  -->
         <Style x:Key="BusyIndicatorStyle" TargetType="extToolkit:BusyIndicator">
             <Setter Property="Template">
@@ -64,15 +62,12 @@
                 </Setter.Value>
             </Setter>
         </Style>
-    </UserControl.Resources>
+    </Page.Resources>
     <extToolkit:BusyIndicator
         x:Name="busy_ind"
         IsBusy="False"
         Style="{StaticResource BusyIndicatorStyle}">
-        <Grid
-            MaxWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
-            MaxHeight="{Binding Path=ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
-            Background="white">
+        <Grid Background="#FFD3D3D3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <!--  Each column will take equal space  -->
@@ -88,22 +83,6 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-
-            <ListView
-                x:Name="listViewTest"
-                Grid.RowSpan="4"
-                d:ItemsSource="{d:SampleData ItemCount=5}"
-                BorderBrush="Black"
-                BorderThickness="4"
-                SelectionChanged="ListViewItem_Selected">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <WrapPanel>
-                            <TextBlock FontWeight="Bold" Text="{Binding CategoryName}" />
-                        </WrapPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
 
 
             <!--<RichTextBox x:Name="userInfoTxtBox" Grid.Column="2" Margin="337,21,45,217" ScrollViewer.VerticalScrollBarVisibility="Auto">
@@ -137,13 +116,18 @@
             <!--  RichTextBox in second column  -->
             <RichTextBox
                 x:Name="userInfoTxtBox"
+                Grid.Row="0"
+                Grid.RowSpan="2"
                 Grid.Column="2"
+                Grid.ColumnSpan="2"
+                Height="147"
                 MinHeight="100"
                 MaxWidth="300"
                 MaxHeight="300"
-                Margin="10"
+                Margin="0,10,10,0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
+                Background="White"
                 ScrollViewer.VerticalScrollBarVisibility="Auto" />
 
             <!--  Controls in third column  -->
@@ -174,6 +158,35 @@
                 Background="#007bff"
                 Click="updateEpgBtn_Click"
                 Content="Update EPG" />
+            <!--<ListView
+                x:Name="listViewTest"
+                Grid.RowSpan="4"
+                Margin="0,0,27,0"
+                d:ItemsSource="{d:SampleData ItemCount=5}"
+                Background="White"
+                SelectionChanged="ListViewItem_Selected">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <WrapPanel>
+                            <TextBlock FontWeight="Bold" Text="{Binding CategoryName}" />
+                        </WrapPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>-->
+            <ListView
+                x:Name="listViewTest"
+                Grid.RowSpan="4"
+                Grid.ColumnSpan="2"
+                Margin="0,0,166,0"
+                d:ItemsSource="{d:SampleData ItemCount=5}"
+                Background="White"
+                SelectionChanged="ListViewItem_Selected">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn DisplayMemberBinding="{Binding CategoryName}" Header="Categories" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
         </Grid>
     </extToolkit:BusyIndicator>
-</UserControl>
+</Page>

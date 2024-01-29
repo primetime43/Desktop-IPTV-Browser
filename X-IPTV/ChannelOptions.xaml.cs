@@ -105,6 +105,7 @@ namespace X_IPTV
         {
             try
             {
+                richTextBox.Document.Blocks.Clear();
                 if (tempChannel is M3UChannel m3uChannel)
                 {
                     DisplayM3UChannelDetails(m3uChannel);

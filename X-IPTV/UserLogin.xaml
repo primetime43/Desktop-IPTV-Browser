@@ -10,8 +10,6 @@
     Title="User Login"
     MinWidth="800"
     MinHeight="450"
-    MaxWidth="800"
-    MaxHeight="450"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">

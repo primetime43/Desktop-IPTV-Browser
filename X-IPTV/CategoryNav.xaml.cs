@@ -17,7 +17,7 @@ namespace X_IPTV
     /// Interaction logic for CategoryNav.xaml
     /// </summary>
     /// 
-    public partial class CategoryNav : UserControl
+    public partial class CategoryNav : Page
     {
         private CancellationTokenSource cts;
         public CategoryNav()
@@ -135,7 +135,7 @@ namespace X_IPTV
                 {
                     busy_ind.IsBusy = false;
                     //channelWindow.ShowDialog();
-                    mw.ContentFrame.Navigate(channelWindow);
+                    //mw.ContentFrame.Navigate(channelWindow);
                 }
 
                 //this.NavigationService.Navigate(new Uri("XtreamChannelList.xaml", UriKind.Relative));
