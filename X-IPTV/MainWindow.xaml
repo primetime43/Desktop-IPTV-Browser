@@ -25,21 +25,6 @@
             Foreground="White"
             SelectionChanged="MenuList_SelectionChanged"
             Style="{StaticResource MaterialDesignListBox}">
-            <!--<ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="Height" Value="50"/>
-                    <Setter Property="Padding" Value="10"/>
-                    <Setter Property="Margin" Value="5"/>
-                    <Setter Property="Background" Value="Gray"/>
-            -->
-            <!--  ListBoxItem background color  -->
-            <!--
-                    <Setter Property="Foreground" Value="Black"/>
-            -->
-            <!--  ListBoxItem text color  -->
-            <!--
-                </Style>
-            </ListBox.ItemContainerStyle>-->
             <ListBox.ItemContainerStyle>
                 <Style BasedOn="{StaticResource MaterialDesignListBoxItem}" TargetType="ListBoxItem">
                     <Setter Property="Height" Value="50" />
@@ -52,24 +37,22 @@
             <ListBoxItem x:Name="XtreamLoginPage" Content="Xtream Login" />
             <ListBoxItem x:Name="M3ULoginPage" Content="M3U Login" />
             <ListBoxItem
-                x:Name="CategoriesItem"
+                x:Name="CategoriesPage"
                 Content="Categories"
-                Visibility="Visible" />
-            <!--<ListBoxItem x:Name="Channels" Content="Channels" Visibility="Collapsed"/>-->
+                Visibility="Collapsed" />
             <ListBoxItem
-                x:Name="XtreamChannels"
-                Content="XtreamChannels"
-                Visibility="Visible" />
+                x:Name="XtreamChannelsPage"
+                Content="Xtream Channels"
+                Visibility="Collapsed" />
             <ListBoxItem
                 x:Name="ChannelOptions"
                 Content="ChannelOptions"
-                Visibility="Visible" />
+                Visibility="Collapsed" />
             <ListBoxItem
-                x:Name="AllChannelsSearch"
-                Content="Search"
-                Visibility="Visible" />
+                x:Name="AllChannelsSearchPage"
+                Content="Search For Channels"
+                Visibility="Collapsed" />
             <ListBoxItem x:Name="AppSettings" Content="Settings" />
-            <!--  ... more items ...  -->
         </ListBox>
 
         <!--  Content Frame  -->
@@ -77,6 +60,7 @@
             x:Name="ContentFrame"
             Background="WhiteSmoke"
             NavigationUIVisibility="Hidden">
+            <!--  Maybe make this visible idk  -->
             <!--  Pages will be displayed here  -->
         </Frame>
     </DockPanel>

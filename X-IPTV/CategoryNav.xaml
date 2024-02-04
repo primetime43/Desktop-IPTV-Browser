@@ -183,7 +183,17 @@
                 SelectionChanged="ListViewItem_Selected">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn DisplayMemberBinding="{Binding CategoryName}" Header="Categories" />
+                        <GridViewColumn Width="200" Header="Categories">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding CategoryName}">
+                                        <TextBlock.ToolTip>
+                                            <ToolTip Content="{Binding CategoryName}" />
+                                        </TextBlock.ToolTip>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>

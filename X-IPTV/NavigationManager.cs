@@ -19,19 +19,21 @@ namespace X_IPTV
 
         public void NavigateToPage(string pageName)
         {
+            // Match these with the case statements in MainWindow.xaml.cs (maybe use a common enum?)
             Uri pageUri = pageName switch
             {
-                "Xtream Login" => new Uri("XtreamLogin.xaml", UriKind.Relative),
-                "M3U Login" => new Uri("M3ULogin.xaml", UriKind.Relative),
-                "Categories" => new Uri("CategoryNav.xaml", UriKind.Relative),
-                "XtreamChannels" => new Uri("XtreamChannelList.xaml", UriKind.Relative),
+                "XtreamLoginPage" => new Uri("XtreamLogin.xaml", UriKind.Relative),
+                "M3ULoginPage" => new Uri("M3ULogin.xaml", UriKind.Relative),
+                "CategoriesPage" => new Uri("CategoryNav.xaml", UriKind.Relative),
+                "XtreamChannelsPage" => new Uri("XtreamChannelList.xaml", UriKind.Relative),
                 _ => null
             };
 
             if (pageUri != null)
             {
                 _navigationService.Navigate(pageUri);
-                (Application.Current.MainWindow as MainWindow)?.HighlightNavigationItem(pageName); // highlights the selected item in the MainWindow listbox
+                /* highlights the selected item in the MainWindow listbox & triggers the MenuList_SelectionChanged in MainWindow.xaml.cs */
+                (Application.Current.MainWindow as MainWindow)?.HighlightNavigationItem(pageName);
             }
         }
     }

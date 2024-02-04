@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Navigation;
 using Xceed.Wpf.Toolkit;
 using static X_IPTV.M3UPlaylist;
 using static X_IPTV.XtreamCodes;
@@ -104,7 +105,7 @@ namespace X_IPTV
                     {
                         string selectedText = selectedItem.CategoryName;
                         loadSelectedCategory(selectedText);
-                        navigationManager.NavigateToPage("XtreamChannels");
+                        navigationManager.NavigateToPage("XtreamChannelsPage");
                     }
                 }
                 else if(Instance.M3uChecked)

@@ -163,7 +163,7 @@ namespace X_IPTV
                     if (!cts.IsCancellationRequested)
                     {
                         var navigationManager = new NavigationManager(this.NavigationService);
-                        navigationManager.NavigateToPage("Categories");
+                        navigationManager.NavigateToPage("CategoriesPage");
                     }
                 }
                 else

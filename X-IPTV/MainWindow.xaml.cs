@@ -25,9 +25,6 @@ namespace X_IPTV
             InitializeComponent();
             this.Title = "User Login " + Instance.programVersion;
             ContentFrame.Navigate(new Uri("UserLogin.xaml", UriKind.Relative));
-
-            var optionsPopup = new OptionsPopup();
-            optionsPopup.ButtonClickEvent += navigateToPageTest;
         }
 
         private void MenuList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -37,31 +34,35 @@ namespace X_IPTV
                 var selectedItem = listBox.SelectedItem as ListBoxItem;
                 if (selectedItem != null)
                 {
-                    switch (selectedItem.Content.ToString())
+                    switch (selectedItem.Name.ToString())
                     {
-                        case "Login":
+                        case "LoginItem":
                             ContentFrame.Navigate(new Uri("UserLogin.xaml", UriKind.Relative));
                             break;
-                        case "Xtream Login":
+                        case "XtreamLoginPage":
                             ContentFrame.Navigate(new Uri("XtreamLogin.xaml", UriKind.Relative));
                             break;
-                        case "M3U Login":
+                        case "M3ULoginPage":
                             ContentFrame.Navigate(new Uri("M3ULogin.xaml", UriKind.Relative));
                             break;
-                        case "Categories":
+                        case "CategoriesPage":
                             ContentFrame.Navigate(new Uri("CategoryNav.xaml", UriKind.Relative));
+                            CategoriesPage.Visibility = Visibility.Visible;
+                            AllChannelsSearchPage.Visibility = Visibility.Visible;
                             break;
-                        case "XtreamChannels":
+                        case "XtreamChannelsPage":
                             ContentFrame.Navigate(new Uri("XtreamChannelList.xaml", UriKind.Relative));
+                            XtreamChannelsPage.Visibility = Visibility.Visible;
                             break;
-                        case "Search":
+                        case "AllChannelsSearchPage":
                             ContentFrame.Navigate(new Uri("UniversalSearchList.xaml", UriKind.Relative));
                             break;
-                        case "Settings":
+                        case "AppSettings":
                             ContentFrame.Navigate(new Uri("SettingsPage.xaml", UriKind.Relative));
                             break;
                     }
                 }
+                (Application.Current.MainWindow as MainWindow)?.HighlightNavigationItem(selectedItem.Name.ToString()); // highlights the selected item in the MainWindow listbox
             }
         }
 
@@ -69,18 +70,12 @@ namespace X_IPTV
         {
             foreach (var item in SideMenu.Items.OfType<ListBoxItem>())
             {
-                if ((string)item.Content == pageName)
+                if (item.Name == pageName)
                 {
                     SideMenu.SelectedItem = item;
                     break; // Break once the matching item is found and selected
                 }
             }
-        }
-
-
-        public void navigateToPageTest()
-        {
-            ContentFrame.Navigate(new Uri("XtreamLogin.xaml", UriKind.Relative));
         }
     }
 }
