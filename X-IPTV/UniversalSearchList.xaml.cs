@@ -21,7 +21,7 @@ namespace X_IPTV
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
-    public partial class UniversalSearchList : UserControl
+    public partial class UniversalSearchList : Page
     {
         private UniversalSearchModel model;
         public UniversalSearchList()
@@ -31,7 +31,7 @@ namespace X_IPTV
             model.Initialize(); // populate the allChannels list
         }
 
-        /*private void USearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void USearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (USearchTextBox != null)
             {
@@ -54,7 +54,7 @@ namespace X_IPTV
                 // The UI will now update to show only filtered items
                 USearchChannelLst.ItemsSource = currentList;
             }
-        }*/
+        }
 
         private void USearchChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -66,9 +66,7 @@ namespace X_IPTV
                 if (xtreamChannel != null)
                 {
                     ChannelOptions channelOptionsPage = new ChannelOptions(xtreamChannel);
-                    /*mw.ChannelOptions.Visibility = Visibility.Visible;
-                    mw.CategoriesItem.IsSelected = true;
-                    mw.ContentFrame.Navigate(channelOptionsPage);*/
+                    channelOptionsPage.Show();
                 }
             }
             else if (e.AddedItems.Count > 0 && Instance.M3uChecked)

@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 using static X_IPTV.M3UPlaylist;
 using static X_IPTV.XtreamCodes;
 

@@ -151,7 +151,7 @@ namespace X_IPTV
                         if (channels.Count > 0)
                         {
                             M3UChannelList channelWindow = new M3UChannelList();
-                            mw.ContentFrame.Navigate(channelWindow);
+                            //mw.ContentFrame.Navigate(channelWindow);
                             //channelWindow.ShowDialog();
                         }
                         else

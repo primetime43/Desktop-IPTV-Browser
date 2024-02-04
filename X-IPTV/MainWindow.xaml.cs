@@ -25,7 +25,6 @@ namespace X_IPTV
         public MainWindow()
         {
             InitializeComponent();
-            Instance = this;
             ContentFrame.Navigate(new Uri("UserLogin.xaml", UriKind.Relative));
 
             var optionsPopup = new OptionsPopup();
@@ -53,14 +52,8 @@ namespace X_IPTV
                         case "Categories":
                             ContentFrame.Navigate(new Uri("CategoryNav.xaml", UriKind.Relative));
                             break;
-                        /*case "Channels":
-                            ContentFrame.Navigate(new Uri("ChannelOptions.xaml", UriKind.Relative));
-                            break;*/
                         case "XtreamChannels":
                             ContentFrame.Navigate(new Uri("XtreamChannelList.xaml", UriKind.Relative));
-                            break;
-                        case "ChannelOptions":
-                            ContentFrame.Navigate(new Uri("ChannelOptions.xaml", UriKind.Relative));
                             break;
                         case "Search":
                             ContentFrame.Navigate(new Uri("UniversalSearchList.xaml", UriKind.Relative));
@@ -72,6 +65,19 @@ namespace X_IPTV
                 }
             }
         }
+
+        public void HighlightNavigationItem(string pageName)
+        {
+            foreach (var item in SideMenu.Items.OfType<ListBoxItem>())
+            {
+                if ((string)item.Content == pageName)
+                {
+                    SideMenu.SelectedItem = item;
+                    break; // Break once the matching item is found and selected
+                }
+            }
+        }
+
 
         public void navigateToPageTest()
         {

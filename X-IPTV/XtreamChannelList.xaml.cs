@@ -49,8 +49,6 @@ namespace X_IPTV
 
         private void XtreamChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MessageBox.Show("XtreamChannelLst_SelectionChanged");
-
             var mw = Application.Current.MainWindow as MainWindow;
 
             if (e.AddedItems.Count > 0 && Instance.XtreamCodesChecked)
@@ -58,9 +56,9 @@ namespace X_IPTV
                 XtreamChannel xtreamChannel = e.AddedItems[0] as XtreamChannel;
                 if (xtreamChannel != null)
                 {
-                    //testing (not working currently)
+                    // Open and show the channel options window for the selected channel
                     ChannelOptions channelOptionsPage = new ChannelOptions(xtreamChannel);
-                    mw.ContentFrame.Navigate(channelOptionsPage);
+                    channelOptionsPage.Show();
                 }
             }
         }

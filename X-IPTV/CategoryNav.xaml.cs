@@ -93,6 +93,7 @@ namespace X_IPTV
 
         private void ListViewItem_Selected(object sender, SelectionChangedEventArgs e)
         {
+            var navigationManager = new NavigationManager(this.NavigationService);
             if (e.AddedItems.Count > 0)
             {
                 if (Instance.XtreamCodesChecked)
@@ -103,6 +104,7 @@ namespace X_IPTV
                     {
                         string selectedText = selectedItem.CategoryName;
                         loadSelectedCategory(selectedText);
+                        navigationManager.NavigateToPage("XtreamChannels");
                     }
                 }
                 else if(Instance.M3uChecked)
@@ -113,6 +115,7 @@ namespace X_IPTV
                     {
                         string selectedText = selectedItem.CategoryName;
                         loadSelectedCategory(selectedText);
+                        //navigationManager.NavigateToPage("M3uChannels");
                     }
                 }
                 else

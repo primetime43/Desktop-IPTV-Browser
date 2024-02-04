@@ -15,7 +15,7 @@ namespace X_IPTV
     /// <summary>
     /// Interaction logic for ChannelOptions.xaml
     /// </summary>
-    public partial class ChannelOptions : Page
+    public partial class ChannelOptions : Window
     {
         public object tempChannel;
         public ChannelOptions(object selectedChannel)
@@ -101,7 +101,7 @@ namespace X_IPTV
             }
         }
 
-        private void DisplaySelectedChannelData()
+        /*private void DisplaySelectedChannelData()
         {
             try
             {
@@ -119,9 +119,9 @@ namespace X_IPTV
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show("An error occurred: " + ex.Message);
             }
-        }
+        }*/
 
-        /*public bool DisplaySelectedChannelData()
+        public bool DisplaySelectedChannelData()
         {
             try
             {
@@ -130,21 +130,21 @@ namespace X_IPTV
                 //streamURLtxtBox.Text = string.Empty;
 
                 // Check if the passed object is a ChannelEntry
-                if (channel is XtreamChannel xtreamChannel)
+                if (this.tempChannel is XtreamChannel xtreamChannel)
                 {
                     // Set properties specific to ChannelEntry
                     //DisplayChannelEntryDetails(entry); //delete?
                     DisplayXtreamChannelDetails(xtreamChannel);
                 }
                 // Check if the passed object is a M3UChannel
-                else if (channel is M3UChannel m3uChannel)
+                else if (this.tempChannel is M3UChannel m3uChannel)
                 {
                     // Set properties specific to M3UChannel
                     DisplayM3UChannelDetails(m3uChannel);
                 }
                 else
                 {
-                    throw new ArgumentException("Invalid channel type", nameof(channel));
+                    throw new ArgumentException("Invalid channel type", nameof(this.tempChannel));
                 }
                 return true;
             }
@@ -153,7 +153,7 @@ namespace X_IPTV
                 Xceed.Wpf.Toolkit.MessageBox.Show("An error occurred: " + ex.Message);
                 return false;
             }
-        }*/
+        }
 
         private void DisplayM3UChannelDetails(M3UChannel m3uChannel)
         {

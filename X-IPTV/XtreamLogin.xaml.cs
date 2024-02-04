@@ -163,7 +163,8 @@ namespace X_IPTV
                     busy_ind.IsBusy = false;
                     if (!cts.IsCancellationRequested)
                     {
-                        // Code to navigate or show dialogs after successful connection
+                        var navigationManager = new NavigationManager(this.NavigationService);
+                        navigationManager.NavigateToPage("Categories");
                     }
                 }
                 else
