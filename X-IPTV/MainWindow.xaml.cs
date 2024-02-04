@@ -20,11 +20,10 @@ namespace X_IPTV
     /// </summary>
     public partial class MainWindow : Window
     {
-        public static MainWindow Instance { get; private set; }
-
         public MainWindow()
         {
             InitializeComponent();
+            this.Title = "User Login " + Instance.programVersion;
             ContentFrame.Navigate(new Uri("UserLogin.xaml", UriKind.Relative));
 
             var optionsPopup = new OptionsPopup();

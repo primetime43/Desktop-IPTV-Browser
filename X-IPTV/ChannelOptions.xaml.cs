@@ -101,33 +101,13 @@ namespace X_IPTV
             }
         }
 
-        /*private void DisplaySelectedChannelData()
-        {
-            try
-            {
-                richTextBox.Document.Blocks.Clear();
-                if (tempChannel is M3UChannel m3uChannel)
-                {
-                    DisplayM3UChannelDetails(m3uChannel);
-                }
-                else if (tempChannel is XtreamChannel xtreamChannel)
-                {
-                    DisplayXtreamChannelDetails(xtreamChannel);
-                }
-            }
-            catch (Exception ex)
-            {
-                Xceed.Wpf.Toolkit.MessageBox.Show("An error occurred: " + ex.Message);
-            }
-        }*/
-
         public bool DisplaySelectedChannelData()
         {
             try
             {
                 // Clear any existing content
-                //richTextBox.Document.Blocks.Clear();
-                //streamURLtxtBox.Text = string.Empty;
+                richTextBox.Document.Blocks.Clear();
+                streamURLtxtBox.Text = string.Empty;
 
                 // Check if the passed object is a ChannelEntry
                 if (this.tempChannel is XtreamChannel xtreamChannel)

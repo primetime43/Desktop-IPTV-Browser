@@ -53,6 +53,8 @@ namespace X_IPTV
         public static bool XtreamCodesChecked { get; set; }
 
         public static string selectedCategory { get; set; }
+
+        public static string programVersion = "v3.0.0";
         #endregion
     }
 }

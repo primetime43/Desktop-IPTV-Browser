@@ -10,6 +10,6 @@
 
     <Grid Background="LightGray">
         <!-- Add your page content here -->
-
+        <Button x:Name="checkForUpdate_Btn" Click="checkForUpdate_Btn_Click">Check for update</Button>
     </Grid>
 </Page>

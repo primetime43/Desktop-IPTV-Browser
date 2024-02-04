@@ -12,7 +12,6 @@ using System.Windows;
 using System.Reflection;
 using System.Diagnostics;
 using System.Net.Http.Json;
-using GitHubReleaseChecker;
 using System.Windows.Controls;
 using Newtonsoft.Json.Linq;
 using static X_IPTV.UserDataSaver;
