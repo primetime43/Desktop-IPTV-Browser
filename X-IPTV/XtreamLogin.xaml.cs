@@ -27,7 +27,7 @@ namespace X_IPTV
         private static User _currentUser = new User();
         private static string assemblyFolder, saveDir, userFileFullPath;
         private static bool updateCheckDone = false;
-        private CancellationTokenSource cts = new CancellationTokenSource();
+        private CancellationTokenSource _cts = new CancellationTokenSource();
 
         public XtreamLogin()
         {
@@ -147,20 +147,20 @@ namespace X_IPTV
             try
             {
                 busy_ind.BusyContent = "Attempting to connect...";
-                if (await XtreamCodes.CheckLoginConnection(cts.Token)) // Connect to the server
+                if (await XtreamCodes.CheckLoginConnection(_cts.Token)) // Connect to the server
                 {
                     busy_ind.BusyContent = "Loading groups/categories data...";
-                    await XtreamCodes.RetrieveCategories(cts.Token); // Load epg into the channels array
+                    await XtreamCodes.RetrieveCategories(_cts.Token); // Load epg into the channels array
 
                     busy_ind.BusyContent = "Loading channel data...";
-                    await XtreamCodes.RetrieveXtreamPlaylistData(busy_ind, cts.Token);
+                    await XtreamCodes.RetrieveXtreamPlaylistData(busy_ind, _cts.Token);
 
                     busy_ind.BusyContent = "Downloading playlist epg...";
-                    Instance.allXtreamEpgData = await XtreamCodes.DownloadEPGAndSaveToFile(cts.Token);
+                    Instance.allXtreamEpgData = await XtreamCodes.DownloadEPGAndSaveToFile(_cts.Token);
                     await XtreamCodes.UpdateChannelsEpgData(Instance.XtreamChannels);
 
                     busy_ind.IsBusy = false;
-                    if (!cts.IsCancellationRequested)
+                    if (!_cts.IsCancellationRequested)
                     {
                         var navigationManager = new NavigationManager(this.NavigationService);
                         navigationManager.NavigateToPage("CategoriesPage");
@@ -189,14 +189,14 @@ namespace X_IPTV
             }
             finally
             {
-                cts = new CancellationTokenSource(); // Reset the token
+                _cts = new CancellationTokenSource(); // Reset the token
             }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             busy_ind.IsBusy = false;
-            cts.Cancel();
+            _cts.Cancel();
         }
     }
 }

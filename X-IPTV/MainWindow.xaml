@@ -45,6 +45,10 @@
                 Content="Xtream Channels"
                 Visibility="Collapsed" />
             <ListBoxItem
+                x:Name="M3UChannelPage"
+                Content="M3U Channels"
+                Visibility="Collapsed" />
+            <ListBoxItem
                 x:Name="ChannelOptions"
                 Content="ChannelOptions"
                 Visibility="Collapsed" />

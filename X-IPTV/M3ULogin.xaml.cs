@@ -16,6 +16,7 @@ using System.Windows.Controls;
 using Newtonsoft.Json.Linq;
 using static X_IPTV.UserDataSaver;
 using Microsoft.Win32;
+using MaterialDesignThemes.Wpf;
 
 namespace X_IPTV
 {
@@ -82,6 +83,52 @@ namespace X_IPTV
             {
                 MessageBox.Show("You must enter a name for the playlist.");
             }
+        }
+
+        private CancellationTokenSource _cts = new CancellationTokenSource();
+
+        private async void Con_btn_Click(object sender, RoutedEventArgs e)
+        {
+            Instance.M3uChecked = true;
+
+            if (string.IsNullOrWhiteSpace(m3uEpgUrlTxtbox.Text))
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Please enter the M3U playlist url.");
+                return;
+            }
+
+            busy_ind.IsBusy = true;
+            UserLogin.ReturnToLogin = false;
+            busy_ind.BusyContent = "Attempting to connect...";
+            try
+            {
+                busy_ind.BusyContent = "Loading playlist channel data...";
+                await M3UPlaylist.RetrieveM3UPlaylistData(m3uURLTxtbox.Text, _cts.Token); // Load epg into the channels array
+
+                busy_ind.BusyContent = "Loading playlist epg data...";
+                var epgData = await M3UPlaylist.DownloadAndParseEPG(m3uEpgUrlTxtbox.Text, _cts.Token);
+                if (epgData != null)
+                {
+                    await M3UPlaylist.MatchChannelsWithEPG(epgData, Instance.M3UChannels); //needs fixed
+                }
+
+                //var epgDataForChannel = Instance.M3UEPGDataList.Where(e => e.ChannelId == "someChannelId").ToList();
+
+                busy_ind.IsBusy = false;
+                if (!_cts.IsCancellationRequested)
+                {
+                    var navigationManager = new NavigationManager(this.NavigationService);
+                    navigationManager.NavigateToPage("CategoriesPage");
+                }
+                else
+                {
+                    busy_ind.IsBusy = false;
+                    busy_ind.BusyContent = ""; // Clear the busy content if the connection fails
+                }
+            }
+            catch (OperationCanceledException) { }
+
+            _cts = new CancellationTokenSource();//reset the token
         }
     }
 }

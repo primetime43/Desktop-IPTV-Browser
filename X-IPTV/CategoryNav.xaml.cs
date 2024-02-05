@@ -116,7 +116,7 @@ namespace X_IPTV
                     {
                         string selectedText = selectedItem.CategoryName;
                         loadSelectedCategory(selectedText);
-                        //navigationManager.NavigateToPage("M3uChannels");
+                        navigationManager.NavigateToPage("M3UChannelPage");
                     }
                 }
                 else
@@ -165,6 +165,8 @@ namespace X_IPTV
                     Xceed.Wpf.Toolkit.MessageBox.Show("No channels available in " + Instance.selectedCategory);
                 }
             }
+            else
+                Xceed.Wpf.Toolkit.MessageBox.Show("Error loading playlist. Please report issue on Github.");
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

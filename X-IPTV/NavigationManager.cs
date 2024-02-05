@@ -26,6 +26,7 @@ namespace X_IPTV
                 "M3ULoginPage" => new Uri("M3ULogin.xaml", UriKind.Relative),
                 "CategoriesPage" => new Uri("CategoryNav.xaml", UriKind.Relative),
                 "XtreamChannelsPage" => new Uri("XtreamChannelList.xaml", UriKind.Relative),
+                "M3UChannelPage" => new Uri("M3UChannelList.xaml", UriKind.Relative),
                 _ => null
             };
 

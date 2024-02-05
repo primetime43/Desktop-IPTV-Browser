@@ -475,11 +475,10 @@ namespace X_IPTV
                 var channels = ParseM3UPlaylist(responseFromServer);
                 Instance.M3UChannels = channels;
 
+                await UpdateChannelsEpgData(Instance.M3UChannels);
+
                 // Link M3U channels to EPG data
                 LinkChannelsToEPG(Instance.M3UChannels, Instance.M3UEPGDataList);
-
-                // Here you can do something with the parsed channels
-                // For example, you could add them to a list in your application.
 
                 // Cleanup the streams and the response.
                 reader.Close();
@@ -645,6 +644,71 @@ namespace X_IPTV
             try
             {
                 var xdoc = XDocument.Parse(Instance.allM3uEpgData);
+                var epgChannels = xdoc.Descendants("channel").Select(c => new
+                {
+                    Id = (string)c.Attribute("id"),
+                    DisplayName = (string)c.Element("display-name"),
+                    IconSrc = (string)c.Element("icon")?.Attribute("src")
+                }).ToList();
+
+                var programmesByChannel = xdoc.Descendants("programme")
+                    .GroupBy(p => (string)p.Attribute("channel"))
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                DateTime now = DateTime.Now; // Get the current local time
+
+                var epgDataList = new List<M3UEPGData>(); // Initialize the EPG data list
+
+                foreach (var channel in channels)
+                {
+                    var matchedChannel = epgChannels.FirstOrDefault(c => c.Id == channel.ChannelId);
+                    if (matchedChannel != null)
+                    {
+                        // Match found, update channel information
+                        channel.ChannelName = matchedChannel.DisplayName;
+                        channel.LogoUrl = matchedChannel.IconSrc;
+                    }
+
+                    if (programmesByChannel.TryGetValue(channel.ChannelId, out var programmes))
+                    {
+                        // Find the current program based on the start and end times
+                        var currentProgram = programmes
+                            .Select(p => new M3UEPGData
+                            {
+                                ChannelId = channel.ChannelId,
+                                ProgramTitle = (string)p.Element("title"),
+                                StartTime = DateTime.ParseExact((string)p.Attribute("start"), "yyyyMMddHHmmss zzzz", CultureInfo.InvariantCulture),
+                                EndTime = DateTime.ParseExact((string)p.Attribute("stop"), "yyyyMMddHHmmss zzzz", CultureInfo.InvariantCulture),
+                                Description = (string)p.Element("desc")
+                            })
+                            .FirstOrDefault(epgData2 => epgData2.StartTime <= now && epgData2.EndTime > now);
+
+                        if (currentProgram != null)
+                        {
+                            // If there is a current program, add it to the EPG data list
+                            epgDataList.Add(currentProgram);
+                            // Also set it to the channel's EPGData
+                            channel.EPGData = currentProgram;
+                        }
+                    }
+                }
+
+                // Store the list of current EPG data in the Instance class
+                // Does not store any past or future epg data
+                Instance.M3UEPGDataList = epgDataList;
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Error matching channels: " + ex.Message);
+            }
+        }
+
+        // temp testing. Might not need
+        public static async Task MatchChannelsWithEPG(string epgData, List<M3UChannel> channels)
+        {
+            try
+            {
+                var xdoc = XDocument.Parse(epgData);
                 var epgChannels = xdoc.Descendants("channel").Select(c => new
                 {
                     Id = (string)c.Attribute("id"),

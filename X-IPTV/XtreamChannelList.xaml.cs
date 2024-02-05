@@ -15,7 +15,7 @@ namespace X_IPTV
     /// <summary>
     /// Interaction logic for XtreamChannelList.xaml
     /// </summary>
-    public partial class XtreamChannelList : UserControl
+    public partial class XtreamChannelList : Page
     {
         private XtreamChannelModel model;
         private DateTime windowOpenTime; // Store the window open time

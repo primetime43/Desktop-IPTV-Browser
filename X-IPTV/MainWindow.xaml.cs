@@ -54,6 +54,10 @@ namespace X_IPTV
                             ContentFrame.Navigate(new Uri("XtreamChannelList.xaml", UriKind.Relative));
                             XtreamChannelsPage.Visibility = Visibility.Visible;
                             break;
+                        case "M3UChannelPage":
+                            ContentFrame.Navigate(new Uri("M3UChannelList.xaml", UriKind.Relative));
+                            M3UChannelPage.Visibility = Visibility.Visible;
+                            break;
                         case "AllChannelsSearchPage":
                             ContentFrame.Navigate(new Uri("UniversalSearchList.xaml", UriKind.Relative));
                             break;
