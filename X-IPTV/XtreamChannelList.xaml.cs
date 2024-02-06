@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using static X_IPTV.M3UPlaylist;
 using static X_IPTV.XtreamCodes;
 
@@ -74,6 +75,30 @@ namespace X_IPTV
                     listboxContextMenu.Show();
                 }
             }*/
+            if (sender is MenuItem menuItem)
+            {
+                var commandParameter = menuItem.CommandParameter as string;
+                switch (commandParameter)
+                {
+                    case "CopyURL":
+                        MessageBox.Show("Copy URL action");
+                        break;
+                    case "OpenInVLC":
+                        MessageBox.Show("Open in VLC action");
+                        break;
+                    default:
+                        // Handle default case or error
+                        break;
+                }
+            }
+        }
+
+        private void XtreamChannelLst_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            /* Important: This event handler is used to prevent the ListBox selection from showing on a right-click
+             * Tells this event has been fully handled. Do not continue routing this event to other handlers
+            */
+            e.Handled = true;
         }
 
         private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)

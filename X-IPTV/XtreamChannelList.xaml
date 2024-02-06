@@ -113,13 +113,22 @@
             d:DataContext="{Binding Source={StaticResource DesignViewModel}}"
             Background="LightGray"
             ItemsSource="{Binding MyListBoxItems}"
+            PreviewMouseRightButtonDown="XtreamChannelLst_PreviewMouseRightButtonDown"
             SelectionChanged="XtreamChannelLst_SelectionChanged"
             SelectionMode="Single">
             <ListBox.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Click="listBox1_MouseDown" Header="Copy URL" />
+                    <MenuItem
+                        Click="listBox1_MouseDown"
+                        CommandParameter="CopyURL"
+                        Header="Copy URL" />
+                    <MenuItem
+                        Click="listBox1_MouseDown"
+                        CommandParameter="OpenInVLC"
+                        Header="Open In VLC" />
                 </ContextMenu>
             </ListBox.ContextMenu>
         </ListBox>
+
     </Grid>
 </Page>
