@@ -67,7 +67,7 @@
         x:Name="busy_ind"
         IsBusy="False"
         Style="{StaticResource BusyIndicatorStyle}">
-        <Grid Background="#FFD3D3D3">
+        <Grid Background="#333333">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <!--  Each column will take equal space  -->
@@ -180,10 +180,18 @@
                 Margin="0,0,166,0"
                 d:ItemsSource="{d:SampleData ItemCount=5}"
                 Background="White"
+                Foreground="White"
                 SelectionChanged="ListViewItem_Selected">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Width="200" Header="Categories">
+                            <!--  Header  -->
+                            <GridViewColumn.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock Foreground="White" Text="Categories" />
+                                </DataTemplate>
+                            </GridViewColumn.HeaderTemplate>
+                            <!--  List Items  -->
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding CategoryName}">

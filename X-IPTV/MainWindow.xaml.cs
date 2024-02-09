@@ -24,7 +24,8 @@ namespace X_IPTV
         {
             InitializeComponent();
             this.Title = "User Login " + Instance.programVersion;
-            ContentFrame.Navigate(new Uri("UserLogin.xaml", UriKind.Relative));
+            ContentFrame.Navigate(new Uri("XtreamLogin.xaml", UriKind.Relative));
+            HighlightNavigationItem("XtreamLoginPage");
         }
 
         private void MenuList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -36,9 +37,6 @@ namespace X_IPTV
                 {
                     switch (selectedItem.Name.ToString())
                     {
-                        case "LoginItem":
-                            ContentFrame.Navigate(new Uri("UserLogin.xaml", UriKind.Relative));
-                            break;
                         case "XtreamLoginPage":
                             ContentFrame.Navigate(new Uri("XtreamLogin.xaml", UriKind.Relative));
                             break;

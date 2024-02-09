@@ -143,7 +143,6 @@ namespace X_IPTV
             Instance.currentUser.useHttps = (bool)protocolCheckBox.IsChecked;
 
             busy_ind.IsBusy = true;
-            UserLogin.ReturnToLogin = false;
             try
             {
                 busy_ind.BusyContent = "Attempting to connect...";

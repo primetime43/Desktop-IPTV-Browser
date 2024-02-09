@@ -20,7 +20,7 @@
         <ListBox
             x:Name="SideMenu"
             Width="200"
-            Background="DarkGray"
+            Background="Gray"
             DockPanel.Dock="Left"
             Foreground="White"
             SelectionChanged="MenuList_SelectionChanged"
@@ -33,7 +33,6 @@
                 </Style>
             </ListBox.ItemContainerStyle>
 
-            <ListBoxItem x:Name="LoginItem" Content="Login" />
             <ListBoxItem x:Name="XtreamLoginPage" Content="Xtream Login" />
             <ListBoxItem x:Name="M3ULoginPage" Content="M3U Login" />
             <ListBoxItem

@@ -98,7 +98,6 @@ namespace X_IPTV
             }
 
             busy_ind.IsBusy = true;
-            UserLogin.ReturnToLogin = false;
             busy_ind.BusyContent = "Attempting to connect...";
             try
             {

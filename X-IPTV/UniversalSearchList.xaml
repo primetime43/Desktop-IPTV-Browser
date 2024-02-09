@@ -41,7 +41,7 @@
             </Setter>
         </Style>
     </Page.Resources>
-    <Grid Background="LightGray" MaxHeight="{Binding Path=ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" 
+    <Grid Background="#333333" MaxHeight="{Binding Path=ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" 
     MaxWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}">
 
         <Grid.RowDefinitions >
@@ -49,16 +49,16 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-         <!--Header for search box--> 
+         <!--Header for search box-->
         <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10">
-            <TextBlock Text="Search: " FontSize="16" VerticalAlignment="Center"/>
-            <TextBox x:Name="USearchTextBox" Width="200" Margin="5" VerticalAlignment="Center" TextChanged="USearchTextBox_TextChanged"/>
+            <TextBlock Text="Search: " FontSize="16" VerticalAlignment="Center" Foreground="White"/>
+            <TextBox x:Name="USearchTextBox" Width="200" Margin="5" VerticalAlignment="Center" TextChanged="USearchTextBox_TextChanged" Background="White"/>
         </StackPanel>
 
          <!--ListBox placed in the second row--> 
         <ListBox Grid.Row="1" Name="USearchChannelLst"
              ItemsSource="{Binding MyListBoxItems}" SelectionMode="Single"
-             SelectionChanged="USearchChannelLst_SelectionChanged" Background="LightGray">
+             SelectionChanged="USearchChannelLst_SelectionChanged" Background="#333333" Foreground="White">
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Copy URL" Click="listBox1_MouseDown"/>

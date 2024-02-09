@@ -80,7 +80,7 @@
             </Setter>
         </Style>
     </Page.Resources>
-    <Grid Background="LightGray">
+    <Grid Background="#333333">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -97,9 +97,11 @@
             <TextBlock
                 VerticalAlignment="Center"
                 FontSize="16"
-                Text="Search: " />
+                Text="Search: "
+                Foreground="White"/>
             <TextBox
                 x:Name="SearchTextBox"
+                Background="White"
                 Width="200"
                 Margin="5"
                 VerticalAlignment="Center"
@@ -111,7 +113,8 @@
             Name="XtreamChannelLst"
             Grid.Row="1"
             d:DataContext="{Binding Source={StaticResource DesignViewModel}}"
-            Background="LightGray"
+            Background="#333333"
+            Foreground="White"
             ItemsSource="{Binding MyListBoxItems}"
             PreviewMouseRightButtonDown="XtreamChannelLst_PreviewMouseRightButtonDown"
             SelectionChanged="XtreamChannelLst_SelectionChanged"

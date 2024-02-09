@@ -7,7 +7,7 @@ using System.Windows;
 
 namespace X_IPTV
 {
-    public class UserDataSaver : UserLogin
+    public class UserDataSaver
     {
         public class User
         {
