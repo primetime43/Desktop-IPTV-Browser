@@ -138,7 +138,7 @@ namespace X_IPTV
         private void DisplayM3UChannelDetails(M3UChannel m3uChannel)
         {
             this.Title = m3uChannel.ChannelName;
-            //this.Icon = new BitmapImage(new Uri(m3uChannel.LogoUrl));
+            this.Icon = m3uChannel.LogoUrl != null ? new BitmapImage(new Uri(m3uChannel.LogoUrl)) : null;
 
             streamURLtxtBox.Text = m3uChannel.StreamUrl ?? "URL not available";
 
@@ -155,7 +155,7 @@ namespace X_IPTV
         private void DisplayXtreamChannelDetails(XtreamChannel xtreamChannel)
         {
             this.Title = xtreamChannel.ChannelName;
-            //this.Icon = new BitmapImage(new Uri(xtreamChannel.LogoUrl));
+            this.Icon = xtreamChannel.LogoUrl != null ? new BitmapImage(new Uri(xtreamChannel.LogoUrl)) : null;
 
             streamURLtxtBox.Text = xtreamChannel.StreamUrl ?? "URL not available";
 
