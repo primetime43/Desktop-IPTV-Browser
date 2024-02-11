@@ -6,7 +6,6 @@
     xmlns:extToolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:local="clr-namespace:X_IPTV"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="M3U User Login"
     MinWidth="800"
     MinHeight="450"
     d:DesignHeight="450"

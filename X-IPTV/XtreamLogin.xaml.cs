@@ -33,28 +33,39 @@ namespace X_IPTV
         {
             InitializeComponent();
 
-            //loading users
-            assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            saveDir = assemblyFolder + @"\Users\";
+            // Loading users using the usersFolderPath from the configuration
+            var usersFolderPath = ConfigurationManager.GetSetting("usersFolderPath");
+            if (string.IsNullOrEmpty(usersFolderPath))
+            {
+                // Fallback to default directory next to the executable if not specified
+                assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                saveDir = Path.Combine(assemblyFolder, "Users");
+            }
+            else
+            {
+                // Use the specified directory from the configuration
+                saveDir = usersFolderPath;
+            }
+
             loadUsersFromDirectory();
         }
 
         private void loadUsersFromDirectory()
         {
-            //string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            //string saveDir = assemblyFolder + @"\Users";
             if (!Directory.Exists(saveDir))
                 Directory.CreateDirectory(saveDir);
             DirectoryInfo DI = new DirectoryInfo(saveDir);
-            FileInfo[] files = DI.GetFiles("*.txt");
-            //Read files from dir
+            FileInfo[] files = DI.GetFiles("*.json"); // Assuming user data is stored in JSON files
+                                                      // Clear existing items
             if (UsercomboBox.Items != null)
                 UsercomboBox.Items.Clear();
+            // Add user files to the combobox, removing the file extension for display
             foreach (var file in files)
             {
-                UsercomboBox.Items.Add(file.Name.Remove(file.Name.IndexOf('.')));
+                UsercomboBox.Items.Add(Path.GetFileNameWithoutExtension(file.Name));
             }
         }
+
         private void loadDataIntoTextFields()
         {
             if (_currentUser?.UserName == null || _currentUser?.Password == null || _currentUser?.Server == null || _currentUser?.Port == null)
@@ -69,21 +80,6 @@ namespace X_IPTV
             portTxt.Text = _currentUser.Port;
         }
 
-        private string getUserFileLocalPath()
-        {
-            string? selectedUser = UsercomboBox.SelectedValue.ToString();
-            if (selectedUser != null && selectedUser.Length > 0)
-            {
-                userFileFullPath = saveDir + selectedUser + ".txt";
-                return userFileFullPath;
-            }
-            else
-            {
-                Xceed.Wpf.Toolkit.MessageBox.Show("You must select a user");
-                return null;
-            }
-        }
-
         private void loadUserDataBtn_Click(object sender, RoutedEventArgs e)
         {
             if (UsercomboBox.SelectedItem == null)
@@ -92,9 +88,26 @@ namespace X_IPTV
                 return;
             }
 
-            _currentUser = GetUserData(UsercomboBox.SelectedValue.ToString(), getUserFileLocalPath());
-            loadDataIntoTextFields();
-            UsercomboBox.SelectedItem = null;
+            // Assuming UsercomboBox.SelectedValue.ToString() gives the username
+            string userName = UsercomboBox.SelectedValue.ToString();
+            if (!string.IsNullOrWhiteSpace(userName))
+            {
+                _currentUser = UserDataSaver.GetUserData(userName);
+                if (_currentUser != null)
+                {
+                    loadDataIntoTextFields();
+                    // Optional: Clear the selection if needed or keep it based on your UI logic
+                    // UsercomboBox.SelectedItem = null;
+                }
+                else
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Failed to load user data. User file might be missing or corrupted.");
+                }
+            }
+            else
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Invalid user selection.");
+            }
         }
 
         private void saveUserDataBtn_Click(object sender, RoutedEventArgs e)
@@ -157,6 +170,9 @@ namespace X_IPTV
                     busy_ind.BusyContent = "Downloading playlist epg...";
                     Instance.allXtreamEpgData = await XtreamCodes.DownloadEPGAndSaveToFile(_cts.Token);
                     await XtreamCodes.UpdateChannelsEpgData(Instance.XtreamChannels);
+
+                    // Update the lastEpgDataLoadTime setting with the current date and time
+                    ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
 
                     busy_ind.IsBusy = false;
                     if (!_cts.IsCancellationRequested)

@@ -23,6 +23,10 @@ namespace X_IPTV
         public MainWindow()
         {
             InitializeComponent();
+
+            // Initialize the configuration settings
+            ConfigurationManager.InitializeConfiguration();
+
             this.Title = "User Login " + Instance.programVersion;
             ContentFrame.Navigate(new Uri("XtreamLogin.xaml", UriKind.Relative));
             HighlightNavigationItem("XtreamLoginPage");

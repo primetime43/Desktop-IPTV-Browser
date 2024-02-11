@@ -23,12 +23,13 @@ namespace X_IPTV
     /// </summary>
     public partial class UniversalSearchList : Page
     {
-        private UniversalSearchModel model;
+        private UniversalSearchModel _model;
+        private bool _isRightClickSelection = false;
         public UniversalSearchList()
         {
             InitializeComponent();
-            model = new UniversalSearchModel();
-            model.Initialize(); // populate the allChannels list
+            _model = new UniversalSearchModel();
+            _model.Initialize(); // populate the allChannels list
         }
 
         private void USearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -38,13 +39,13 @@ namespace X_IPTV
                 var filterText = USearchTextBox.Text.ToLower();
 
                 IList currentList = Instance.XtreamCodesChecked
-                    ? (IList)model.MyXtreamListBoxItems
-                    : (IList)model.MyM3uListBoxItems;
+                    ? (IList)_model.MyXtreamListBoxItems
+                    : (IList)_model.MyM3uListBoxItems;
 
                 currentList.Clear();
                 var searchResult = Instance.XtreamCodesChecked
-                    ? model.SearchXtreamChannels(filterText).Cast<object>()
-                    : model.SearchM3uChannels(filterText).Cast<object>();
+                    ? _model.SearchXtreamChannels(filterText).Cast<object>()
+                    : _model.SearchM3uChannels(filterText).Cast<object>();
 
                 foreach (var item in searchResult)
                 {
@@ -58,9 +59,7 @@ namespace X_IPTV
 
         private void USearchChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var mw = Application.Current.MainWindow as MainWindow;
-
-            if (e.AddedItems.Count > 0 && Instance.XtreamCodesChecked)
+            if (e.AddedItems.Count > 0 && Instance.XtreamCodesChecked && !_isRightClickSelection) // Check if not a right-click selection
             {
                 XtreamChannel xtreamChannel = e.AddedItems[0] as XtreamChannel;
                 if (xtreamChannel != null)
@@ -69,30 +68,83 @@ namespace X_IPTV
                     channelOptionsPage.Show();
                 }
             }
-            else if (e.AddedItems.Count > 0 && Instance.M3uChecked)
+            else if (e.AddedItems.Count > 0 && Instance.M3uChecked && !_isRightClickSelection) // Check if not a right-click selection
             {
                 M3UChannel m3uChannel = e.AddedItems[0] as M3UChannel;
                 if (m3uChannel != null)
                 {
                     ChannelOptions channelOptionsPage = new ChannelOptions(m3uChannel);
-                    /*mw.ChannelOptions.Visibility = Visibility.Visible;
-                    mw.CategoriesItem.IsSelected = true;
-                    mw.ContentFrame.Navigate(channelOptionsPage);*/
+                    channelOptionsPage.Show();
                 }
             }
         }
 
         private void listBox1_MouseDown(object sender, RoutedEventArgs e)
         {
-            /*if (e.Button == MouseButtons.Right)
+            if (sender is MenuItem menuItem)
             {
-                //select the item under the mouse pointer
-                listBox1.SelectedIndex = listBox1.IndexFromPoint(e.Location);
-                if (listBox1.SelectedIndex != -1)
+                var commandParameter = menuItem.CommandParameter as string;
+
+                // Define an action to handle common logic
+                Action<string> handleAction = (streamUrl) =>
                 {
-                    listboxContextMenu.Show();
+                    switch (commandParameter)
+                    {
+                        case "CopyURL":
+                            Clipboard.SetText(streamUrl);
+                            Xceed.Wpf.Toolkit.MessageBox.Show("URL copied to clipboard.");
+                            break;
+                        case "OpenInVLC":
+                            ChannelOptions.OpenStreamInVLC(streamUrl);
+                            //Xceed.Wpf.Toolkit.MessageBox.Show("Opening in VLC...");
+                            break;
+                        default:
+                            Xceed.Wpf.Toolkit.MessageBox.Show("Unknown action.");
+                            break;
+                    }
+                };
+
+                // Use pattern matching to simplify type checks and conditions
+                if (USearchChannelLst.SelectedItem is XtreamChannel xtreamChannel && Instance.XtreamCodesChecked)
+                {
+                    handleAction(xtreamChannel.StreamUrl);
                 }
-            }*/
+                else if (USearchChannelLst.SelectedItem is M3UChannel m3UChannel && Instance.M3uChecked)
+                {
+                    handleAction(m3UChannel.StreamUrl);
+                }
+                else
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("No channel selected.");
+                }
+            }
+        }
+
+        private void USearchChannelLst_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var item = FindAncestorOrSelf<ListBoxItem>(e.OriginalSource as DependencyObject);
+            if (item != null)
+            {
+                _isRightClickSelection = true; // Indicate this is a right-click selection
+                USearchChannelLst.SelectedItem = item.DataContext;
+                _isRightClickSelection = false; // Reset the flag
+            }
+            /* Important: This event handler is used to prevent the ListBox selection from showing on a right-click
+             * Tells this event has been fully handled. Do not continue routing this event to other handlers
+            */
+            e.Handled = true;
+        }
+
+        // Helper method to find the ListBoxItem that is the ancestor of the current target.
+        public static T FindAncestorOrSelf<T>(DependencyObject obj) where T : DependencyObject
+        {
+            while (obj != null)
+            {
+                if (obj is T tObj)
+                    return tObj;
+                obj = VisualTreeHelper.GetParent(obj);
+            }
+            return null;
         }
     }
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using static X_IPTV.M3UPlaylist;
 using static X_IPTV.XtreamCodes;
 
@@ -18,28 +19,27 @@ namespace X_IPTV
     /// </summary>
     public partial class XtreamChannelList : Page
     {
-        private XtreamChannelModel model;
-        private DateTime windowOpenTime; // Store the window open time
+        private XtreamChannelModel _model;
+        private bool _isRightClickSelection = false;
         public XtreamChannelList()
         {
             InitializeComponent();
 
-            this.model = new XtreamChannelModel();
-            this.model.Initialize();
-            this.windowOpenTime = DateTime.Now;
+            this._model = new XtreamChannelModel();
+            this._model.Initialize();
 
             if (Instance.XtreamCodesChecked)
             {
-                XtreamChannelLst.DataContext = this.model;
+                XtreamChannelLst.DataContext = this._model;
             }
         }
 
         private void XtreamSearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (SearchTextBox != null && this.model != null)
+            if (SearchTextBox != null && this._model != null)
             {
                 var filterText = SearchTextBox.Text.ToLower();
-                var filteredItems = this.model.MyListBoxItems
+                var filteredItems = this._model.MyListBoxItems
                     .Where(channel => (channel.ChannelName?.ToLower().Contains(filterText) ?? false) ||
                                       (channel.EPGData?.Description.ToLower().Contains(filterText) ?? false))
                     .ToList();
@@ -50,9 +50,7 @@ namespace X_IPTV
 
         private void XtreamChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var mw = Application.Current.MainWindow as MainWindow;
-
-            if (e.AddedItems.Count > 0 && Instance.XtreamCodesChecked)
+            if (e.AddedItems.Count > 0 && Instance.XtreamCodesChecked && !_isRightClickSelection) // Check if not a right-click selection
             {
                 XtreamChannel xtreamChannel = e.AddedItems[0] as XtreamChannel;
                 if (xtreamChannel != null)
@@ -66,81 +64,55 @@ namespace X_IPTV
 
         private void listBox1_MouseDown(object sender, RoutedEventArgs e)
         {
-            /*if (e.Button == MouseButtons.Right)
-            {
-                //select the item under the mouse pointer
-                listBox1.SelectedIndex = listBox1.IndexFromPoint(e.Location);
-                if (listBox1.SelectedIndex != -1)
-                {
-                    listboxContextMenu.Show();
-                }
-            }*/
-            if (sender is MenuItem menuItem)
+            if (XtreamChannelLst.SelectedItem is XtreamChannel xtreamChannel && sender is MenuItem menuItem)
             {
                 var commandParameter = menuItem.CommandParameter as string;
                 switch (commandParameter)
                 {
                     case "CopyURL":
-                        MessageBox.Show("Copy URL action");
+                        Clipboard.SetText(xtreamChannel.StreamUrl);
+                        Xceed.Wpf.Toolkit.MessageBox.Show("URL copied to clipboard.");
                         break;
                     case "OpenInVLC":
-                        MessageBox.Show("Open in VLC action");
+                        ChannelOptions.OpenStreamInVLC(xtreamChannel.StreamUrl);
+                        //Xceed.Wpf.Toolkit.MessageBox.Show("Opening in VLC...");
                         break;
                     default:
-                        // Handle default case or error
+                        Xceed.Wpf.Toolkit.MessageBox.Show("Unknown action.");
                         break;
                 }
+            }
+            else
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("No channel selected.");
             }
         }
 
         private void XtreamChannelLst_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+            var item = FindAncestorOrSelf<ListBoxItem>(e.OriginalSource as DependencyObject);
+            if (item != null)
+            {
+                _isRightClickSelection = true; // Indicate this is a right-click selection
+                XtreamChannelLst.SelectedItem = item.DataContext;
+                _isRightClickSelection = false; // Reset the flag
+            }
             /* Important: This event handler is used to prevent the ListBox selection from showing on a right-click
              * Tells this event has been fully handled. Do not continue routing this event to other handlers
             */
             e.Handled = true;
         }
 
-        private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        // Helper method to find the ListBoxItem that is the ancestor of the current target.
+        public static T FindAncestorOrSelf<T>(DependencyObject obj) where T : DependencyObject
         {
-            // Unix timestamp is seconds past epoch
-            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            dateTime = dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
-            return dateTime;
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            //only auto update the epg on 15 min increments if the window has been open that long
-            //(actually this needs fixed because if no windows aren't open longer than 15 min increments, it won't
-            //ever auto update; unless manually update is clicked)
-            //Add an check eventually that checks the last time the epg data was updated and update it
-            DateTime now = DateTime.Now;
-            if (now.Subtract(windowOpenTime).TotalMinutes >= 15 || ShouldUpdateOnInterval(now))
+            while (obj != null)
             {
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        await XtreamCodes.UpdateChannelsEpgData(Instance.XtreamChannels);
-                        Debug.WriteLine("EPG updated...");
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Error updating EPG: {ex.Message}");
-                    }
-                });
+                if (obj is T tObj)
+                    return tObj;
+                obj = VisualTreeHelper.GetParent(obj);
             }
-            else
-                Debug.WriteLine("EPG not updated...");
-
-            CategoryNav categoryNavWindow = new CategoryNav();
-            //categoryNavWindow.Show();
-        }
-
-        private bool ShouldUpdateOnInterval(DateTime currentTime)
-        {
-            return currentTime.Minute % 15 == 0 && currentTime.Second == 0;
+            return null;
         }
     }
 

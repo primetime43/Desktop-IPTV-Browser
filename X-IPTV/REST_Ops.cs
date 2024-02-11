@@ -314,8 +314,8 @@ namespace X_IPTV
             }
         }
 
-        //matches the channels with the epg data
-        public static async Task UpdateChannelsEpgData(List<XtreamChannel> channels)
+        //matches the channels with the epg data (manual updating epg data)
+        public static async Task<bool> UpdateChannelsEpgData(List<XtreamChannel> channels)
         {
             if(Instance.XtreamEPGDataList.Count > 0)//clear it out so if the epg is being updated
                 Instance.XtreamEPGDataList.Clear();
@@ -380,10 +380,16 @@ namespace X_IPTV
                 // Store the list of current EPG data in the Instance class
                 // Does not store any past or future epg data
                 Instance.XtreamEPGDataList = epgDataList;
+
+                // Update the lastEpgDataLoadTime setting with the current date and time
+                ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
+
+                return true;
             }
             catch (Exception ex)
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show("Error matching channels: " + ex.Message);
+                return false;
             }
         }
 
@@ -474,8 +480,6 @@ namespace X_IPTV
                 // Now you have the M3U playlist data in responseFromServer, and you can parse it.
                 var channels = ParseM3UPlaylist(responseFromServer);
                 Instance.M3UChannels = channels;
-
-                await UpdateChannelsEpgData(Instance.M3UChannels);
 
                 // Link M3U channels to EPG data
                 LinkChannelsToEPG(Instance.M3UChannels, Instance.M3UEPGDataList);
@@ -636,7 +640,7 @@ namespace X_IPTV
             }
         }
 
-        public static async Task UpdateChannelsEpgData(List<M3UChannel> channels)
+        public static async Task<bool> UpdateChannelsEpgData(List<M3UChannel> channels)
         {
             if (Instance.M3UEPGDataList.Count > 0)//clear it out so if the epg is being updated
                 Instance.M3UEPGDataList.Clear();
@@ -696,15 +700,21 @@ namespace X_IPTV
                 // Store the list of current EPG data in the Instance class
                 // Does not store any past or future epg data
                 Instance.M3UEPGDataList = epgDataList;
+
+                // Update the lastEpgDataLoadTime setting with the current date and time
+                ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
+
+                return true;
             }
             catch (Exception ex)
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show("Error matching channels: " + ex.Message);
+                return false;
             }
         }
 
         // temp testing. Might not need
-        public static async Task MatchChannelsWithEPG(string epgData, List<M3UChannel> channels)
+        /*public static async Task MatchChannelsWithEPG(string epgData, List<M3UChannel> channels)
         {
             try
             {
@@ -766,7 +776,7 @@ namespace X_IPTV
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show("Error matching channels: " + ex.Message);
             }
-        }
+        }*/
 
         public static async Task PairEPGTOChannelM3U(List<M3UChannel> channels)
         {

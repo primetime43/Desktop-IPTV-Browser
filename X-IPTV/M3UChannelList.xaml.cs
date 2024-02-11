@@ -7,7 +7,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using static X_IPTV.M3UPlaylist;
+using static X_IPTV.XtreamCodes;
 
 namespace X_IPTV
 {
@@ -16,29 +19,28 @@ namespace X_IPTV
     /// </summary>
     public partial class M3UChannelList : Page
     {
-        private M3UChannelModel model;
-        private DateTime windowOpenTime; // Store the window open time
+        private M3UChannelModel _model;
+        private bool _isRightClickSelection = false;
         public M3UChannelList()
         {
             InitializeComponent();
 
-            this.model = new M3UChannelModel();
-            this.model.Initialize();
-            this.windowOpenTime = DateTime.Now;
+            this._model = new M3UChannelModel();
+            this._model.Initialize();
 
             //the model is the array that holds all of the M3UChannel Objects set in the M3UChannelModel class
             if (Instance.M3uChecked)
             {
-                M3UChannelLst.DataContext = this.model;
+                M3UChannelLst.DataContext = this._model;
             }
         }
 
         private void M3USearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (SearchTextBox != null && this.model != null)
+            if (SearchTextBox != null && this._model != null)
             {
                 var filterText = SearchTextBox.Text.ToLower();
-                var filteredItems = this.model.MyListBoxItems
+                var filteredItems = this._model.MyListBoxItems
                     .Where(channel => (channel.ChannelName?.ToLower().Contains(filterText) ?? false) ||
                                       (channel.EPGData?.Description?.ToLower().Contains(filterText) ?? false))
                     .ToList();
@@ -49,67 +51,68 @@ namespace X_IPTV
 
         private void M3UChannelLst_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var mw = Application.Current.MainWindow as MainWindow;
-
-            if (e.AddedItems.Count > 0 && Instance.M3uChecked)
+            if (e.AddedItems.Count > 0 && Instance.M3uChecked && !_isRightClickSelection) // Check if not a right-click selection
             {
                 M3UChannel m3uChannel = e.AddedItems[0] as M3UChannel;
                 if (m3uChannel != null)
                 {
                     ChannelOptions channelOptionsPage = new ChannelOptions(m3uChannel);
-                    /*mw.ChannelOptions.Visibility = Visibility.Visible;
-                    mw.CategoriesItem.IsSelected = true;
-                    mw.ContentFrame.Navigate(channelOptionsPage);*/
+                    channelOptionsPage.Show();
                 }
             }
         }
-
 
         private void listBox1_MouseDown(object sender, RoutedEventArgs e)
         {
-            /*if (e.Button == MouseButtons.Right)
+            if (M3UChannelLst.SelectedItem is M3UChannel m3uChannel && sender is MenuItem menuItem)
             {
-                //select the item under the mouse pointer
-                listBox1.SelectedIndex = listBox1.IndexFromPoint(e.Location);
-                if (listBox1.SelectedIndex != -1)
+                var commandParameter = menuItem.CommandParameter as string;
+                switch (commandParameter)
                 {
-                    listboxContextMenu.Show();
+                    case "CopyURL":
+                        Clipboard.SetText(m3uChannel.StreamUrl);
+                        Xceed.Wpf.Toolkit.MessageBox.Show("URL copied to clipboard.");
+                        break;
+                    case "OpenInVLC":
+                        ChannelOptions.OpenStreamInVLC(m3uChannel.StreamUrl);
+                        //Xceed.Wpf.Toolkit.MessageBox.Show("Opening in VLC...");
+                        break;
+                    default:
+                        Xceed.Wpf.Toolkit.MessageBox.Show("Unknown action.");
+                        break;
                 }
-            }*/
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            //only auto update the epg on 15 min increments if the window has been open that long
-            //(actually this needs fixed because if no windows aren't open longer than 15 min increments, it won't
-            //ever auto update; unless manually update is clicked)
-            //Add an check eventually that checks the last time the epg data was updated and update it
-            DateTime now = DateTime.Now;
-            if (now.Subtract(windowOpenTime).TotalMinutes >= 15 || ShouldUpdateOnInterval(now))
-            {
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        await M3UPlaylist.UpdateChannelsEpgData(Instance.M3UChannels);
-                        Debug.WriteLine("EPG updated...");
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Error updating EPG: {ex.Message}");
-                    }
-                });
             }
             else
-                Debug.WriteLine("EPG not updated...");
-
-            CategoryNav categoryNavWindow = new CategoryNav();
-            //categoryNavWindow.Show();
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("No channel selected.");
+            }
         }
 
-        private bool ShouldUpdateOnInterval(DateTime currentTime)
+        private void M3UChannelLst_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            return currentTime.Minute % 15 == 0 && currentTime.Second == 0;
+            var item = FindAncestorOrSelf<ListBoxItem>(e.OriginalSource as DependencyObject);
+            if (item != null)
+            {
+                _isRightClickSelection = true; // Indicate this is a right-click selection
+                M3UChannelLst.SelectedItem = item.DataContext;
+                _isRightClickSelection = false; // Reset the flag
+            }
+            /* Important: This event handler is used to prevent the ListBox selection from showing on a right-click
+             * Tells this event has been fully handled. Do not continue routing this event to other handlers
+            */
+            e.Handled = true;
+        }
+
+        // Helper method to find the ListBoxItem that is the ancestor of the current target.
+        public static T FindAncestorOrSelf<T>(DependencyObject obj) where T : DependencyObject
+        {
+            while (obj != null)
+            {
+                if (obj is T tObj)
+                    return tObj;
+                obj = VisualTreeHelper.GetParent(obj);
+            }
+            return null;
         }
     }
 

@@ -55,6 +55,11 @@ namespace X_IPTV
         public static string selectedCategory { get; set; }
 
         public static string programVersion = "v3.0.0";
+
+        public static bool ShouldUpdateOnInterval(DateTime currentTime) // make this a settings config eventually maybe?
+        {
+            return currentTime.Minute % 15 == 0 && currentTime.Second == 0;
+        }
         #endregion
     }
 }

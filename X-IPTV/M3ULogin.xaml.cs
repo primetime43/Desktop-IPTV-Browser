@@ -32,22 +32,37 @@ namespace X_IPTV
 
         private void M3U_loadButton_Click(object sender, RoutedEventArgs e)
         {
+            // Retrieve the M3UFolderPath from the configuration
+            string M3UFolderPath = ConfigurationManager.GetSetting("M3UFolderPath");
+            if (string.IsNullOrEmpty(M3UFolderPath))
+            {
+                // If M3UFolderPath is not set, fall back to a default path
+                M3UFolderPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "M3U");
+            }
+
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "M3U Files (*.txt)|*.txt",
-                InitialDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "M3U")
+                Filter = "M3U JSON Files (*.json)|*.json", // Adjusted filter to select JSON files
+                InitialDirectory = M3UFolderPath // Use the M3UFolderPath from configuration
             };
 
             if (openFileDialog.ShowDialog() == true)
             {
+                // Extract the playlist name from the selected file's name (without extension)
                 string filenameWithoutExtension = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
-                M3UData m3uData = GetM3UData(filenameWithoutExtension);
+
+                // Use the filename without extension as the playlistName parameter
+                M3UData m3uData = UserDataSaver.GetM3UData(filenameWithoutExtension);
 
                 if (m3uData != null)
                 {
                     m3uURLTxtbox.Text = m3uData.PlaylistURL;
                     m3uEpgUrlTxtbox.Text = m3uData.EPGURL;
                     Xceed.Wpf.Toolkit.MessageBox.Show(filenameWithoutExtension + " loaded successfully.");
+                }
+                else
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Failed to load M3U data.");
                 }
             }
         }
@@ -60,28 +75,29 @@ namespace X_IPTV
                 return;
             }
 
-            string playlistName = Microsoft.VisualBasic.Interaction.InputBox("Please enter a name for the playlist:", "Save Playlist", "DefaultPlaylistName");
+            InputDialog inputDialog = new InputDialog("Save Playlist", "Please enter a name for the playlist:", "DefaultPlaylistName");
+            bool? dialogResult = inputDialog.ShowDialog();
 
-            // Check if the InputBox was cancelled by the user.
-            if (playlistName == "")
+            // Check if the dialog was accepted
+            if (dialogResult == true)
             {
-                return;
-            }
+                string playlistName = inputDialog.InputResult;
 
-            if (!string.IsNullOrWhiteSpace(playlistName))
-            {
-                M3UData m3uData = new M3UData
+                if (!string.IsNullOrWhiteSpace(playlistName))
                 {
-                    PlaylistURL = m3uURLTxtbox.Text,
-                    EPGURL = m3uEpgUrlTxtbox.Text
-                };
+                    M3UData m3uData = new M3UData
+                    {
+                        PlaylistURL = m3uURLTxtbox.Text,
+                        EPGURL = m3uEpgUrlTxtbox.Text
+                    };
 
-                SaveM3UData(m3uData, playlistName);
-                MessageBox.Show("Playlist saved successfully as " + playlistName);
-            }
-            else
-            {
-                MessageBox.Show("You must enter a name for the playlist.");
+                    SaveM3UData(m3uData, playlistName);
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Playlist saved successfully as " + playlistName);
+                }
+                else
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("You must enter a name for the playlist.");
+                }
             }
         }
 
@@ -105,13 +121,17 @@ namespace X_IPTV
                 await M3UPlaylist.RetrieveM3UPlaylistData(m3uURLTxtbox.Text, _cts.Token); // Load epg into the channels array
 
                 busy_ind.BusyContent = "Loading playlist epg data...";
-                var epgData = await M3UPlaylist.DownloadAndParseEPG(m3uEpgUrlTxtbox.Text, _cts.Token);
-                if (epgData != null)
+                Instance.allM3uEpgData = await M3UPlaylist.DownloadAndParseEPG(m3uEpgUrlTxtbox.Text, _cts.Token);
+                if (Instance.allM3uEpgData != null)
                 {
-                    await M3UPlaylist.MatchChannelsWithEPG(epgData, Instance.M3UChannels); //needs fixed
+                    //await M3UPlaylist.MatchChannelsWithEPG(epgData, Instance.M3UChannels);
+                    await M3UPlaylist.UpdateChannelsEpgData(Instance.M3UChannels);
                 }
 
                 //var epgDataForChannel = Instance.M3UEPGDataList.Where(e => e.ChannelId == "someChannelId").ToList();
+
+                // Update the lastEpgDataLoadTime setting with the current date and time
+                ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
 
                 busy_ind.IsBusy = false;
                 if (!_cts.IsCancellationRequested)

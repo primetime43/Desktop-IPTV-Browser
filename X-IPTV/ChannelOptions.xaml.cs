@@ -9,6 +9,7 @@ using Microsoft.Win32;
 using System.Windows.Controls;
 using static X_IPTV.M3UPlaylist;
 using static X_IPTV.XtreamCodes;
+using Microsoft.Xaml.Behaviors.Media;
 
 namespace X_IPTV
 {
@@ -27,78 +28,81 @@ namespace X_IPTV
 
         private void openVLCbtn_Click(object sender, RoutedEventArgs e)
         {
+            string streamURL = GetStreamURL(); // Retrieve the stream URL from the selected channel.
+            if (!string.IsNullOrEmpty(streamURL))
+            {
+                OpenStreamInVLC(streamURL); // Call the static method with the stream URL.
+            }
+            else
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Stream URL is not available.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        public static void OpenStreamInVLC(string streamUrl = "")
+        {
             try
             {
-                string vlcLocatedPath = "";
-                string vlcX64path = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
-                string vlcX86path = @"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe";
+                string vlcLocatedPath = ConfigurationManager.GetVLCPath(); // Use the dedicated method to get or find the VLC path
 
-                if (File.Exists(vlcX86path))
+                if (string.IsNullOrEmpty(vlcLocatedPath) || !File.Exists(vlcLocatedPath))
                 {
-                    vlcLocatedPath = vlcX86path;
-                }
-                else if (File.Exists(vlcX64path))
-                {
-                    vlcLocatedPath = vlcX64path;
-                }
-                else
-                {
-                    OpenFileDialog openFileDialog1 = new OpenFileDialog
+                    OpenFileDialog openFileDialog = new OpenFileDialog
                     {
                         InitialDirectory = "c:\\",
                         Filter = "VLC Executable File (*.exe)|*.exe",
                         RestoreDirectory = true
                     };
 
-                    bool? result = openFileDialog1.ShowDialog();
-
-                    if (result == true)
+                    if (openFileDialog.ShowDialog() == true)
                     {
-                        vlcLocatedPath = openFileDialog1.FileName;
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(vlcLocatedPath))
-                {
-                    string streamURL = "";
-
-                    if (tempChannel is XtreamChannel xtreamChannel)
-                    {
-                        streamURL = xtreamChannel.StreamUrl;
-                    }
-                    else if (tempChannel is M3UChannel m3uChannel)
-                    {
-                        streamURL = m3uChannel.StreamUrl;
-                    }
-
-                    if (!string.IsNullOrEmpty(streamURL))
-                    {
-                        ProcessStartInfo startInfo = new ProcessStartInfo
-                        {
-                            FileName = "cmd.exe",
-                            Arguments = $"/C \"{vlcLocatedPath}\" {streamURL}",
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            UseShellExecute = false,
-                            CreateNoWindow = true
-                        };
-
-                        Process.Start(startInfo);
+                        vlcLocatedPath = openFileDialog.FileName;
+                        // Optionally, update the configuration with the newly selected path
+                        ConfigurationManager.UpdateSetting("vlcLocationPath", vlcLocatedPath);
                     }
                     else
                     {
-                        Xceed.Wpf.Toolkit.MessageBox.Show("Stream URL not available.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        Xceed.Wpf.Toolkit.MessageBox.Show("VLC path selection was canceled.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
                     }
+                }
+
+                if (!string.IsNullOrEmpty(streamUrl))
+                {
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        Arguments = $"/C \"{vlcLocatedPath}\" {streamUrl}",
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+
+                    Process.Start(startInfo);
                 }
                 else
                 {
-                    Xceed.Wpf.Toolkit.MessageBox.Show("VLC path not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Stream URL not available.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show($"Failed to open VLC: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private string GetStreamURL()
+        {
+            if (tempChannel is XtreamChannel xtreamChannel)
+            {
+                return xtreamChannel.StreamUrl;
+            }
+            else if (tempChannel is M3UChannel m3uChannel)
+            {
+                return m3uChannel.StreamUrl;
+            }
+
+            return null;
         }
 
         public bool DisplaySelectedChannelData()

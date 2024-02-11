@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -20,17 +22,60 @@ namespace X_IPTV
     /// 
     public partial class CategoryNav : Page
     {
-        private CancellationTokenSource cts;
+        private System.Timers.Timer _updateCheckTimer;
+        private CancellationTokenSource _cts;
         public CategoryNav()
         {
             InitializeComponent();
             loadCategories();//loads the categories into the listbox view
+            InitializeUpdateCheckTimer(); // Initialize the update check timer
             /*if(Instance.XtreamCodesChecked)
                 loadUserInfo();//displays the user's info in the text box
             else
                 userInfoTxtBox.Visibility = Visibility.Collapsed;*/
         }
 
+        #region Auto updating EPG Data Functions
+        private void InitializeUpdateCheckTimer()
+        {
+            // Create and configure the timer
+            _updateCheckTimer = new System.Timers.Timer(60000); // Trigger every minute (60000 milliseconds) Maybe make this a config in settings
+            _updateCheckTimer.Elapsed += UpdateCheckTimer_Elapsed;
+            _updateCheckTimer.AutoReset = true;
+            _updateCheckTimer.Start();
+        }
+
+        private void UpdateCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            // Check if it's time to update EPG data based on your logic
+            if (Instance.ShouldUpdateOnInterval(DateTime.Now))
+            {
+                Application.Current.Dispatcher.Invoke(async () =>
+                {
+                    // Perform the update on the UI thread if needed
+                    await UpdateEpgData();
+                });
+            }
+        }
+
+        private async Task UpdateEpgData()
+        {
+            _cts = new CancellationTokenSource();
+            try
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("EPG Updated!");
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show($"Error updating EPG: {ex.Message}");
+            }
+            finally
+            {
+                _cts.Dispose();
+            }
+        }
+
+        #endregion
         private void loadCategories()
         {
             if (Instance.XtreamCodesChecked)
@@ -127,7 +172,7 @@ namespace X_IPTV
 
         private async void loadSelectedCategory(string categoryName)
         {
-            cts = new CancellationTokenSource();
+            _cts = new CancellationTokenSource();
             Instance.selectedCategory = categoryName;
             var mw = Application.Current.MainWindow as MainWindow;
 
@@ -135,7 +180,7 @@ namespace X_IPTV
             if (Instance.XtreamCodesChecked)
             {
                 XtreamChannelList channelWindow = new XtreamChannelList();
-                if (!cts.IsCancellationRequested)
+                if (!_cts.IsCancellationRequested)
                 {
                     busy_ind.IsBusy = false;
                     //channelWindow.ShowDialog();
@@ -171,9 +216,9 @@ namespace X_IPTV
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            if (cts != null)
+            if (_cts != null)
             {
-                cts.Cancel();
+                _cts.Cancel();
             }
             busy_ind.IsBusy = false;
         }
