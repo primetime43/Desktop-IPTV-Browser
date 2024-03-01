@@ -32,27 +32,44 @@ namespace X_IPTV
             _model.Initialize(); // populate the allChannels list
         }
 
+        // Event handler for the text changed event of a text box named USearchTextBox.
+        // This method is called every time the text in the USearchTextBox is changed.
         private void USearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            // Check if the USearchTextBox is not null to avoid NullReferenceException.
             if (USearchTextBox != null)
             {
+                // Retrieve the text entered in the USearchTextBox, converting it to lower case
+                // to perform a case-insensitive search.
                 var filterText = USearchTextBox.Text.ToLower();
 
+                // Determine the current list to filter based on the state of XtreamCodesChecked.
+                // If XtreamCodesChecked is true, filter MyXtreamListBoxItems; otherwise, filter MyM3uListBoxItems.
+                // This toggles between two different data sources or lists based on user selection.
                 IList currentList = Instance.XtreamCodesChecked
                     ? (IList)_model.MyXtreamListBoxItems
                     : (IList)_model.MyM3uListBoxItems;
 
+                // Clear the current list to prepare for adding the filtered results.
+                // This ensures that the list view starts fresh each time the text changes.
                 currentList.Clear();
+
+                // Perform the search operation on the appropriate data source based on the XtreamCodesChecked state.
+                // This filters channels (either Xtream or M3U) based on the entered text.
+                // The results are cast to objects so they can be added to the IList, which requires objects.
                 var searchResult = Instance.XtreamCodesChecked
                     ? _model.SearchXtreamChannels(filterText).Cast<object>()
                     : _model.SearchM3uChannels(filterText).Cast<object>();
 
+                // Iterate over the search results and add each item to the current list.
+                // This populates the list with items that match the filter criteria.
                 foreach (var item in searchResult)
                 {
                     currentList.Add(item);
                 }
 
-                // The UI will now update to show only filtered items
+                // Update the ItemsSource of the list view (USearchChannelLst) to the current list.
+                // This causes the UI to update and display the filtered list of items to the user.
                 USearchChannelLst.ItemsSource = currentList;
             }
         }
