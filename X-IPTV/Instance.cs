@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using X_IPTV.Models;
 using static X_IPTV.M3UPlaylist;
 using static X_IPTV.XtreamCodes;
 
@@ -29,7 +30,7 @@ namespace X_IPTV
         public static List<XtreamChannel> XtreamChannels { get; set; } = new List<XtreamChannel>();
 
         // Property to store the Xtream epg data
-        public static List<XtreamEPGData> XtreamEPGDataList { get; set; } = new List<XtreamEPGData>();
+        public static List<IEPGData> XtreamEPGDataList { get; set; } = new List<IEPGData>();
         #endregion
 
         #region M3U Data Storage
@@ -40,7 +41,7 @@ namespace X_IPTV
         public static List<M3UCategory> M3UCategoryList { get; set; } = new List<M3UCategory>();
 
         // Property to store the M3U epg data
-        public static List<M3UEPGData> M3UEPGDataList { get; set; } = new List<M3UEPGData>();
+        public static List<IEPGData> M3UEPGDataList { get; set; } = new List<IEPGData>();
 
         //check this
         public static List<M3UChannel> M3UChannelToEPGMap { get; set; } = new List<M3UChannel>();

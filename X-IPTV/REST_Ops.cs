@@ -19,6 +19,8 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using X_IPTV.Models;
+using X_IPTV.Utilities;
 using Xceed.Wpf.Toolkit;
 using static X_IPTV.M3UPlaylist;
 
@@ -35,30 +37,7 @@ namespace X_IPTV
         private static bool _useHttps;
         public XtreamCodes() { }
 
-        public interface IChannelXtream
-        {
-            string DisplayName { get; }
-            string IconUrl { get; }
-            string Title { get; }
-            string Description { get; }
-        }
-
-        public class XtreamCategory
-        {
-            [JsonProperty("category_id")]
-            public string CategoryId { get; set; }
-
-            [JsonProperty("category_name")]
-            public string CategoryName { get; set; }
-
-            [JsonProperty("parent_id")]
-            public int ParentId { get; set; }
-
-            public string CategoryNameId => $"{CategoryName} - {CategoryId}";
-        }
-
-
-        public class XtreamChannel : IChannelXtream
+        public class XtreamChannel : Models.IChannel
         {
             [JsonProperty("num")]
             public string ChannelNumber { get; set; }
@@ -94,7 +73,7 @@ namespace X_IPTV
                 }
             }
 
-            public XtreamEPGData EPGData { get; set; }
+            public IEPGData EPGData { get; set; }
 
             public string DisplayName => this.ChannelName;
             public string IconUrl => this.LogoUrl;
@@ -112,15 +91,6 @@ namespace X_IPTV
                     return string.Empty;
                 }
             }
-        }
-
-        public class XtreamEPGData
-        {
-            public string ChannelId { get; set; }
-            public string ProgramTitle { get; set; }
-            public DateTime StartTime { get; set; }
-            public DateTime EndTime { get; set; }
-            public string Description { get; set; }
         }
 
         public static async Task<bool> CheckLoginConnection(CancellationToken token)
@@ -336,7 +306,7 @@ namespace X_IPTV
 
                 DateTime now = DateTime.Now; // Get the current local time
 
-                var epgDataList = new List<XtreamEPGData>(); // Initialize the EPG data list
+                var epgDataList = new List<IEPGData>(); // Initialize the EPG data list
 
                 foreach (var channel in channels)
                 {
@@ -406,15 +376,7 @@ namespace X_IPTV
     {
         public M3UPlaylist() { }
 
-        public interface IChannelM3U
-        {
-            string DisplayName { get; }
-            string IconUrl { get; }
-            string Title { get; }
-            string Description { get; }
-        }
-
-        public class M3UChannel : IChannelM3U
+        public class M3UChannel : Models.IChannel
         {
             public string ChannelNumber { get; set; }
             public string ChannelId { get; set; }
@@ -423,7 +385,7 @@ namespace X_IPTV
             public string CategoryName { get; set; }
             public string StreamUrl { get; set; }
 
-            public M3UEPGData EPGData { get; set; }
+            public IEPGData EPGData { get; set; }
 
             public string DisplayName => this.ChannelName;
             public string IconUrl => this.LogoUrl;
@@ -441,21 +403,6 @@ namespace X_IPTV
                     return string.Empty;
                 }
             }
-        }
-
-        public class M3UEPGData
-        {
-            public string ChannelId { get; set; }
-            public string ProgramTitle { get; set; }
-            public DateTime StartTime { get; set; }
-            public DateTime EndTime { get; set; }
-            public string Description { get; set; }
-        }
-
-        public class M3UCategory
-        {
-            [JsonProperty("group-title")]
-            public string CategoryName { get; set; }
         }
 
         public static async Task RetrieveM3UPlaylistData(string m3uPlaylistUrl, CancellationToken token)
@@ -513,7 +460,7 @@ namespace X_IPTV
             }
         }
 
-        private static void LinkChannelsToEPG(List<M3UChannel> channels, List<M3UEPGData> epgDataList)
+        private static void LinkChannelsToEPG(List<M3UChannel> channels, List<IEPGData> epgDataList)
         {
             foreach (var channel in channels)
             {
@@ -661,7 +608,7 @@ namespace X_IPTV
 
                 DateTime now = DateTime.Now; // Get the current local time
 
-                var epgDataList = new List<M3UEPGData>(); // Initialize the EPG data list
+                var epgDataList = new List<IEPGData>(); // Initialize the EPG data list
 
                 foreach (var channel in channels)
                 {

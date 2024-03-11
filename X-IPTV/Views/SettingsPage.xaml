@@ -1,0 +1,174 @@
+﻿<Page
+    x:Class="X_IPTV.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:X_IPTV"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Settings"
+    MinWidth="800"
+    MinHeight="450"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+
+    <Grid Background="#333333">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!--  VLC Path Label  -->
+        <Label
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Bottom"
+            Content="VLC Path:"
+            Foreground="White" />
+        <!--  VLC Path TextBox  -->
+        <TextBox
+            x:Name="vlcLocation_Input"
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Margin="20,0,0,0"
+            Background="#f8f9fa"
+            Foreground="Black"
+            Style="{StaticResource MaterialDesignTextBox}"
+            TextAlignment="Center" />
+        <!--  Set VLC Path Button  -->
+        <Button
+            x:Name="setVLCpath_Btn"
+            Grid.Row="1"
+            Grid.Column="2"
+            Width="180px"
+            Height="30px"
+            Click="setVLCpath_Btn_Click"
+            Content="Set VLC Path" />
+
+        <!--  Users Folder Path Label  -->
+        <Label
+            Grid.Row="3"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Bottom"
+            Content="Users Folder Path:"
+            Foreground="White" />
+        <!--  Users Folder Path TextBox  -->
+        <TextBox
+            x:Name="setUsersFolderPath_Input"
+            Grid.Row="4"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Margin="20,0,0,0"
+            Background="#f8f9fa"
+            Foreground="Black"
+            Style="{StaticResource MaterialDesignTextBox}"
+            TextAlignment="Center" />
+        <!--  Set Users Folder Path Button  -->
+        <Button
+            x:Name="setUsersFolderPath_Btn"
+            Grid.Row="4"
+            Grid.Column="2"
+            Width="180px"
+            Height="30px"
+            Click="setUsersFolderPath_Btn_Click"
+            Content="Set Users Folder Path" />
+
+        <!--  M3U Playlists Label  -->
+        <Label
+            Grid.Row="5"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Bottom"
+            Content="M3U Playlists Path:"
+            Foreground="White" />
+        <!--  M3U Playlists TextBox  -->
+        <TextBox
+            x:Name="setM3UPlaylistsPath_Input"
+            Grid.Row="6"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Margin="20,0,0,0"
+            Background="#f8f9fa"
+            Foreground="Black"
+            Style="{StaticResource MaterialDesignTextBox}"
+            TextAlignment="Center" />
+        <!--  Set M3U Playlists Path Button  -->
+        <Button
+            x:Name="setM3UPlaylistsPath_Btn"
+            Grid.Row="6"
+            Grid.Column="2"
+            Width="180px"
+            Height="30px"
+            Click="setM3UPlaylistsPath_Btn_Click"
+            Content="Set M3U Playlists Path" />
+
+        <!--  EPG Data Folder Path Label  -->
+        <Label
+            Grid.Row="7"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Bottom"
+            Content="EPG Data Folder Path:"
+            Foreground="White" />
+        <!--  EPG Data Folder Path TextBox  -->
+        <TextBox
+            x:Name="setEpgDataFolderPath_Input"
+            Grid.Row="8"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Margin="20,0,0,0"
+            Background="#f8f9fa"
+            Foreground="Black"
+            Style="{StaticResource MaterialDesignTextBox}"
+            TextAlignment="Center" />
+        <!--  Set EPG Data Folder Path Button  -->
+        <Button
+            x:Name="setEpgDataFolderPath_Btn"
+            Grid.Row="8"
+            Grid.Column="2"
+            Width="180px"
+            Height="30px"
+            Click="setEpgDataFolderPath_Btn_Click"
+            Content="Set EPG Folder Path" />
+
+        <!--  Check for Update Button  -->
+        <Button
+            x:Name="checkForUpdate_Btn"
+            Grid.Row="9"
+            Grid.Column="2"
+            Grid.ColumnSpan="2"
+            Width="160px"
+            Height="50px"
+            Click="checkForUpdate_Btn_Click"
+            Content="Check for update" />
+
+        <!--  Check for Update Button  -->
+        <Button
+            x:Name="updateEPG_Btn"
+            Grid.Row="9"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
+            Width="160px"
+            Height="50px"
+            Click="updateEpgBtn_Click"
+            Content="Update EPG" />
+    </Grid>
+</Page>
