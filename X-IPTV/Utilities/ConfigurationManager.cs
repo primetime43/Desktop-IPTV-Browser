@@ -19,7 +19,7 @@ namespace X_IPTV.Utilities
                 _configuration = new JObject
                 {
                     ["vlcLocationPath"] = "",
-                    ["usersFolderPath"] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Users"),
+                    ["usersFolderPath"] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "XtreamUsers"),
                     ["M3UFolderPath"] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "M3U"),
                     ["epgDataFolderPath"] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EPGData"),
                     ["lastEpgDataLoadTime"] = ""
@@ -35,7 +35,7 @@ namespace X_IPTV.Utilities
                 _configuration = JObject.Parse(json);
 
                 // Ensure default values if not set
-                _configuration["usersFolderPath"] = string.IsNullOrEmpty(_configuration["usersFolderPath"]?.ToString()) ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Users") : _configuration["usersFolderPath"];
+                _configuration["usersFolderPath"] = string.IsNullOrEmpty(_configuration["usersFolderPath"]?.ToString()) ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "XtreamUsers") : _configuration["usersFolderPath"];
                 _configuration["M3UFolderPath"] = string.IsNullOrEmpty(_configuration["M3UFolderPath"]?.ToString()) ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "M3U") : _configuration["M3UFolderPath"];
                 _configuration["epgDataFolderPath"] = string.IsNullOrEmpty(_configuration["epgDataFolderPath"]?.ToString()) ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EPGData") : _configuration["epgDataFolderPath"];
 

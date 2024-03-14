@@ -24,10 +24,10 @@ namespace X_IPTV.Service
             public string EPGURL { get; set; }
         }
 
-        public static void SaveUserData(User currentUser)
+        public static void SaveXtreamUserData(User currentUser)
         {
             string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string saveDir = Path.Combine(assemblyFolder, "Users");
+            string saveDir = Path.Combine(assemblyFolder, "XtreamUsers");
             if (!Directory.Exists(saveDir))
                 Directory.CreateDirectory(saveDir);
 
@@ -40,7 +40,7 @@ namespace X_IPTV.Service
         public static User GetUserData(string userName)
         {
             string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string filePath = Path.Combine(assemblyFolder, "Users", userName + ".json");
+            string filePath = Path.Combine(assemblyFolder, "XtreamUsers", userName + ".json");
 
             if (!File.Exists(filePath))
             {

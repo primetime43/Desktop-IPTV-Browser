@@ -42,7 +42,7 @@ namespace X_IPTV.Views
             {
                 // Fallback to default directory next to the executable if not specified
                 assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                saveDir = Path.Combine(assemblyFolder, "Users");
+                saveDir = Path.Combine(assemblyFolder, "XtreamUsers");
             }
             else
             {
@@ -125,7 +125,7 @@ namespace X_IPTV.Views
             _currentUser.Password = passTxt.Text;
             _currentUser.Server = serverTxt.Text;
             _currentUser.Port = portTxt.Text;
-            SaveUserData(_currentUser);
+            SaveXtreamUserData(_currentUser);
             loadUsersFromDirectory();
             Xceed.Wpf.Toolkit.MessageBox.Show(_currentUser.UserName + "'s data saved");
         }

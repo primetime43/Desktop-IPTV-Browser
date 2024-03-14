@@ -1,19 +1,12 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using X_IPTV.Utilities;
 using static X_IPTV.Service.GitHubReleaseChecker;
 using static X_IPTV.Utilities.ConfigurationManager;
@@ -204,12 +197,12 @@ namespace X_IPTV.Views
 
         private void setVLCpath_Btn_Click(object sender, RoutedEventArgs e)
         {
-            // Get the VLC path from the textbox
-            var vlcPath = vlcLocation_Input.Text;
+            var fileSelection = DialogHelpers.FileDialogSelectFile("Executable Files (*.exe)|*.exe");
 
-            // Check if the input is not empty
-            if (!string.IsNullOrEmpty(vlcPath))
+            if (fileSelection.FileSelected)
             {
+                var vlcPath = fileSelection.FileFullPath;
+
                 // Save the path to the configuration
                 ConfigurationManager.UpdateSetting("vlcLocationPath", vlcPath);
 
@@ -221,15 +214,18 @@ namespace X_IPTV.Views
             }
             else
             {
-                // Inform the user that the VLC path is empty and needs to be provided
-                Xceed.Wpf.Toolkit.MessageBox.Show("Please enter a valid VLC path.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Inform the user that no VLC path was selected
+                Xceed.Wpf.Toolkit.MessageBox.Show("No VLC path was selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
+
         private void setUsersFolderPath_Btn_Click(object sender, RoutedEventArgs e)
         {
-            var usersFolderPath = setUsersFolderPath_Input.Text;
+            var folderSelection = DialogHelpers.FolderDialogSelectFolder();
+            var usersFolderPath = folderSelection.FullPath;
 
+            // Check if the path is neither null nor empty
             if (!string.IsNullOrEmpty(usersFolderPath))
             {
                 ConfigurationManager.UpdateSetting("usersFolderPath", usersFolderPath);
@@ -237,13 +233,14 @@ namespace X_IPTV.Views
             }
             else
             {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Please enter a valid Users folder path.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Xceed.Wpf.Toolkit.MessageBox.Show("Please select a valid Users folder path.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void setEpgDataFolderPath_Btn_Click(object sender, RoutedEventArgs e)
         {
-            var epgDataFolderPath = setEpgDataFolderPath_Input.Text;
+            var folderSelection = DialogHelpers.FolderDialogSelectFolder();
+            var epgDataFolderPath = folderSelection.FullPath;
 
             if (!string.IsNullOrEmpty(epgDataFolderPath))
             {
@@ -258,7 +255,8 @@ namespace X_IPTV.Views
 
         private void setM3UPlaylistsPath_Btn_Click(object sender, RoutedEventArgs e)
         {
-            var m3uDataFolderPath = setM3UPlaylistsPath_Input.Text;
+            var folderSelection = DialogHelpers.FolderDialogSelectFolder();
+            var m3uDataFolderPath = folderSelection.FullPath;
 
             if (!string.IsNullOrEmpty(m3uDataFolderPath))
             {

@@ -50,17 +50,31 @@
             Margin="20,0,0,0"
             Background="#f8f9fa"
             Foreground="Black"
+            IsReadOnly="True"
             Style="{StaticResource MaterialDesignTextBox}"
-            TextAlignment="Center" />
+            TextAlignment="Center"
+            ToolTip="{Binding Path=Text, RelativeSource={RelativeSource Self}}" />
         <!--  Set VLC Path Button  -->
         <Button
             x:Name="setVLCpath_Btn"
             Grid.Row="1"
             Grid.Column="2"
-            Width="180px"
+            Width="50px"
             Height="30px"
-            Click="setVLCpath_Btn_Click"
-            Content="Set VLC Path" />
+            Margin="10,0,0,0"
+            HorizontalAlignment="Left"
+            Background="Transparent"
+            BorderBrush="Black"
+            Click="setVLCpath_Btn_Click">
+            <Button.Content>
+                <StackPanel Orientation="Horizontal">
+                    <Image
+                        Width="20"
+                        Height="20"
+                        Source="../Icons/folder-open-regular.png" />
+                </StackPanel>
+            </Button.Content>
+        </Button>
 
         <!--  Users Folder Path Label  -->
         <Label
@@ -68,7 +82,7 @@
             Grid.Column="0"
             Grid.ColumnSpan="2"
             VerticalAlignment="Bottom"
-            Content="Users Folder Path:"
+            Content="Xtream Codes Users Folder Path:"
             Foreground="White" />
         <!--  Users Folder Path TextBox  -->
         <TextBox
@@ -79,17 +93,31 @@
             Margin="20,0,0,0"
             Background="#f8f9fa"
             Foreground="Black"
+            IsReadOnly="True"
             Style="{StaticResource MaterialDesignTextBox}"
-            TextAlignment="Center" />
+            TextAlignment="Center"
+            ToolTip="{Binding Path=Text, RelativeSource={RelativeSource Self}}" />
         <!--  Set Users Folder Path Button  -->
         <Button
             x:Name="setUsersFolderPath_Btn"
             Grid.Row="4"
             Grid.Column="2"
-            Width="180px"
+            Width="50px"
             Height="30px"
-            Click="setUsersFolderPath_Btn_Click"
-            Content="Set Users Folder Path" />
+            Margin="10,0,0,0"
+            HorizontalAlignment="Left"
+            Background="Transparent"
+            BorderBrush="Black"
+            Click="setUsersFolderPath_Btn_Click">
+            <Button.Content>
+                <StackPanel Orientation="Horizontal">
+                    <Image
+                        Width="20"
+                        Height="20"
+                        Source="../Icons/folder-open-regular.png" />
+                </StackPanel>
+            </Button.Content>
+        </Button>
 
         <!--  M3U Playlists Label  -->
         <Label
@@ -108,17 +136,31 @@
             Margin="20,0,0,0"
             Background="#f8f9fa"
             Foreground="Black"
+            IsReadOnly="True"
             Style="{StaticResource MaterialDesignTextBox}"
-            TextAlignment="Center" />
+            TextAlignment="Center"
+            ToolTip="{Binding Path=Text, RelativeSource={RelativeSource Self}}" />
         <!--  Set M3U Playlists Path Button  -->
         <Button
             x:Name="setM3UPlaylistsPath_Btn"
             Grid.Row="6"
             Grid.Column="2"
-            Width="180px"
+            Width="50px"
             Height="30px"
-            Click="setM3UPlaylistsPath_Btn_Click"
-            Content="Set M3U Playlists Path" />
+            Margin="10,0,0,0"
+            HorizontalAlignment="Left"
+            Background="Transparent"
+            BorderBrush="Black"
+            Click="setM3UPlaylistsPath_Btn_Click">
+            <Button.Content>
+                <StackPanel Orientation="Horizontal">
+                    <Image
+                        Width="20"
+                        Height="20"
+                        Source="../Icons/folder-open-regular.png" />
+                </StackPanel>
+            </Button.Content>
+        </Button>
 
         <!--  EPG Data Folder Path Label  -->
         <Label
@@ -137,17 +179,31 @@
             Margin="20,0,0,0"
             Background="#f8f9fa"
             Foreground="Black"
+            IsReadOnly="True"
             Style="{StaticResource MaterialDesignTextBox}"
-            TextAlignment="Center" />
+            TextAlignment="Center"
+            ToolTip="{Binding Path=Text, RelativeSource={RelativeSource Self}}" />
         <!--  Set EPG Data Folder Path Button  -->
         <Button
             x:Name="setEpgDataFolderPath_Btn"
             Grid.Row="8"
             Grid.Column="2"
-            Width="180px"
+            Width="50px"
             Height="30px"
-            Click="setEpgDataFolderPath_Btn_Click"
-            Content="Set EPG Folder Path" />
+            Margin="10,0,0,0"
+            HorizontalAlignment="Left"
+            Background="Transparent"
+            BorderBrush="Black"
+            Click="setEpgDataFolderPath_Btn_Click">
+            <Button.Content>
+                <StackPanel Orientation="Horizontal">
+                    <Image
+                        Width="20"
+                        Height="20"
+                        Source="../Icons/folder-open-regular.png" />
+                </StackPanel>
+            </Button.Content>
+        </Button>
 
         <!--  Check for Update Button  -->
         <Button
