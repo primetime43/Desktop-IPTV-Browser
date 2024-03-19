@@ -118,7 +118,7 @@ namespace X_IPTV.Views
                 await M3UPlaylist.RetrieveM3UPlaylistData(m3uURLTxtbox.Text, _cts.Token); // Load epg into the channels array
 
                 //Only attempt to download the epg data if the epg url is not empty
-                if (string.IsNullOrWhiteSpace(m3uEpgUrlTxtbox.Text))
+                if (!string.IsNullOrWhiteSpace(m3uEpgUrlTxtbox.Text))
                 {
                     busy_ind.BusyContent = "Loading playlist epg data...";
                     Instance.allM3uEpgData = await M3UPlaylist.DownloadAndParseEPG(m3uEpgUrlTxtbox.Text, _cts.Token);
