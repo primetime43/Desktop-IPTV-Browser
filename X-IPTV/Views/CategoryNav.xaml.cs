@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using X_IPTV.Models;
@@ -31,10 +32,10 @@ namespace X_IPTV.Views
             InitializeComponent();
             loadCategories();//loads the categories into the listbox view
             InitializeUpdateCheckTimer(); // Initialize the update check timer
-            /*if(Instance.XtreamCodesChecked)
+            if(Instance.XtreamCodesChecked)
                 loadUserInfo();//displays the user's info in the text box
             else
-                userInfoTxtBox.Visibility = Visibility.Collapsed;*/
+                userInfoTxtBox.Visibility = Visibility.Collapsed;
         }
 
         #region Auto updating EPG Data Functions
@@ -98,35 +99,64 @@ namespace X_IPTV.Views
             {
                 userInfoTxtBox.Document.Blocks.Clear();
 
-                userInfoTxtBox.AppendText("user_info:\r");
+                // Create a paragraph for user_info title
+                Paragraph userInfoTitle = new Paragraph(new Run("user_info:")
+                {
+                    FontWeight = FontWeights.Bold // Make text bold
+                });
+                userInfoTxtBox.Document.Blocks.Add(userInfoTitle);
+
+                // Append user_info properties
                 foreach (PropertyInfo ce in typeof(User_Info).GetProperties())
                 {
+                    string text = "";
                     if (ce.Name == "exp_date" || ce.Name == "created_at")
-                        userInfoTxtBox.AppendText(ce.Name + ": " + ChannelOptions.convertUnixToRealTIme(Convert.ToInt32(ce.GetValue(Instance.PlayerInfo.user_info))) + "\r");
+                        text = ce.Name + ": " + ChannelOptions.convertUnixToRealTIme(Convert.ToInt32(ce.GetValue(Instance.PlayerInfo.user_info)));
                     else if (ce.Name == "allowed_output_formats")
                     {
-                        userInfoTxtBox.AppendText(ce.Name + ": ");
+                        text = ce.Name + ": ";
                         string[] formats = (string[])ce.GetValue(Instance.PlayerInfo.user_info);
                         for (int i = 0; i < formats.Length; i++)
                         {
-                            userInfoTxtBox.AppendText(formats[i]);
+                            text += formats[i];
                             if (i < formats.Length - 1)
-                                userInfoTxtBox.AppendText(", ");
+                                text += ", ";
                         }
-                        userInfoTxtBox.AppendText("\r");
                     }
                     else
-                        userInfoTxtBox.AppendText(ce.Name + ": " + ce.GetValue(Instance.PlayerInfo.user_info) + "\r");
+                        text = ce.Name + ": " + ce.GetValue(Instance.PlayerInfo.user_info);
+
+                    // Adjust the Margin here for the property paragraphs
+                    Paragraph para = new Paragraph(new Run(text))
+                    {
+                        Margin = new Thickness(0) // Removes extra space between items
+                    };
+                    userInfoTxtBox.Document.Blocks.Add(para);
                 }
 
-                userInfoTxtBox.AppendText("\rserver_info:\r");
+                // Add some separation before server_info title
+                userInfoTxtBox.Document.Blocks.Add(new Paragraph(new Run("")) { Margin = new Thickness(0, 10, 0, 0) }); // Adjust the separation as needed
+
+                // Create a paragraph for server_info title
+                Paragraph serverInfoTitle = new Paragraph(new Run("server_info:")
+                {
+                    FontWeight = FontWeights.Bold // Make text bold
+                });
+                userInfoTxtBox.Document.Blocks.Add(serverInfoTitle);
+
+                // Append server_info properties
                 foreach (PropertyInfo ce in typeof(Server_Info).GetProperties())
                 {
-                    userInfoTxtBox.AppendText(ce.Name + ": " + ce.GetValue(Instance.PlayerInfo.server_info) + "\r");
+                    string text = ce.Name + ": " + ce.GetValue(Instance.PlayerInfo.server_info);
+                    // Adjust the Margin here for the property paragraphs
+                    Paragraph para = new Paragraph(new Run(text))
+                    {
+                        Margin = new Thickness(0) // Removes extra space between items
+                    };
+                    userInfoTxtBox.Document.Blocks.Add(para);
                 }
             }
         }
-
 
         private void quitBtn_Click(object sender, RoutedEventArgs e)
         {
