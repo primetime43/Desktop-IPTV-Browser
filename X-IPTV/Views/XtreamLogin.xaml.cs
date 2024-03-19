@@ -122,14 +122,30 @@ namespace X_IPTV.Views
                 return;
             }
 
-            _currentUser.UserName = usrTxt.Text;
-            _currentUser.Password = passTxt.Text;
-            _currentUser.UseHttps = (bool)protocolCheckBox.IsChecked;
-            _currentUser.Server = serverTxt.Text;
-            _currentUser.Port = portTxt.Text;
-            SaveXtreamUserData(_currentUser);
-            loadUsersFromDirectory();
-            Xceed.Wpf.Toolkit.MessageBox.Show(_currentUser.UserName + "'s data saved");
+            InputDialog inputDialog = new InputDialog("Save Xtream Login", "Please enter a name for the login:", usrTxt.Text);
+            bool? dialogResult = inputDialog.ShowDialog();
+
+            // Check if the dialog was accepted
+            if (dialogResult == true)
+            {
+                string loginFileName = inputDialog.InputResult;
+
+                if (!string.IsNullOrWhiteSpace(loginFileName))
+                {
+                    _currentUser.UserName = usrTxt.Text;
+                    _currentUser.Password = passTxt.Text;
+                    _currentUser.UseHttps = (bool)protocolCheckBox.IsChecked;
+                    _currentUser.Server = serverTxt.Text;
+                    _currentUser.Port = portTxt.Text;
+                    SaveXtreamUserData(_currentUser, loginFileName);
+                    loadUsersFromDirectory();
+                    Xceed.Wpf.Toolkit.MessageBox.Show(_currentUser.UserName + "'s data saved");
+                }
+                else
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("You must enter a name for the login.");
+                }
+            }
         }
 
         private void showUpdatedConnectionString(object sender, RoutedEventArgs e)
