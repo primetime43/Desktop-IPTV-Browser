@@ -95,5 +95,13 @@
             Content="Stream URL:"
             Foreground="White" />
 
+        <Image
+            x:Name="ChannelIcon_Image"
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            Height="120"
+            Source="https://avatars.githubusercontent.com/u/12754111"
+            Stretch="Uniform" />
+
     </Grid>
 </Window>
