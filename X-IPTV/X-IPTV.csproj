@@ -35,6 +35,7 @@
     <Optimize>False</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Icons\arrow-up-right-from-square-solid.png" />
     <None Remove="Icons\folder-open-regular.png" />
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +79,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Icons\arrow-up-right-from-square-solid.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Icons\folder-open-regular.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

@@ -148,7 +148,7 @@ namespace X_IPTV.Views
             new XtreamChannel
             {
                 ChannelName = "|FR| TF1 UHD",
-                LogoUrl = "http://f.iptv-pure.com/tf14k.png",
+                LogoUrl = "https://avatars.githubusercontent.com/u/12754111",
                 EPGData = new XtreamEPGData
                 {
                     ProgramTitle = "Title 1",
@@ -159,7 +159,7 @@ namespace X_IPTV.Views
             new XtreamChannel
             {
                 ChannelName = "|FR| CSTAR FHD",
-                LogoUrl = "http://f.iptv-pure.com/cstar.png",
+                LogoUrl = "https://avatars.githubusercontent.com/u/12754111",
                 EPGData = new XtreamEPGData
                 {
                     ProgramTitle = "Title 2",

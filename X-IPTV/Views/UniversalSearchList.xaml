@@ -142,5 +142,26 @@
                 </ContextMenu>
             </ListBox.ContextMenu>
         </ListBox>
+        <!--  Popout Page Button  -->
+        <Button
+            x:Name="popOutPage_Btn"
+            Grid.Row="0"
+            Width="50px"
+            Height="40px"
+            Margin="0,0,50,0"
+            HorizontalAlignment="Right"
+            Background="Transparent"
+            BorderBrush="White"
+            BorderThickness="2"
+            Click="popOutPage_Btn_Click">
+            <Button.Content>
+                <StackPanel Orientation="Horizontal">
+                    <Image
+                        Width="20"
+                        Height="20"
+                        Source="../Icons/arrow-up-right-from-square-solid.png" />
+                </StackPanel>
+            </Button.Content>
+        </Button>
     </Grid>
 </Page>

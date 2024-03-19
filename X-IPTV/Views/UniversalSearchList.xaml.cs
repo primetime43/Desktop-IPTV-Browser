@@ -164,6 +164,50 @@ namespace X_IPTV.Views
             }
             return null;
         }
+
+        private bool _isPopWindowOpen = false;
+        private void popOutPage_Btn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isPopWindowOpen)
+            {
+                // Do nothing or bring the existing window to the forefront
+                return;
+            }
+
+            // Create a new instance of the UniversalSearchList page
+            var page = new UniversalSearchList();
+
+            // Create a new window and set properties
+            var window = new Window
+            {
+                Content = page,
+                Title = "Universal Search",
+                Width = 800,
+                Height = 450
+            };
+
+            // Subscribe to the Closed event
+            window.Closed += (s, args) =>
+            {
+                // When the window is closed, make the button visible again
+                _isPopWindowOpen = false;
+                ((Button)sender).Visibility = Visibility.Visible;
+            };
+
+            // Hide the button and show the window
+            _isPopWindowOpen = true;
+            ((Button)sender).Visibility = Visibility.Collapsed;
+
+            // Cast the Content back to UniversalSearchList and access its elements directly
+            if (page is UniversalSearchList universalSearchPage)
+            {
+                // Hide the button on the new pop-out window
+                universalSearchPage.popOutPage_Btn.Visibility = Visibility.Collapsed;
+            }
+
+
+            window.Show();
+        }
     }
 
     public class UniversalSearchModel
@@ -241,7 +285,7 @@ namespace X_IPTV.Views
             MyListBoxItems.Add(new XtreamChannel()
             {
                 ChannelName = "|FR| TF1 UHD",
-                LogoUrl = "http://f.iptv-pure.com/tf14k.png",
+                LogoUrl = "https://avatars.githubusercontent.com/u/12754111",
                 EPGData = new XtreamEPGData
                 {
                     ProgramTitle = "Title 1",
@@ -252,7 +296,7 @@ namespace X_IPTV.Views
             MyListBoxItems.Add(new XtreamChannel()
             {
                 ChannelName = "|FR| CSTAR FHD",
-                LogoUrl = "http://f.iptv-pure.com/cstar.png",
+                LogoUrl = "https://avatars.githubusercontent.com/u/12754111",
                 EPGData = new XtreamEPGData
                 {
                     ProgramTitle = "Title 2",

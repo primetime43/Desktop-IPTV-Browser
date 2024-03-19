@@ -12,6 +12,7 @@
     mc:Ignorable="d">
     <Page.Resources>
         <local:XtreamMyMockClass x:Key="DesignViewModel" />
+        <local:StringToImageSourceConverter x:Key="StringToImageSourceConverter" />
 
         <Style TargetType="{x:Type ListBox}">
             <Setter Property="ItemsPanel">
@@ -51,7 +52,7 @@
                                 <!--  Bind these to properties on the ChannelEntry object  -->
                                 <Image
                                     Height="120"
-                                    Source="{Binding Path=IconUrl}"
+                                    Source="{Binding IconUrl, Converter={StaticResource StringToImageSourceConverter}}"
                                     Stretch="Uniform" />
                                 <TextBlock
                                     Name="channelName"
