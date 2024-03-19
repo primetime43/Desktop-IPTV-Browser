@@ -79,6 +79,7 @@ namespace X_IPTV.Views
 
             usrTxt.Text = _currentUser.UserName;
             passTxt.Text = _currentUser.Password;
+            protocolCheckBox.IsChecked = _currentUser.UseHttps;
             serverTxt.Text = _currentUser.Server;
             portTxt.Text = _currentUser.Port;
         }
@@ -123,6 +124,7 @@ namespace X_IPTV.Views
 
             _currentUser.UserName = usrTxt.Text;
             _currentUser.Password = passTxt.Text;
+            _currentUser.UseHttps = (bool)protocolCheckBox.IsChecked;
             _currentUser.Server = serverTxt.Text;
             _currentUser.Port = portTxt.Text;
             SaveXtreamUserData(_currentUser);

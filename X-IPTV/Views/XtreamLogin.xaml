@@ -295,6 +295,7 @@
                 VerticalAlignment="Bottom"
                 Background="#f8f9fa"
                 Foreground="Black"
+                IsReadOnly="True"
                 Style="{StaticResource MaterialDesignTextBox}"
                 TextAlignment="Center" />
 
@@ -319,6 +320,7 @@
                 VerticalAlignment="Bottom"
                 Background="#f8f9fa"
                 Foreground="Black"
+                IsReadOnly="True"
                 Style="{StaticResource MaterialDesignTextBox}"
                 TextAlignment="Center" />
 

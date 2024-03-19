@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using X_IPTV.Utilities;
 using static X_IPTV.Service.GitHubReleaseChecker;
-using static X_IPTV.Utilities.ConfigurationManager;
 
 namespace X_IPTV.Views
 {
