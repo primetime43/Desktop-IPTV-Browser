@@ -110,12 +110,6 @@ namespace X_IPTV.Views
         {
             Instance.M3uChecked = true;
 
-            if (string.IsNullOrWhiteSpace(m3uEpgUrlTxtbox.Text))
-            {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Please enter the M3U playlist url.");
-                return;
-            }
-
             busy_ind.IsBusy = true;
             busy_ind.BusyContent = "Attempting to connect...";
             try
@@ -123,18 +117,22 @@ namespace X_IPTV.Views
                 busy_ind.BusyContent = "Loading playlist channel data...";
                 await M3UPlaylist.RetrieveM3UPlaylistData(m3uURLTxtbox.Text, _cts.Token); // Load epg into the channels array
 
-                busy_ind.BusyContent = "Loading playlist epg data...";
-                Instance.allM3uEpgData = await M3UPlaylist.DownloadAndParseEPG(m3uEpgUrlTxtbox.Text, _cts.Token);
-                if (Instance.allM3uEpgData != null)
+                //Only attempt to download the epg data if the epg url is not empty
+                if (string.IsNullOrWhiteSpace(m3uEpgUrlTxtbox.Text))
                 {
-                    //await M3UPlaylist.MatchChannelsWithEPG(epgData, Instance.M3UChannels);
-                    await M3UPlaylist.UpdateChannelsEpgData(Instance.M3UChannels);
+                    busy_ind.BusyContent = "Loading playlist epg data...";
+                    Instance.allM3uEpgData = await M3UPlaylist.DownloadAndParseEPG(m3uEpgUrlTxtbox.Text, _cts.Token);
+                    if (Instance.allM3uEpgData != null)
+                    {
+                        //await M3UPlaylist.MatchChannelsWithEPG(epgData, Instance.M3UChannels);
+                        await M3UPlaylist.UpdateChannelsEpgData(Instance.M3UChannels);
+                    }
+
+                    //var epgDataForChannel = Instance.M3UEPGDataList.Where(e => e.ChannelId == "someChannelId").ToList();
+
+                    // Update the lastEpgDataLoadTime setting with the current date and time
+                    ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
                 }
-
-                //var epgDataForChannel = Instance.M3UEPGDataList.Where(e => e.ChannelId == "someChannelId").ToList();
-
-                // Update the lastEpgDataLoadTime setting with the current date and time
-                ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
 
                 busy_ind.IsBusy = false;
                 if (!_cts.IsCancellationRequested)
