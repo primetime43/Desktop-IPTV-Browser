@@ -130,8 +130,8 @@ namespace X_IPTV.Views
 
                     //var epgDataForChannel = Instance.M3UEPGDataList.Where(e => e.ChannelId == "someChannelId").ToList();
 
-                    // Update the lastEpgDataLoadTime setting with the current date and time
-                    ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
+                    // Update the lastEpgDataLoadTime setting with the current date and time in ISO 8601 format
+                    ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
                 }
 
                 busy_ind.IsBusy = false;

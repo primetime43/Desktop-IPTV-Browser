@@ -351,8 +351,8 @@ namespace X_IPTV
                 // Does not store any past or future epg data
                 Instance.XtreamEPGDataList = epgDataList;
 
-                // Update the lastEpgDataLoadTime setting with the current date and time
-                ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
+                // Update the lastEpgDataLoadTime setting with the current date and time in ISO 8601 format
+                ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
 
                 return true;
             }
@@ -648,8 +648,8 @@ namespace X_IPTV
                 // Does not store any past or future epg data
                 Instance.M3UEPGDataList = epgDataList;
 
-                // Update the lastEpgDataLoadTime setting with the current date and time
-                ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
+                // Update the lastEpgDataLoadTime setting with the current date and time in ISO 8601 format
+                ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
 
                 return true;
             }

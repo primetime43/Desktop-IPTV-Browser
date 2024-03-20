@@ -192,8 +192,8 @@ namespace X_IPTV.Views
                     Instance.allXtreamEpgData = await XtreamCodes.DownloadEPGAndSaveToFile(_cts.Token);
                     await XtreamCodes.UpdateChannelsEpgData(Instance.XtreamChannels);
 
-                    // Update the lastEpgDataLoadTime setting with the current date and time
-                    ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
+                    // Update the lastEpgDataLoadTime setting with the current date and time in ISO 8601 format
+                    ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
 
                     busy_ind.IsBusy = false;
                     if (!_cts.IsCancellationRequested)

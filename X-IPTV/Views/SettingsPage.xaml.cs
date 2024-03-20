@@ -21,6 +21,35 @@ namespace X_IPTV.Views
         {
             InitializeComponent();
             LoadConfigPaths();
+
+            // Retrieve the last EPG update time string from the configuration
+            string lastEpgUpdateTimeIso = ConfigurationManager.GetSetting("lastEpgDataLoadTime");
+
+            if (!string.IsNullOrEmpty(lastEpgUpdateTimeIso))
+            {
+                // Parse the ISO 8601 date-time string into a DateTimeOffset object
+                DateTimeOffset lastEpgUpdateTime;
+                if (DateTimeOffset.TryParse(lastEpgUpdateTimeIso, out lastEpgUpdateTime))
+                {
+                    // Convert UTC time to local time
+                    var localTime = lastEpgUpdateTime.ToLocalTime();
+
+                    // Format the DateTimeOffset to a more readable string
+                    // Example: "March 19, 2024, 9:58 PM"
+                    string formattedTime = localTime.ToString("MMMM dd, yyyy, h:mm tt");
+
+                    lastEPGUpdateLbl.Content = formattedTime;
+                }
+                else
+                {
+                    // Handle parsing error or set to a default value
+                    lastEPGUpdateLbl.Content = "Time unavailable";
+                }
+            }
+            else
+            {
+                lastEPGUpdateLbl.Content = "Not available";
+            }
         }
 
         private async void checkForUpdate()
@@ -149,8 +178,8 @@ namespace X_IPTV.Views
 
                         if (updatePerformed)
                         {
-                            // Update the lastEpgDataLoadTime in settings to now
-                            ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
+                            // Update the lastEpgDataLoadTime setting with the current date and time in ISO 8601 format
+                            ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
                         }
                     }
                     catch (Exception ex)
