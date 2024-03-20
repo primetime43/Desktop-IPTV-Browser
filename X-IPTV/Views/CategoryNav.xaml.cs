@@ -254,11 +254,5 @@ namespace X_IPTV.Views
             }
             busy_ind.IsBusy = false;
         }
-
-        private async void updateEpgBtn_Click(object sender, RoutedEventArgs e)
-        {
-            await XtreamCodes.UpdateChannelsEpgData(Instance.XtreamChannels);
-            Xceed.Wpf.Toolkit.MessageBox.Show("EPG Updated!");
-        }
     }
 }

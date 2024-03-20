@@ -84,35 +84,6 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-
-            <!--<RichTextBox x:Name="userInfoTxtBox" Grid.Column="2" Margin="337,21,45,217" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                <FlowDocument>
-                    <Paragraph>
-                        <Run Text="RichTextBox"/>
-                    </Paragraph>
-                </FlowDocument>
-            </RichTextBox>-->
-            <!--  Buttons and RichTextBox  -->
-
-            <!--  ListView  -->
-            <!--<ListView
-                x:Name="listViewTest"
-                Width="225"
-                Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"
-                Margin="5"
-                HorizontalAlignment="Left"
-                d:ItemsSource="{d:SampleData ItemCount=5}"
-                Background="White"
-                SelectionChanged="ListViewItem_Selected">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <WrapPanel Background="White">
-                            <TextBlock FontWeight="Bold" Text="{Binding CategoryName}" />
-                        </WrapPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>-->
-
             <!--  RichTextBox in second column  -->
             <RichTextBox
                 x:Name="userInfoTxtBox"
@@ -130,49 +101,6 @@
                 Background="White"
                 ScrollViewer.VerticalScrollBarVisibility="Auto" />
 
-            <!--  Controls in third column  -->
-            <!--<Button
-                x:Name="quitBtn"
-                Grid.Row="3"
-                Grid.Column="2"
-                Width="115"
-                Height="45"
-                Margin="0,0,10,0"
-                Background="#007bff"
-                Click="quitBtn_Click"
-                Content="Quit" />
-            <Button
-                x:Name="backToLoginBtn"
-                Width="115"
-                Height="45"
-                Margin="0,0,10,0"
-                Background="#007bff"
-                Click="backToLoginBtn_Click"
-                Content="Back to Login" />-->
-            <Button
-                x:Name="updateEpgBtn"
-                Grid.Row="3"
-                Grid.Column="3"
-                Width="115"
-                Height="45"
-                Background="#007bff"
-                Click="updateEpgBtn_Click"
-                Content="Update EPG" />
-            <!--<ListView
-                x:Name="listViewTest"
-                Grid.RowSpan="4"
-                Margin="0,0,27,0"
-                d:ItemsSource="{d:SampleData ItemCount=5}"
-                Background="White"
-                SelectionChanged="ListViewItem_Selected">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <WrapPanel>
-                            <TextBlock FontWeight="Bold" Text="{Binding CategoryName}" />
-                        </WrapPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>-->
             <ListView
                 x:Name="listViewTest"
                 Grid.RowSpan="4"
