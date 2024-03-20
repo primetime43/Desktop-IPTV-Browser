@@ -212,7 +212,7 @@
                 Margin="10,10,0,10"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Background="LightGray"
+                Background="#333333"
                 BorderBrush="Black"
                 BorderThickness="2" />
 
