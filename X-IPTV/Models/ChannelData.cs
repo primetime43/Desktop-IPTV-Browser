@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using static X_IPTV.M3UPlaylist;
 using static X_IPTV.XtreamCodes;
 
-namespace X_IPTV
+namespace X_IPTV.Models
 {
     public class Current_User
     {

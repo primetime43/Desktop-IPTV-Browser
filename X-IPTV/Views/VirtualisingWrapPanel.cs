@@ -10,8 +10,11 @@ using System.Diagnostics;
 using System.ComponentModel;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Windows.Data;
+using System.Windows.Media.Imaging;
 
-namespace X_IPTV
+namespace X_IPTV.Views
 {
     public class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
     {
@@ -897,5 +900,23 @@ namespace X_IPTV
         }
 
         #endregion
+    }
+
+    public class StringToImageSourceConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is string imageUrl && !string.IsNullOrEmpty(imageUrl))
+            {
+                return new BitmapImage(new Uri(imageUrl, UriKind.Absolute));
+            }
+
+            return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
