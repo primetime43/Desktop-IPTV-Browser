@@ -28,7 +28,7 @@ namespace X_IPTV.Views
             // Initialize the configuration settings
             ConfigurationManager.InitializeConfiguration();
 
-            this.Title = "User Login " + Instance.programVersion;
+            this.Title = "Desktop-IPTV-Browser " + Instance.programVersion  + " by primetime43";
             ContentFrame.Navigate(new Uri("Views/XtreamLogin.xaml", UriKind.Relative));
             HighlightNavigationItem("XtreamLoginPage");
         }

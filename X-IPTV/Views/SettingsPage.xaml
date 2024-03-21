@@ -202,10 +202,13 @@
         <Button
             x:Name="checkForUpdate_Btn"
             Grid.Row="9"
-            Grid.Column="2"
+            Grid.Column="3"
             Grid.ColumnSpan="2"
             Width="160px"
             Height="50px"
+            Margin="0,0,0,20"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
             Click="checkForUpdate_Btn_Click"
             Content="Check for update" />
 
@@ -213,10 +216,12 @@
         <Button
             x:Name="updateEPG_Btn"
             Grid.Row="9"
-            Grid.Column="1"
-            Grid.ColumnSpan="2"
+            Grid.Column="2"
             Width="160px"
             Height="50px"
+            Margin="0,0,0,20"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
             Click="updateEpgBtn_Click"
             Content="Update EPG" />
         <Label
@@ -225,9 +230,9 @@
             Grid.Column="0"
             Grid.ColumnSpan="2"
             Width="245"
+            Margin="20,0,0,20"
             HorizontalAlignment="Left"
             VerticalAlignment="Bottom"
-            Margin="20,0,0,20"
             Content="Label" />
     </Grid>
 </Page>

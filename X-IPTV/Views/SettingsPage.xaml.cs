@@ -38,7 +38,7 @@ namespace X_IPTV.Views
                     // Example: "March 19, 2024, 9:58 PM"
                     string formattedTime = localTime.ToString("MMMM dd, yyyy, h:mm tt");
 
-                    lastEPGUpdateLbl.Content = formattedTime;
+                    lastEPGUpdateLbl.Content = "Last EPG Update: " + formattedTime;
                 }
                 else
                 {
