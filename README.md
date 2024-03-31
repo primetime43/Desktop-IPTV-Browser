@@ -16,6 +16,8 @@ Table of Contents
 
 ## Planned Enhancements
 
+- [ ] Add channel favorites.
+- [ ] Add channel recording.
 - [ ] Implement functionality to import and utilize locally downloaded EPG files.
 - [ ] Optimize data retrieval processes to minimize redundant EPG downloads, incorporating validity checks to determine the necessity of updates.
 - [ ] Pursue ongoing code refinement, aiming for improved efficiency, readability, and maintainability.
