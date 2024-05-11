@@ -19,6 +19,8 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using X_IPTV.Models;
+using X_IPTV.Utilities;
 using Xceed.Wpf.Toolkit;
 using static X_IPTV.M3UPlaylist;
 
@@ -35,30 +37,7 @@ namespace X_IPTV
         private static bool _useHttps;
         public XtreamCodes() { }
 
-        public interface IChannelXtream
-        {
-            string DisplayName { get; }
-            string IconUrl { get; }
-            string Title { get; }
-            string Description { get; }
-        }
-
-        public class XtreamCategory
-        {
-            [JsonProperty("category_id")]
-            public string CategoryId { get; set; }
-
-            [JsonProperty("category_name")]
-            public string CategoryName { get; set; }
-
-            [JsonProperty("parent_id")]
-            public int ParentId { get; set; }
-
-            public string CategoryNameId => $"{CategoryName} - {CategoryId}";
-        }
-
-
-        public class XtreamChannel : IChannelXtream
+        public class XtreamChannel : Models.IChannel
         {
             [JsonProperty("num")]
             public string ChannelNumber { get; set; }
@@ -94,7 +73,7 @@ namespace X_IPTV
                 }
             }
 
-            public XtreamEPGData EPGData { get; set; }
+            public IEPGData EPGData { get; set; }
 
             public string DisplayName => this.ChannelName;
             public string IconUrl => this.LogoUrl;
@@ -112,15 +91,6 @@ namespace X_IPTV
                     return string.Empty;
                 }
             }
-        }
-
-        public class XtreamEPGData
-        {
-            public string ChannelId { get; set; }
-            public string ProgramTitle { get; set; }
-            public DateTime StartTime { get; set; }
-            public DateTime EndTime { get; set; }
-            public string Description { get; set; }
         }
 
         public static async Task<bool> CheckLoginConnection(CancellationToken token)
@@ -314,8 +284,8 @@ namespace X_IPTV
             }
         }
 
-        //matches the channels with the epg data
-        public static async Task UpdateChannelsEpgData(List<XtreamChannel> channels)
+        //matches the channels with the epg data (manual updating epg data)
+        public static async Task<bool> UpdateChannelsEpgData(List<XtreamChannel> channels)
         {
             if(Instance.XtreamEPGDataList.Count > 0)//clear it out so if the epg is being updated
                 Instance.XtreamEPGDataList.Clear();
@@ -336,7 +306,7 @@ namespace X_IPTV
 
                 DateTime now = DateTime.Now; // Get the current local time
 
-                var epgDataList = new List<XtreamEPGData>(); // Initialize the EPG data list
+                var epgDataList = new List<IEPGData>(); // Initialize the EPG data list
 
                 foreach (var channel in channels)
                 {
@@ -380,10 +350,16 @@ namespace X_IPTV
                 // Store the list of current EPG data in the Instance class
                 // Does not store any past or future epg data
                 Instance.XtreamEPGDataList = epgDataList;
+
+                // Update the lastEpgDataLoadTime setting with the current date and time in ISO 8601 format
+                ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
+
+                return true;
             }
             catch (Exception ex)
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show("Error matching channels: " + ex.Message);
+                return false;
             }
         }
 
@@ -400,15 +376,7 @@ namespace X_IPTV
     {
         public M3UPlaylist() { }
 
-        public interface IChannelM3U
-        {
-            string DisplayName { get; }
-            string IconUrl { get; }
-            string Title { get; }
-            string Description { get; }
-        }
-
-        public class M3UChannel : IChannelM3U
+        public class M3UChannel : Models.IChannel
         {
             public string ChannelNumber { get; set; }
             public string ChannelId { get; set; }
@@ -417,7 +385,7 @@ namespace X_IPTV
             public string CategoryName { get; set; }
             public string StreamUrl { get; set; }
 
-            public M3UEPGData EPGData { get; set; }
+            public IEPGData EPGData { get; set; }
 
             public string DisplayName => this.ChannelName;
             public string IconUrl => this.LogoUrl;
@@ -435,21 +403,6 @@ namespace X_IPTV
                     return string.Empty;
                 }
             }
-        }
-
-        public class M3UEPGData
-        {
-            public string ChannelId { get; set; }
-            public string ProgramTitle { get; set; }
-            public DateTime StartTime { get; set; }
-            public DateTime EndTime { get; set; }
-            public string Description { get; set; }
-        }
-
-        public class M3UCategory
-        {
-            [JsonProperty("group-title")]
-            public string CategoryName { get; set; }
         }
 
         public static async Task RetrieveM3UPlaylistData(string m3uPlaylistUrl, CancellationToken token)
@@ -477,9 +430,6 @@ namespace X_IPTV
 
                 // Link M3U channels to EPG data
                 LinkChannelsToEPG(Instance.M3UChannels, Instance.M3UEPGDataList);
-
-                // Here you can do something with the parsed channels
-                // For example, you could add them to a list in your application.
 
                 // Cleanup the streams and the response.
                 reader.Close();
@@ -510,7 +460,7 @@ namespace X_IPTV
             }
         }
 
-        private static void LinkChannelsToEPG(List<M3UChannel> channels, List<M3UEPGData> epgDataList)
+        private static void LinkChannelsToEPG(List<M3UChannel> channels, List<IEPGData> epgDataList)
         {
             foreach (var channel in channels)
             {
@@ -637,7 +587,7 @@ namespace X_IPTV
             }
         }
 
-        public static async Task UpdateChannelsEpgData(List<M3UChannel> channels)
+        public static async Task<bool> UpdateChannelsEpgData(List<M3UChannel> channels)
         {
             if (Instance.M3UEPGDataList.Count > 0)//clear it out so if the epg is being updated
                 Instance.M3UEPGDataList.Clear();
@@ -645,6 +595,77 @@ namespace X_IPTV
             try
             {
                 var xdoc = XDocument.Parse(Instance.allM3uEpgData);
+                var epgChannels = xdoc.Descendants("channel").Select(c => new
+                {
+                    Id = (string)c.Attribute("id"),
+                    DisplayName = (string)c.Element("display-name"),
+                    IconSrc = (string)c.Element("icon")?.Attribute("src")
+                }).ToList();
+
+                var programmesByChannel = xdoc.Descendants("programme")
+                    .GroupBy(p => (string)p.Attribute("channel"))
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                DateTime now = DateTime.Now; // Get the current local time
+
+                var epgDataList = new List<IEPGData>(); // Initialize the EPG data list
+
+                foreach (var channel in channels)
+                {
+                    var matchedChannel = epgChannels.FirstOrDefault(c => c.Id == channel.ChannelId);
+                    if (matchedChannel != null)
+                    {
+                        // Match found, update channel information
+                        channel.ChannelName = matchedChannel.DisplayName;
+                        channel.LogoUrl = matchedChannel.IconSrc;
+                    }
+
+                    if (programmesByChannel.TryGetValue(channel.ChannelId, out var programmes))
+                    {
+                        // Find the current program based on the start and end times
+                        var currentProgram = programmes
+                            .Select(p => new M3UEPGData
+                            {
+                                ChannelId = channel.ChannelId,
+                                ProgramTitle = (string)p.Element("title"),
+                                StartTime = DateTime.ParseExact((string)p.Attribute("start"), "yyyyMMddHHmmss zzzz", CultureInfo.InvariantCulture),
+                                EndTime = DateTime.ParseExact((string)p.Attribute("stop"), "yyyyMMddHHmmss zzzz", CultureInfo.InvariantCulture),
+                                Description = (string)p.Element("desc")
+                            })
+                            .FirstOrDefault(epgData2 => epgData2.StartTime <= now && epgData2.EndTime > now);
+
+                        if (currentProgram != null)
+                        {
+                            // If there is a current program, add it to the EPG data list
+                            epgDataList.Add(currentProgram);
+                            // Also set it to the channel's EPGData
+                            channel.EPGData = currentProgram;
+                        }
+                    }
+                }
+
+                // Store the list of current EPG data in the Instance class
+                // Does not store any past or future epg data
+                Instance.M3UEPGDataList = epgDataList;
+
+                // Update the lastEpgDataLoadTime setting with the current date and time in ISO 8601 format
+                ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Error matching channels: " + ex.Message);
+                return false;
+            }
+        }
+
+        // temp testing. Might not need
+        /*public static async Task MatchChannelsWithEPG(string epgData, List<M3UChannel> channels)
+        {
+            try
+            {
+                var xdoc = XDocument.Parse(epgData);
                 var epgChannels = xdoc.Descendants("channel").Select(c => new
                 {
                     Id = (string)c.Attribute("id"),
@@ -702,7 +723,7 @@ namespace X_IPTV
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show("Error matching channels: " + ex.Message);
             }
-        }
+        }*/
 
         public static async Task PairEPGTOChannelM3U(List<M3UChannel> channels)
         {

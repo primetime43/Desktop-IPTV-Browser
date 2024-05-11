@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using ConfigurationManager = X_IPTV.Utilities.ConfigurationManager;
 
 namespace X_IPTV
 {
@@ -13,5 +14,10 @@ namespace X_IPTV
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            ConfigurationManager.InitializeConfiguration();
+        }
     }
 }

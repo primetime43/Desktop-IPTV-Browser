@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace X_IPTV
+namespace X_IPTV.Models
 {
 
     public class PlayerInfo
