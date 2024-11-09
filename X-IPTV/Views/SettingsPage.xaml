@@ -226,10 +226,10 @@
             Content="Update EPG" />
         <Label
             x:Name="lastEPGUpdateLbl"
-            Grid.Row="12"
+            Grid.Row="9"
             Grid.Column="0"
             Grid.ColumnSpan="2"
-            Width="245"
+            Width="370"
             Margin="20,0,0,20"
             HorizontalAlignment="Left"
             VerticalAlignment="Bottom"

@@ -213,9 +213,21 @@ namespace X_IPTV.Views
                     success = await M3UPlaylist.UpdateChannelsEpgData(Instance.M3UChannels);
 
                 if (success)
+                {
                     Xceed.Wpf.Toolkit.MessageBox.Show("EPG Updated!");
+
+                    // Update the last EPG update time label
+                    var localTime = DateTimeOffset.UtcNow.ToLocalTime();
+                    string formattedTime = localTime.ToString("MMMM dd, yyyy, h:mm tt");
+                    lastEPGUpdateLbl.Content = "Last EPG Update: " + formattedTime;
+
+                    // Update the lastEpgDataLoadTime setting
+                    ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
+                }
                 else
+                {
                     Xceed.Wpf.Toolkit.MessageBox.Show("Failed to update EPG data. Please check your connection and try again.");
+                }
             }
             catch (Exception ex) // Maybe log to file or output log on settings page eventually
             {
