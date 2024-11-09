@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using X_IPTV.Utilities;
 using static X_IPTV.Service.GitHubReleaseChecker;
 
@@ -21,6 +22,28 @@ namespace X_IPTV.Views
         {
             InitializeComponent();
             LoadConfigPaths();
+
+            // Temporarily unsubscribe from the Checked and Unchecked events
+            autoUpdateCheckBox.Checked -= AutoUpdateCheckBox_Checked;
+            autoUpdateCheckBox.Unchecked -= AutoUpdateCheckBox_Unchecked;
+
+            // Retrieve the auto-update setting from the configuration
+            bool autoUpdateEnabled = bool.TryParse(ConfigurationManager.GetSetting("autoUpdateEnabled"), out bool isEnabled) && isEnabled;
+
+            // Set the checkbox state based on the setting
+            autoUpdateCheckBox.IsChecked = autoUpdateEnabled;
+
+            // Update the indicator label based on the setting
+            autoUpdateIndicator.Content = autoUpdateEnabled ? "Auto-Update: On" : "Auto-Update: Off";
+            autoUpdateIndicator.Foreground = autoUpdateEnabled ? new SolidColorBrush(Colors.LimeGreen) : new SolidColorBrush(Colors.Red);
+
+            // Reattach the Checked and Unchecked event handlers after initialization
+            autoUpdateCheckBox.Checked += AutoUpdateCheckBox_Checked;
+            autoUpdateCheckBox.Unchecked += AutoUpdateCheckBox_Unchecked;
+
+            // Load EPG Update Interval setting
+            int updateIntervalHours = int.TryParse(ConfigurationManager.GetSetting("epgUpdateIntervalHours"), out int interval) ? interval : 6;
+            epgUpdateIntervalSlider.Value = updateIntervalHours;
 
             // Retrieve the last EPG update time string from the configuration
             string lastEpgUpdateTimeIso = ConfigurationManager.GetSetting("lastEpgDataLoadTime");
@@ -137,25 +160,23 @@ namespace X_IPTV.Views
             }
         }
 
-        //only auto update the epg on 15 min increments if the window has been open that long
-        //(actually this needs fixed because if no windows aren't open longer than 15 min increments, it won't
-        //ever auto update; unless manually update is clicked)
-        //Add an check eventually that checks the last time the epg data was updated and update it
-        private void AutoUpdateEPGData() //not sure what to do with this yet
+        // Auto Update based on the slider
+        private void AutoUpdateEPGData()
         {
             DateTime now = DateTime.Now;
             string lastUpdateString = ConfigurationManager.GetSetting("lastEpgDataLoadTime");
             DateTime lastEpgDataUpdateTime;
+            int updateIntervalHours = int.TryParse(ConfigurationManager.GetSetting("epgUpdateIntervalHours"), out int interval) ? interval : 6;
 
             // Attempt to parse the last EPG data update time from settings
             if (!DateTime.TryParse(lastUpdateString, out lastEpgDataUpdateTime))
             {
                 Debug.WriteLine("Could not parse the last EPG data load time, setting to now.");
-                lastEpgDataUpdateTime = DateTime.MinValue; // Or set to a default value that will trigger an update
+                lastEpgDataUpdateTime = DateTime.MinValue;
             }
 
-            // Check if it's been at least 15 minutes since the last update or other conditions for updating
-            if ((now - lastEpgDataUpdateTime).TotalMinutes >= 15 || Instance.ShouldUpdateOnInterval(now))
+            // Check if the time since the last update exceeds the configured interval
+            if ((now - lastEpgDataUpdateTime).TotalHours >= updateIntervalHours)
             {
                 Task.Run(async () =>
                 {
@@ -165,12 +186,11 @@ namespace X_IPTV.Views
                         if (Instance.XtreamCodesChecked)
                         {
                             await XtreamCodes.UpdateChannelsEpgData(Instance.XtreamChannels);
-                            Debug.WriteLine("EPG updated for XtreamCodes...");//eventually have a log file and write to that (maybe also show a log window on settings page)
+                            Debug.WriteLine("EPG updated for XtreamCodes...");
                             updatePerformed = true;
                         }
                         else if (Instance.M3uChecked)
                         {
-                            // Assume similar update method exists for M3U
                             await M3UPlaylist.UpdateChannelsEpgData(Instance.M3UChannels);
                             Debug.WriteLine("EPG updated for M3U...");
                             updatePerformed = true;
@@ -178,7 +198,6 @@ namespace X_IPTV.Views
 
                         if (updatePerformed)
                         {
-                            // Update the lastEpgDataLoadTime setting with the current date and time in ISO 8601 format
                             ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
                         }
                     }
@@ -196,6 +215,49 @@ namespace X_IPTV.Views
                 Debug.WriteLine("EPG not updated due to time constraints...");
             }
         }
+
+        private void AutoUpdateCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            // Update the configuration setting to enable auto-update
+            ConfigurationManager.UpdateSetting("autoUpdateEnabled", "true");
+
+            // Check if autoUpdateIndicator is not null
+            if (autoUpdateIndicator != null)
+            {
+                // Update the indicator label to show that auto-update is on
+                autoUpdateIndicator.Content = "Auto-Update: On";
+                autoUpdateIndicator.Foreground = new SolidColorBrush(Colors.LimeGreen);
+                Debug.WriteLine("autoUpdateIndicator is on.");
+            }
+            else
+            {
+                // Handle the case where autoUpdateIndicator is null
+                // For example, log an error or show a message to the user
+                Debug.WriteLine("autoUpdateIndicator is null.");
+            }
+        }
+
+        private void AutoUpdateCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            // Update the configuration setting to disable auto-update
+            ConfigurationManager.UpdateSetting("autoUpdateEnabled", "false");
+
+            // Check if autoUpdateIndicator is not null
+            if (autoUpdateIndicator != null)
+            {
+                // Update the indicator label to show that auto-update is off
+                autoUpdateIndicator.Content = "Auto-Update: Off";
+                autoUpdateIndicator.Foreground = new SolidColorBrush(Colors.Red);
+                Debug.WriteLine("autoUpdateIndicator is off.");
+            }
+            else
+            {
+                // Handle the case where autoUpdateIndicator is null
+                // For example, log an error or show a message to the user
+                Debug.WriteLine("autoUpdateIndicator is null.");
+            }
+        }
+
 
         private void checkForUpdate_Btn_Click(object sender, RoutedEventArgs e)
         {
@@ -233,6 +295,13 @@ namespace X_IPTV.Views
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show($"EPG Not Updated! Error: {ex.Message}");
             }
+        }
+
+        private void EpgUpdateIntervalSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            int intervalHours = (int)e.NewValue;
+            ConfigurationManager.UpdateSetting("epgUpdateIntervalHours", intervalHours.ToString());
+            Debug.WriteLine($"EPG update interval set to {intervalHours} hours");
         }
 
         private void setVLCpath_Btn_Click(object sender, RoutedEventArgs e)

@@ -178,6 +178,7 @@
             Style="{StaticResource MaterialDesignTextBox}"
             TextAlignment="Center"
             ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
+
         <!--  Set EPG Data Folder Path Button  -->
         <Button
             x:Name="setEpgDataFolderPath_Btn"
@@ -197,6 +198,70 @@
                     Source="../Icons/folder-open-regular.png" />
             </StackPanel>
         </Button>
+
+        <CheckBox
+            x:Name="autoUpdateCheckBox"
+            Grid.Row="9"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Margin="8,78,192,0"
+            VerticalAlignment="Top"
+            Checked="AutoUpdateCheckBox_Checked"
+            Content="Enable Auto-Update"
+            Foreground="White"
+            Unchecked="AutoUpdateCheckBox_Unchecked" />
+
+        <!--  Indicator Label  -->
+        <Label
+            x:Name="autoUpdateIndicator"
+            Grid.Row="9"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Margin="146,76,54,0"
+            VerticalAlignment="Top"
+            Content="Auto-Update: On"
+            Foreground="LimeGreen" />
+
+
+        <!--  Set Auto EPG Update time  -->
+        <Label
+            Grid.Row="9"
+            Grid.ColumnSpan="2"
+            Margin="5,0,195,0"
+            VerticalAlignment="Center"
+            Content="EPG Update Interval (Hours):"
+            Foreground="White" />
+        <Slider
+            x:Name="epgUpdateIntervalSlider"
+            Grid.Row="10"
+            Grid.Column="1"
+            VerticalAlignment="Center"
+            IsSnapToTickEnabled="True"
+            Maximum="24"
+            Minimum="1"
+            TickFrequency="1"
+            ValueChanged="EpgUpdateIntervalSlider_ValueChanged">
+            <Slider.Resources>
+                <Style TargetType="Thumb">
+                    <Setter Property="Width" Value="20" />
+                    <!--  Increase width  -->
+                    <Setter Property="Height" Value="20" />
+                    <!--  Increase height  -->
+                    <Setter Property="Background" Value="Gray" />
+                    <!--  Optional: Make it more visible  -->
+                </Style>
+            </Slider.Resources>
+        </Slider>
+
+        <Label
+            Grid.Row="9"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
+            Margin="5,0,195,0"
+            VerticalAlignment="Center"
+            Content="{Binding ElementName=epgUpdateIntervalSlider, Path=Value, StringFormat='{}{0} hours'}"
+            Foreground="White" />
+
 
         <!--  Check for Update Button  -->
         <Button
