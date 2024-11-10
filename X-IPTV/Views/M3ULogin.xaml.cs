@@ -28,15 +28,19 @@ namespace X_IPTV.Views
     /// </summary>
     public partial class M3ULogin : Page
     {
+        private static string M3UFolderPath;
         public M3ULogin()
         {
             InitializeComponent();
+
+            string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            M3UFolderPath = Path.Combine(assemblyFolder, "M3U");
         }
 
         private void M3U_loadButton_Click(object sender, RoutedEventArgs e)
         {
             // Retrieve the M3UFolderPath from the configuration
-            string M3UFolderPath = ConfigurationManager.GetSetting("M3UFolderPath");
+            M3UFolderPath = ConfigurationManager.GetSetting("M3UFolderPath");
             if (string.IsNullOrEmpty(M3UFolderPath))
             {
                 // If M3UFolderPath is not set, fall back to a default path
@@ -149,6 +153,30 @@ namespace X_IPTV.Views
             catch (OperationCanceledException) { }
 
             _cts = new CancellationTokenSource();//reset the token
+        }
+
+        private void OpenUsersFolderBtn_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (Directory.Exists(M3UFolderPath))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = M3UFolderPath,
+                        UseShellExecute = true,
+                        Verb = "open"
+                    });
+                }
+                else
+                {
+                    MessageBox.Show("The users folder path does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open the users folder. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
