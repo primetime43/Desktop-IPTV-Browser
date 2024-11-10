@@ -74,7 +74,7 @@ namespace X_IPTV.Views
                     ProcessStartInfo startInfo = new ProcessStartInfo
                     {
                         FileName = "cmd.exe",
-                        Arguments = $"/C \"{vlcLocatedPath}\" {streamUrl}",
+                        Arguments = $"/C \"{vlcLocatedPath}\" {streamUrl} --loop", // --loop here to enable looping
                         UseShellExecute = false,
                         CreateNoWindow = true
                     };
