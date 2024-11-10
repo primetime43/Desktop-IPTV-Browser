@@ -227,8 +227,8 @@
                 <CheckBox
                     x:Name="protocolCheckBox"
                     Grid.Row="3"
-                    Grid.ColumnSpan="2"
-                    Margin="10,35,56,-25"
+                    Grid.Column="1"
+                    Margin="308,0,98,0"
                     Checked="showUpdatedConnectionString"
                     Content="HTTPS"
                     Foreground="#f8f9fa"
