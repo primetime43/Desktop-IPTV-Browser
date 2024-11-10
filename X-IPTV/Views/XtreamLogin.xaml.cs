@@ -162,6 +162,30 @@ namespace X_IPTV.Views
             }
         }
 
+        private void OpenUsersFolderBtn_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (Directory.Exists(saveDir))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = saveDir,
+                        UseShellExecute = true,
+                        Verb = "open"
+                    });
+                }
+                else
+                {
+                    MessageBox.Show("The users folder path does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open the users folder. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private async void Con_btn_Click(object sender, RoutedEventArgs e)
         {
             //testing

@@ -279,7 +279,26 @@
                     Content="Connect"
                     Foreground="#f8f9fa"
                     Style="{StaticResource MaterialDesignFlatButton}" />
+
+                <!--  Users Folder Path Section  -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button
+                        x:Name="openUsersFolderBtn"
+                        Height="30"
+                        Margin="16,39,563,-39"
+                        Background="#007bff"
+                        Click="OpenUsersFolderBtn_Click"
+                        Content="Open Users Folder"
+                        Foreground="#f8f9fa"
+                        Style="{StaticResource MaterialDesignFlatButton}" />
+                </Grid>
+
             </StackPanel>
+
         </Grid>
     </extToolkit:BusyIndicator>
 </Page>
