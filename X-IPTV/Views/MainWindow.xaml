@@ -62,7 +62,7 @@
         <!--  Content Frame  -->
         <Frame
             x:Name="ContentFrame"
-            Background="WhiteSmoke"
+            Background="#333333"
             NavigationUIVisibility="Hidden">
             <!--  Maybe make this visible idk  -->
             <!--  Pages will be displayed here  -->
