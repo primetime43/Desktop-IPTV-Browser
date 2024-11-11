@@ -5,7 +5,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:X_IPTV.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:views="clr-namespace:X_IPTV.Views"
     Title="MainWindow"
     Width="1000"
     Height="600"
@@ -18,53 +17,124 @@
 
     <DockPanel>
         <!--  Side Menu  -->
-        <ListBox
-            x:Name="SideMenu"
-            Width="200"
-            Background="Gray"
-            DockPanel.Dock="Left"
-            Foreground="White"
-            SelectionChanged="MenuList_SelectionChanged"
-            Style="{StaticResource MaterialDesignListBox}">
-            <ListBox.ItemContainerStyle>
-                <Style BasedOn="{StaticResource MaterialDesignListBoxItem}" TargetType="ListBoxItem">
-                    <Setter Property="Height" Value="50" />
-                    <Setter Property="Padding" Value="10" />
-                    <Setter Property="Margin" Value="5" />
-                </Style>
-            </ListBox.ItemContainerStyle>
+        <StackPanel
+            Width="220"
+            Background="#2E2E2E"
+            DockPanel.Dock="Left">
+            <TextBlock
+                Margin="10"
+                HorizontalAlignment="Center"
+                FontSize="18"
+                FontWeight="Bold"
+                Foreground="White"
+                Text="Main Menu" />
 
-            <ListBoxItem x:Name="XtreamLoginPage" Content="Xtream Login" />
-            <ListBoxItem x:Name="M3ULoginPage" Content="M3U Login" />
-            <ListBoxItem
-                x:Name="CategoriesPage"
-                Content="Categories"
-                Visibility="Collapsed" />
-            <ListBoxItem
-                x:Name="XtreamChannelsPage"
-                Content="Xtream Channels"
-                Visibility="Collapsed" />
-            <ListBoxItem
-                x:Name="M3UChannelPage"
-                Content="M3U Channels"
-                Visibility="Collapsed" />
-            <ListBoxItem
-                x:Name="ChannelOptions"
-                Content="ChannelOptions"
-                Visibility="Collapsed" />
-            <ListBoxItem
-                x:Name="AllChannelsSearchPage"
-                Content="Search For Channels"
-                Visibility="Collapsed" />
-            <ListBoxItem x:Name="AppSettings" Content="Settings" />
-        </ListBox>
+            <!--  Navigation ListBox  -->
+            <ListBox
+                x:Name="SideMenu"
+                Background="#2E2E2E"
+                BorderThickness="0"
+                Foreground="White"
+                SelectionChanged="MenuList_SelectionChanged">
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="10,0"
+                                VerticalAlignment="Center"
+                                Text="{Binding Content}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+
+                <!--  Styling for Hover and Selected Items  -->
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <!--  Adjust padding and margin for larger height  -->
+                        <Setter Property="Padding" Value="10,15" />
+                        <Setter Property="Margin" Value="5,5,5,5" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Cursor" Value="Hand" />
+
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <!--  Use a rectangular highlight without rounded corners  -->
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="0">
+                                        <ContentPresenter />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+
+                        <Style.Triggers>
+                            <!--  Hover effect  -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#4B4B4B" />
+                            </Trigger>
+                            <!--  Selected item styling  -->
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#007ACC" />
+                                <Setter Property="Foreground" Value="White" />
+                                <!--  Adjust selected item padding to ensure blue fits around text  -->
+                                <Setter Property="Padding" Value="10,12" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+                <!--  Define Navigation Items with x:Name  -->
+                <ListBoxItem
+                    x:Name="XtreamLoginPage"
+                    Content="Xtream Login"
+                    FontSize="18" />
+                <ListBoxItem
+                    x:Name="M3ULoginPage"
+                    Content="M3U Login"
+                    FontSize="18" />
+                <ListBoxItem
+                    x:Name="CategoriesPage"
+                    Content="Categories"
+                    FontSize="18"
+                    Visibility="Collapsed" />
+                <ListBoxItem
+                    x:Name="XtreamChannelsPage"
+                    Content="Xtream Channels"
+                    FontSize="18"
+                    Visibility="Collapsed" />
+                <ListBoxItem
+                    x:Name="M3UChannelPage"
+                    Content="M3U Channels"
+                    FontSize="18"
+                    Visibility="Collapsed" />
+                <ListBoxItem
+                    x:Name="ChannelOptions"
+                    Content="Channel Options"
+                    FontSize="18"
+                    Visibility="Collapsed" />
+                <ListBoxItem
+                    x:Name="AllChannelsSearchPage"
+                    Content="Search For Channels"
+                    FontSize="18"
+                    Visibility="Collapsed" />
+                <ListBoxItem x:Name="AppSettings" Content="Settings" 
+                             FontSize="18"/>
+            </ListBox>
+        </StackPanel>
 
         <!--  Content Frame  -->
         <Frame
             x:Name="ContentFrame"
             Background="#333333"
             NavigationUIVisibility="Hidden">
-            <!--  Maybe make this visible idk  -->
             <!--  Pages will be displayed here  -->
         </Frame>
     </DockPanel>
