@@ -12,13 +12,13 @@
     d:DesignWidth="800"
     mc:Ignorable="d">
 
-    <Page.Resources />
-
     <extToolkit:BusyIndicator
         x:Name="busy_ind"
         BusyContent="Authenticating..."
         IsBusy="False">
+
         <Grid Background="#333333">
+            <!--  Define consistent row and column sizes  -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
@@ -30,20 +30,22 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
+            <!--  Label and TextBox for Playlist URL  -->
             <Label
                 Grid.Row="1"
                 Grid.Column="1"
                 Grid.ColumnSpan="2"
-                Margin="0,0,0,10"
+                Margin="0,0,0,5"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
                 Content="Playlist URL:"
+                FontSize="14"
                 Foreground="#f8f9fa" />
 
             <TextBox
@@ -53,6 +55,7 @@
                 Grid.ColumnSpan="2"
                 Width="300"
                 Height="30"
+                Padding="5,2"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 Background="#f8f9fa"
@@ -60,24 +63,26 @@
                 Style="{StaticResource MaterialDesignTextBox}"
                 TextWrapping="NoWrap" />
 
+            <!--  Label and TextBox for EPG URL  -->
             <Label
                 Grid.Row="3"
                 Grid.Column="1"
                 Grid.ColumnSpan="2"
-                Margin="0,10,0,0"
+                Margin="0,10,0,5"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 Content="EPG URL (optional):"
+                FontSize="14"
                 Foreground="#f8f9fa" />
 
             <TextBox
                 x:Name="m3uEpgUrlTxtbox"
-                Grid.Row="3"
+                Grid.Row="4"
                 Grid.Column="1"
                 Grid.ColumnSpan="2"
                 Width="300"
                 Height="30"
-                Margin="0,44,0,0"
+                Padding="5,2"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 Background="#f8f9fa"
@@ -85,33 +90,41 @@
                 Style="{StaticResource MaterialDesignTextBox}"
                 TextWrapping="NoWrap" />
 
+            <!--  StackPanel for Save and Load Buttons  -->
             <StackPanel
                 Grid.Row="5"
                 Grid.Column="1"
                 Grid.ColumnSpan="2"
-                Margin="0,20,0,0"
+                Margin="0,15,0,0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 Orientation="Horizontal">
+
                 <Button
                     x:Name="M3U_saveButton"
                     Width="150"
                     Height="30"
-                    Margin="0,0,10,0"
+                    Margin="0,0,5,0"
+                    Padding="5,2"
                     Background="White"
                     Click="M3U_saveButton_Click"
                     Content="Save Playlist Login"
+                    FontSize="13"
                     Style="{StaticResource MaterialDesignFlatButton}" />
+
                 <Button
                     x:Name="M3U_loadButton"
                     Width="150"
                     Height="30"
+                    Padding="5,2"
                     Background="White"
                     Click="M3U_loadButton_Click"
                     Content="Load Playlist Login"
+                    FontSize="13"
                     Style="{StaticResource MaterialDesignFlatButton}" />
             </StackPanel>
 
+            <!--  Connect Button  -->
             <Button
                 x:Name="con_btn"
                 Grid.Row="6"
@@ -120,25 +133,30 @@
                 Width="150"
                 Height="30"
                 Margin="0,10,0,0"
+                Padding="5,2"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 Background="#007bff"
                 Click="Con_btn_Click"
                 Content="Connect"
+                FontSize="13"
                 Foreground="#f8f9fa"
                 Style="{StaticResource MaterialDesignFlatButton}" />
 
-            <!--  Users Folder Path Section  -->
+            <!--  Open Users Folder Button  -->
             <Button
                 x:Name="openUsersFolderBtn"
                 Grid.Row="6"
                 Grid.Column="1"
                 Grid.ColumnSpan="2"
+                Width="150"
                 Height="30"
                 Margin="80,56,80,26"
+                Padding="5,2"
                 Background="#007bff"
                 Click="OpenUsersFolderBtn_Click"
                 Content="Open Playlist Folder"
+                FontSize="13"
                 Foreground="#f8f9fa"
                 Style="{StaticResource MaterialDesignFlatButton}" />
         </Grid>
