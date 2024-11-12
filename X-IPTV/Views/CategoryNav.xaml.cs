@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Navigation;
 using X_IPTV.Models;
 using X_IPTV.Navigation;
@@ -99,63 +100,45 @@ namespace X_IPTV.Views
             {
                 userInfoTxtBox.Document.Blocks.Clear();
 
-                // Create a paragraph for user_info title
-                Paragraph userInfoTitle = new Paragraph(new Run("user_info:")
+                // User Information Header
+                var userInfoTitle = new Paragraph(new Run("User Information"))
                 {
-                    FontWeight = FontWeights.Bold // Make text bold
-                });
+                    FontWeight = FontWeights.Bold,
+                    FontSize = 14,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"))
+                };
                 userInfoTxtBox.Document.Blocks.Add(userInfoTitle);
 
-                // Append user_info properties
-                foreach (PropertyInfo ce in typeof(User_Info).GetProperties())
+                // Add user_info properties
+                foreach (var prop in typeof(User_Info).GetProperties())
                 {
-                    string text = "";
-                    if (ce.Name == "exp_date" || ce.Name == "created_at")
-                        text = ce.Name + ": " + ChannelOptions.convertUnixToRealTIme(Convert.ToInt32(ce.GetValue(Instance.PlayerInfo.user_info)));
-                    else if (ce.Name == "allowed_output_formats")
-                    {
-                        text = ce.Name + ": ";
-                        string[] formats = (string[])ce.GetValue(Instance.PlayerInfo.user_info);
-                        for (int i = 0; i < formats.Length; i++)
-                        {
-                            text += formats[i];
-                            if (i < formats.Length - 1)
-                                text += ", ";
-                        }
-                    }
-                    else
-                        text = ce.Name + ": " + ce.GetValue(Instance.PlayerInfo.user_info);
-
-                    // Adjust the Margin here for the property paragraphs
-                    Paragraph para = new Paragraph(new Run(text))
-                    {
-                        Margin = new Thickness(0) // Removes extra space between items
-                    };
-                    userInfoTxtBox.Document.Blocks.Add(para);
+                    string text = FormatUserInfoText(prop);
+                    userInfoTxtBox.Document.Blocks.Add(new Paragraph(new Run(text)) { Margin = new Thickness(0) });
                 }
 
-                // Add some separation before server_info title
-                userInfoTxtBox.Document.Blocks.Add(new Paragraph(new Run("")) { Margin = new Thickness(0, 10, 0, 0) }); // Adjust the separation as needed
-
-                // Create a paragraph for server_info title
-                Paragraph serverInfoTitle = new Paragraph(new Run("server_info:")
+                // Server Information Header
+                var serverInfoTitle = new Paragraph(new Run("Server Information"))
                 {
-                    FontWeight = FontWeights.Bold // Make text bold
-                });
+                    FontWeight = FontWeights.Bold,
+                    FontSize = 14,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333")),
+                    Margin = new Thickness(0, 10, 0, 0)
+                };
                 userInfoTxtBox.Document.Blocks.Add(serverInfoTitle);
 
-                // Append server_info properties
-                foreach (PropertyInfo ce in typeof(Server_Info).GetProperties())
+                // Add server_info properties
+                foreach (var prop in typeof(Server_Info).GetProperties())
                 {
-                    string text = ce.Name + ": " + ce.GetValue(Instance.PlayerInfo.server_info);
-                    // Adjust the Margin here for the property paragraphs
-                    Paragraph para = new Paragraph(new Run(text))
-                    {
-                        Margin = new Thickness(0) // Removes extra space between items
-                    };
-                    userInfoTxtBox.Document.Blocks.Add(para);
+                    string text = $"{prop.Name}: {prop.GetValue(Instance.PlayerInfo.server_info)}";
+                    userInfoTxtBox.Document.Blocks.Add(new Paragraph(new Run(text)) { Margin = new Thickness(0) });
                 }
             }
+        }
+
+        private string FormatUserInfoText(PropertyInfo prop)
+        {
+            // Custom logic for property values
+            return $"{prop.Name}: {prop.GetValue(Instance.PlayerInfo.user_info)}";
         }
 
         private void quitBtn_Click(object sender, RoutedEventArgs e)

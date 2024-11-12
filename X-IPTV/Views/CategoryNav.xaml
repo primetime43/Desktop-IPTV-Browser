@@ -13,42 +13,50 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <!--  BusyIndicator Style with Cancel Button  -->
+        <!--  BusyIndicator Style with Semi-Transparent Overlay and Enhanced Cancel Button  -->
         <Style x:Key="BusyIndicatorStyle" TargetType="extToolkit:BusyIndicator">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="extToolkit:BusyIndicator">
                         <Grid>
+                            <!--  Main Content  -->
                             <ContentControl Content="{TemplateBinding Content}" />
+                            <!--  Overlay  -->
                             <Grid
                                 x:Name="busyGrid"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
+                                Background="#66000000"
                                 Visibility="Collapsed">
-                                <Rectangle Fill="White" Opacity="0.75" />
                                 <Border
+                                    Width="250"
                                     Padding="10"
                                     Background="WhiteSmoke"
                                     CornerRadius="10">
                                     <StackPanel>
                                         <TextBlock
                                             x:Name="busyContent"
+                                            Margin="0,10,0,5"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
+                                            FontWeight="Bold"
                                             Text="{TemplateBinding BusyContent}"
                                             TextWrapping="Wrap" />
                                         <ProgressBar
-                                            Width="180"
+                                            Width="200"
                                             Height="15"
-                                            Margin="10,10,10,5"
+                                            Margin="0,0,0,5"
                                             VerticalAlignment="Top"
                                             IsIndeterminate="True" />
                                         <Button
-                                            Width="80"
-                                            Height="25"
+                                            Width="100"
+                                            Height="30"
                                             HorizontalAlignment="Center"
+                                            Background="Red"
                                             Click="CancelButton_Click"
-                                            Content="Cancel" />
+                                            Content="Cancel"
+                                            FontWeight="Bold"
+                                            Foreground="White" />
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -62,77 +70,116 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!--  ListView Item Hover Style  -->
+        <Style TargetType="ListViewItem">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF333333" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Page.Resources>
+
     <extToolkit:BusyIndicator
         x:Name="busy_ind"
         IsBusy="False"
         Style="{StaticResource BusyIndicatorStyle}">
         <Grid Background="#333333">
+            <!--  Responsive Column Layout  -->
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <!--  Each column will take equal space  -->
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="3*" />
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <!--  Each row will take equal space  -->
                 <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="2*" />
             </Grid.RowDefinitions>
 
-            <!--  RichTextBox in second column  -->
-            <RichTextBox
-                x:Name="userInfoTxtBox"
-                Grid.Row="0"
-                Grid.RowSpan="2"
-                Grid.Column="2"
-                Grid.ColumnSpan="2"
-                Height="147"
-                MinHeight="100"
-                MaxWidth="300"
-                MaxHeight="300"
-                Margin="0,10,20,0"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top"
-                Background="White"
-                ScrollViewer.VerticalScrollBarVisibility="Auto" />
-
+            <!--  Category ListView with Hover and Icon (placeholder)  -->
             <ListView
                 x:Name="listViewTest"
-                Grid.RowSpan="4"
+                Grid.RowSpan="3"
                 Grid.ColumnSpan="2"
-                Margin="0,0,166,0"
-                d:ItemsSource="{d:SampleData ItemCount=5}"
-                Background="White"
+                Margin="10"
+                Background="#444444"
                 Foreground="White"
                 SelectionChanged="ListViewItem_Selected">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Width="200" Header="Categories">
-                            <!--  Header  -->
+                        <GridViewColumn Width="250" Header="Categories">
+                            <!--  Header Template  -->
                             <GridViewColumn.HeaderTemplate>
                                 <DataTemplate>
-                                    <TextBlock Foreground="White" Text="Categories" />
+                                    <TextBlock
+                                        FontWeight="Bold"
+                                        Foreground="White"
+                                        Text="Categories" />
                                 </DataTemplate>
                             </GridViewColumn.HeaderTemplate>
-                            <!--  List Items  -->
+                            <!--  Cell Template with Icon and Tooltip  -->
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding CategoryName}">
-                                        <TextBlock.ToolTip>
-                                            <ToolTip Content="{Binding CategoryName}" />
-                                        </TextBlock.ToolTip>
-                                    </TextBlock>
+                                    <StackPanel Margin="5" Orientation="Horizontal">
+                                        <Ellipse
+                                            Width="10"
+                                            Height="10"
+                                            Margin="0,0,5,0"
+                                            Fill="Green" />
+                                        <!--  Placeholder for Icon  -->
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            Text="{Binding CategoryName}"
+                                            ToolTip="{Binding CategoryName}" />
+                                    </StackPanel>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>
+
+            <!--  User Information RichTextBox with Enhanced Layout  -->
+            <RichTextBox
+                x:Name="userInfoTxtBox"
+                Grid.Row="0"
+                Grid.RowSpan="3"
+                Grid.Column="2"
+                Grid.ColumnSpan="2"
+                Margin="10"
+                Background="White"
+                Foreground="Black"
+                ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <!--  Section Headers with Bold Styling  -->
+                <FlowDocument>
+                    <Section>
+                        <Paragraph
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Foreground="#333333">
+                            User Information
+                        </Paragraph>
+                        <!--  User Information Content Will Be Dynamically Inserted  -->
+                    </Section>
+                    <Section>
+                        <Paragraph
+                            Margin="0,20,0,0"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Foreground="#333333">
+                            Server Information
+                        </Paragraph>
+                        <!--  Server Information Content Will Be Dynamically Inserted  -->
+                    </Section>
+                </FlowDocument>
+            </RichTextBox>
         </Grid>
     </extToolkit:BusyIndicator>
 </Page>
