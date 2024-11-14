@@ -31,7 +31,7 @@
         </Grid.RowDefinitions>
 
         <Button
-            x:Name="openVLCbtn"
+            x:Name="openStreamInPlayerBtn"
             Grid.Row="2"
             Grid.Column="1"
             Grid.ColumnSpan="2"
@@ -41,8 +41,8 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
             Background="#007bff"
-            Click="openVLCbtn_Click"
-            Content="Open in VLC" />
+            Click="OpenStreamInPlayer"
+            Content="Open in Player" />
         <!--<Button
             x:Name="closeBtn"
             Grid.Row="3"

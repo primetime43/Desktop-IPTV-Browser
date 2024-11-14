@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -113,8 +113,12 @@ namespace X_IPTV.Views
                             Xceed.Wpf.Toolkit.MessageBox.Show("URL copied to clipboard.");
                             break;
                         case "OpenInVLC":
-                            ChannelOptions.OpenStreamInVLC(streamUrl);
+                            ChannelOptions.OpenStreamInPlayer(streamUrl, "vlcLocationPath");
                             //Xceed.Wpf.Toolkit.MessageBox.Show("Opening in VLC...");
+                            break;
+                        case "OpenInPlayer":
+                            ChannelOptions.OpenStreamInPlayer(streamUrl, "genericPlayerPath");
+                            //Xceed.Wpf.Toolkit.MessageBox.Show("Opening in Player...");
                             break;
                         default:
                             Xceed.Wpf.Toolkit.MessageBox.Show("Unknown action.");

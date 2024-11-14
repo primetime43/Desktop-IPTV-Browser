@@ -9,7 +9,7 @@ namespace X_IPTV.Utilities
     class ConfigurationManager
     {
         private static JObject _configuration;
-        private static string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AppSettings.json");
+        private static readonly string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AppSettings.json");
 
         public static void InitializeConfiguration()
         {
@@ -18,7 +18,8 @@ namespace X_IPTV.Utilities
                 // If the configuration file doesn't exist, create it with default values
                 _configuration = new JObject
                 {
-                    ["vlcLocationPath"] = "",
+                    ["vlcLocationPath"] = "", // setting for vlc player
+                    ["genericPlayerPath"] = "", // setting for any generic player
                     ["usersFolderPath"] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "XtreamUsers"),
                     ["M3UFolderPath"] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "M3U"),
                     ["epgDataFolderPath"] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EPGData"),
@@ -52,7 +53,6 @@ namespace X_IPTV.Utilities
         // Update a specific setting in the configuration
         public static void UpdateSetting(string key, string value)
         {
-            // Check if _configuration is null and initialize it if necessary
             if (_configuration == null)
             {
                 InitializeConfiguration();
@@ -60,40 +60,56 @@ namespace X_IPTV.Utilities
 
             // Update or add the setting
             _configuration[key] = value;
-
-            // Save the updated configuration back to file
             File.WriteAllText(filePath, _configuration.ToString());
         }
 
-        // Dedicated method for VLC Path logic
-        public static string GetVLCPath()
+        // Generalized method for retrieving any player path
+        public static string GetPlayerPath(string key)
         {
-            // Attempt to get the path from the configuration file
-            string vlcPath = GetSetting("vlcLocationPath");
+            string playerPath = GetSetting(key);
 
-            // Check if the path is not null/empty and if the file exists
-            if (!string.IsNullOrEmpty(vlcPath) && File.Exists(vlcPath))
+            if (!string.IsNullOrEmpty(playerPath) && File.Exists(playerPath))
             {
-                return vlcPath;
+                return playerPath;
             }
             else
             {
-                // Path is invalid or not set, find and update the path
-                vlcPath = FindVLCPath();
-                if (vlcPath != null)
+                // If looking for VLC path, try to find it in the registry
+                if (key == "vlcLocationPath")
                 {
-                    // Update the configuration with the found path
-                    _configuration["vlcLocationPath"] = vlcPath;
-                    File.WriteAllText(filePath, _configuration.ToString());
+                    playerPath = FindVLCPath();
+                    if (!string.IsNullOrEmpty(playerPath))
+                    {
+                        UpdateSetting("vlcLocationPath", playerPath);
+                        return playerPath;
+                    }
                 }
-                return vlcPath;
+
+                // For any other or missing path, prompt user to select
+                playerPath = PromptUserForPlayerPath();
+                if (playerPath != null)
+                {
+                    UpdateSetting(key, playerPath);
+                }
+                return playerPath;
             }
+        }
+
+        // Prompts the user to select a video player path
+        private static string PromptUserForPlayerPath()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Executable Files (*.exe)|*.exe",
+                Title = "Select a Video Player"
+            };
+
+            return openFileDialog.ShowDialog() == true ? openFileDialog.FileName : null;
         }
 
         // Method to find VLC installation path
         public static string FindVLCPath()
         {
-            // Registry keys to check
             string[] registryKeys = new string[]
             {
                 @"SOFTWARE\VideoLAN\VLC",
@@ -114,7 +130,6 @@ namespace X_IPTV.Utilities
                     }
                 }
             }
-
             return null; // VLC not found
         }
     }

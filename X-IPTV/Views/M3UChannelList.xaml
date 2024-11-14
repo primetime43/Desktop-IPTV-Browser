@@ -128,6 +128,10 @@
                         Header="Open In VLC" />
                     <MenuItem
                         Click="listBox1_MouseDown"
+                        CommandParameter="OpenInPlayer"
+                        Header="Open In Player" />
+                    <MenuItem
+                        Click="listBox1_MouseDown"
                         CommandParameter="CopyURL"
                         Header="Copy URL" />
                 </ContextMenu>

@@ -177,12 +177,12 @@ namespace X_IPTV.Views
                 }
                 else
                 {
-                    MessageBox.Show("The users folder path does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Xceed.Wpf.Toolkit.MessageBox.Show("The users folder path does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to open the users folder. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Xceed.Wpf.Toolkit.MessageBox.Show($"Failed to open the users folder. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -216,8 +216,8 @@ namespace X_IPTV.Views
                     Instance.allXtreamEpgData = await XtreamCodes.DownloadEPGAndSaveToFile(_cts.Token);
                     await XtreamCodes.UpdateChannelsEpgData(Instance.XtreamChannels);
 
-                    // Update the lastEpgDataLoadTime setting with the current date and time in ISO 8601 format
-                    ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
+                    // Update the lastEpgDataLoadTime setting with the local machine's current date and time in ISO 8601 format
+                    ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
 
                     busy_ind.IsBusy = false;
                     if (!_cts.IsCancellationRequested)

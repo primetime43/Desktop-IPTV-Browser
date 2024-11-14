@@ -12,7 +12,6 @@
     mc:Ignorable="d">
 
     <Grid Background="#333333">
-        <!--  Simplified Column Structure for Responsiveness  -->
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="3*" />
@@ -23,6 +22,7 @@
             Margin="20"
             VerticalScrollBarVisibility="Auto">
             <StackPanel>
+
                 <!--  VLC Path Section  -->
                 <materialDesign:Card
                     Margin="0,10"
@@ -49,6 +49,36 @@
                             Margin="10,10,0,0"
                             HorizontalAlignment="Left"
                             Click="setVLCpath_Btn_Click"
+                            Content="Set Path" />
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!--  Generic Player Path Section  -->
+                <materialDesign:Card
+                    Margin="0,10"
+                    Padding="10"
+                    Background="#424242">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,10"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="Generic Player Path" />
+                        <TextBox
+                            x:Name="playerLocation_Input"
+                            Background="#f8f9fa"
+                            Foreground="Black"
+                            IsReadOnly="True"
+                            Style="{StaticResource MaterialDesignTextBox}"
+                            TextAlignment="Center"
+                            ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
+                        <Button
+                            x:Name="setPlayerPath_Btn"
+                            Width="100"
+                            Height="30"
+                            Margin="10,10,0,0"
+                            HorizontalAlignment="Left"
+                            Click="setPlayerPath_Btn_Click"
                             Content="Set Path" />
                     </StackPanel>
                 </materialDesign:Card>
@@ -163,11 +193,12 @@
                                 Foreground="White" />
                             <Slider
                                 x:Name="epgUpdateIntervalSlider"
+                                Width="195"
                                 IsSnapToTickEnabled="True"
                                 Maximum="24"
                                 Minimum="1"
                                 TickFrequency="1"
-                                ValueChanged="EpgUpdateIntervalSlider_ValueChanged" Width="195" />
+                                ValueChanged="EpgUpdateIntervalSlider_ValueChanged" />
                             <Label
                                 VerticalAlignment="Center"
                                 Content="{Binding ElementName=epgUpdateIntervalSlider, Path=Value, StringFormat='{}{0} hours'}"
