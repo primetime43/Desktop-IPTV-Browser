@@ -250,6 +250,7 @@
                 <TextBox
                     x:Name="textBoxServerConnectionString"
                     Height="30"
+                    Margin="0,0,30,0"
                     Background="#f8f9fa"
                     Foreground="Black"
                     IsReadOnly="True"
@@ -257,12 +258,13 @@
                     TextAlignment="Center" />
 
                 <TextBlock
-                    Margin="10,10,0,5"
+                    Margin="0,10,0,5"
                     Foreground="#f8f9fa"
                     Text="EPG Data Connection String" />
                 <TextBox
                     x:Name="textBoxPlaylistDataConnectionString"
                     Height="30"
+                    Margin="0,0,30,0"
                     Background="#f8f9fa"
                     Foreground="Black"
                     IsReadOnly="True"
