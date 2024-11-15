@@ -13,13 +13,24 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <!--  BusyIndicator Style with Cancel Button  -->
+        <!--  BusyIndicator Style with Blocking Overlay  -->
         <Style x:Key="BusyIndicatorStyle" TargetType="extToolkit:BusyIndicator">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="extToolkit:BusyIndicator">
                         <Grid>
+                            <!--  Background Content  -->
                             <ContentControl Content="{TemplateBinding Content}" />
+
+                            <!--  Blocking Overlay  -->
+                            <Rectangle
+                                x:Name="overlay"
+                                Fill="Black"
+                                IsHitTestVisible="True"
+                                Opacity="0.5"
+                                Visibility="Collapsed" />
+
+                            <!--  Busy Indicator Content  -->
                             <Grid
                                 x:Name="busyGrid"
                                 HorizontalAlignment="Center"
@@ -54,7 +65,9 @@
                             </Grid>
                         </Grid>
                         <ControlTemplate.Triggers>
+                            <!--  Show Overlay and Busy Content When IsBusy is True  -->
                             <Trigger Property="IsBusy" Value="True">
+                                <Setter TargetName="overlay" Property="Visibility" Value="Visible" />
                                 <Setter TargetName="busyGrid" Property="Visibility" Value="Visible" />
                             </Trigger>
                         </ControlTemplate.Triggers>

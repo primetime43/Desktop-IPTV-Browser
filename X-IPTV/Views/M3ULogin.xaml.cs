@@ -178,5 +178,12 @@ namespace X_IPTV.Views
                 Xceed.Wpf.Toolkit.MessageBox.Show($"Failed to open the users folder. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Stop the ongoing process
+            busy_ind.IsBusy = false;
+            MessageBox.Show("Operation canceled by the user.", "Canceled", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 }

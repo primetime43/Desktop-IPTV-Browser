@@ -12,10 +12,79 @@
     d:DesignWidth="800"
     mc:Ignorable="d">
 
+    <!--  BusyIndicator Style with Cancel Button  -->
+    <Page.Resources>
+        <Style x:Key="BusyIndicatorStyle" TargetType="extToolkit:BusyIndicator">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="extToolkit:BusyIndicator">
+                        <Grid>
+                            <!--  Background Content  -->
+                            <ContentControl Content="{TemplateBinding Content}" />
+
+                            <!--  Blocking Overlay  -->
+                            <Rectangle
+                                x:Name="overlay"
+                                Fill="Black"
+                                IsHitTestVisible="True"
+                                Opacity="0.5"
+                                Visibility="Collapsed" />
+
+                            <!--  Busy Indicator Content  -->
+                            <Grid
+                                x:Name="busyGrid"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Visibility="Collapsed">
+                                <Rectangle Fill="White" Opacity="0.75" />
+                                <Border
+                                    Padding="10"
+                                    Background="WhiteSmoke"
+                                    CornerRadius="10">
+                                    <StackPanel>
+                                        <TextBlock
+                                            x:Name="busyContent"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Text="{TemplateBinding BusyContent}"
+                                            TextWrapping="Wrap" />
+                                        <ProgressBar
+                                            Width="180"
+                                            Height="15"
+                                            Margin="10,10,10,5"
+                                            VerticalAlignment="Top"
+                                            IsIndeterminate="True" />
+                                        <Button
+                                            Width="80"
+                                            Height="25"
+                                            HorizontalAlignment="Center"
+                                            Click="CancelButton_Click"
+                                            Content="Cancel" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <!--  Show Overlay and Busy Content When IsBusy is True  -->
+                            <Trigger Property="IsBusy" Value="True">
+                                <Setter TargetName="overlay" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="busyGrid" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
     <extToolkit:BusyIndicator
         x:Name="busy_ind"
-        BusyContent="Authenticating..."
-        IsBusy="False">
+        IsBusy="False"
+        Style="{StaticResource BusyIndicatorStyle}">
+        <extToolkit:BusyIndicator.BusyContent>
+            Authenticating...
+        </extToolkit:BusyIndicator.BusyContent>
+
 
         <Grid Background="#333333">
             <!--  Define consistent row and column sizes  -->
