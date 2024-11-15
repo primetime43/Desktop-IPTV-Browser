@@ -47,6 +47,11 @@ namespace X_IPTV.Utilities
             }
         }
 
+        public static string GetConfigFilePath()
+        {
+            return filePath;
+        }
+
         public static string GetSetting(string key)
         {
             return _configuration?[key]?.ToString();

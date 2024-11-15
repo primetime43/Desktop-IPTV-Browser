@@ -261,6 +261,12 @@
                     HorizontalAlignment="Right"
                     Orientation="Horizontal">
                     <Button
+                        x:Name="editConfigBtn"
+                        Width="150"
+                        Margin="10,0"
+                        Click="editConfigBtn_Click"
+                        Content="Edit Config" />
+                    <Button
                         x:Name="checkForUpdate_Btn"
                         Width="150"
                         Margin="10,0"

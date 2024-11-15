@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -191,6 +192,29 @@ namespace X_IPTV.Views
             else
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show("No path was selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private void editConfigBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string configFilePath = ConfigurationManager.GetConfigFilePath();
+            if (File.Exists(configFilePath))
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = configFilePath,
+                        UseShellExecute = true // opens in the default associated editor
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show($"Unable to open configuration file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Configuration file not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
