@@ -194,7 +194,7 @@ namespace X_IPTV.Views
             }
         }
 
-        private void SetFolderPath(string settingKey, string successMessage)
+        private void SetFolderPath(string settingKey, TextBox targetTextBox, string successMessage)
         {
             var folderSelection = DialogHelpers.FolderDialogSelectFolder();
             var folderPath = folderSelection.FullPath;
@@ -202,6 +202,7 @@ namespace X_IPTV.Views
             if (!string.IsNullOrEmpty(folderPath))
             {
                 ConfigurationManager.UpdateSetting(settingKey, folderPath);
+                targetTextBox.Text = folderPath; // Update the TextBox directly
                 Xceed.Wpf.Toolkit.MessageBox.Show(successMessage, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
@@ -216,15 +217,15 @@ namespace X_IPTV.Views
             SetPathFromDialog(vlcLocation_Input, "vlcLocationPath", () => DialogHelpers.FileDialogSelectFile("Executable Files (*.exe)|*.exe"), "VLC path saved successfully.");
 
         private void setPlayerPath_Btn_Click(object sender, RoutedEventArgs e) =>
-               SetPathFromDialog(playerLocation_Input, "genericPlayerPath", () => DialogHelpers.FileDialogSelectFile("Executable Files (*.exe)|*.exe"), "Player path saved successfully.");
+            SetPathFromDialog(playerLocation_Input, "genericPlayerPath", () => DialogHelpers.FileDialogSelectFile("Executable Files (*.exe)|*.exe"), "Player path saved successfully.");
 
         private void setUsersFolderPath_Btn_Click(object sender, RoutedEventArgs e) =>
-            SetFolderPath("usersFolderPath", "Users folder path saved successfully.");
+            SetFolderPath("usersFolderPath", setUsersFolderPath_Input, "Users folder path saved successfully.");
 
         private void setEpgDataFolderPath_Btn_Click(object sender, RoutedEventArgs e) =>
-            SetFolderPath("epgDataFolderPath", "EPG Data folder path saved successfully.");
+            SetFolderPath("epgDataFolderPath", setEpgDataFolderPath_Input, "EPG Data folder path saved successfully.");
 
         private void setM3UPlaylistsPath_Btn_Click(object sender, RoutedEventArgs e) =>
-            SetFolderPath("M3UFolderPath", "M3U Playlists folder path saved successfully.");
+            SetFolderPath("M3UFolderPath", setM3UPlaylistsPath_Input, "M3U Playlists path saved successfully.");
     }
 }
