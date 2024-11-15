@@ -25,7 +25,7 @@
 
                 <!--  VLC Path Section  -->
                 <materialDesign:Card
-                    Margin="0,10"
+                    Margin="0,10,10,0"
                     Padding="10"
                     Background="#424242">
                     <StackPanel>
@@ -55,7 +55,7 @@
 
                 <!--  Generic Player Path Section  -->
                 <materialDesign:Card
-                    Margin="0,10"
+                    Margin="0,10,10,0"
                     Padding="10"
                     Background="#424242">
                     <StackPanel>
@@ -85,7 +85,7 @@
 
                 <!--  Xtream Codes Users Folder Path Section  -->
                 <materialDesign:Card
-                    Margin="0,10"
+                    Margin="0,10,10,0"
                     Padding="10"
                     Background="#424242">
                     <StackPanel>
@@ -115,7 +115,7 @@
 
                 <!--  M3U Playlists Path Section  -->
                 <materialDesign:Card
-                    Margin="0,10"
+                    Margin="0,10,10,0"
                     Padding="10"
                     Background="#424242">
                     <StackPanel>
@@ -145,7 +145,7 @@
 
                 <!--  EPG Data Folder Path Section  -->
                 <materialDesign:Card
-                    Margin="0,10"
+                    Margin="0,10,10,0"
                     Padding="10"
                     Background="#424242">
                     <StackPanel>
@@ -175,7 +175,7 @@
 
                 <!--  Auto-Update and EPG Interval Section  -->
                 <materialDesign:Card
-                    Margin="0,10"
+                    Margin="0,10,10,0"
                     Padding="10"
                     Background="#424242">
                     <StackPanel>
