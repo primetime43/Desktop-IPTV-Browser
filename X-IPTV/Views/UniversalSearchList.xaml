@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:X_IPTV.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:strings="clr-namespace:X_IPTV"
     MinWidth="800"
     MinHeight="450"
     d:DesignHeight="450"
@@ -98,26 +99,40 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!--  Header for search box  -->
         <StackPanel
             Grid.Row="0"
             Margin="10"
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
-            Orientation="Horizontal">
+            Orientation="Vertical">
+
+            <!--  Search Header  -->
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="16"
+                    Foreground="White"
+                    Text="Search: " />
+                <TextBox
+                    x:Name="USearchTextBox"
+                    Width="200"
+                    Margin="5"
+                    VerticalAlignment="Center"
+                    Background="White"
+                    TextChanged="USearchTextBox_TextChanged" />
+            </StackPanel>
+
+            <!--  Instructional Text  -->
             <TextBlock
-                VerticalAlignment="Center"
-                FontSize="16"
-                Foreground="White"
-                Text="Search: " />
-            <TextBox
-                x:Name="USearchTextBox"
-                Width="200"
                 Margin="5"
-                VerticalAlignment="Center"
-                Background="White"
-                TextChanged="USearchTextBox_TextChanged" />
+                HorizontalAlignment="Center"
+                FontSize="12"
+                Foreground="LightGray"
+                Text="{x:Static strings:AppStrings.ChannelsHint}"
+                TextAlignment="Center"
+                TextWrapping="Wrap" />
         </StackPanel>
+
 
         <!--  ListBox placed in the second row  -->
         <ListBox
