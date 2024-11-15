@@ -24,9 +24,28 @@ namespace X_IPTV.Views
         private void OpenStreamInPlayer(object sender, RoutedEventArgs e)
         {
             string streamUrl = streamURLtxtBox.Text;
-            // Open the URL in VLC or another media player
-            // Eventually add a default player on the settings page and use that to determine what/how to open
-            //System.Diagnostics.Process.Start("vlc.exe", streamUrl);
+
+            if (string.IsNullOrEmpty(streamUrl))
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Stream URL is empty.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            // Get the default player from ConfigurationManager
+            string defaultPlayer = ConfigurationManager.GetDefaultPlayer();
+
+            if (defaultPlayer == "vlc")
+            {
+                OpenStreamInPlayer(streamUrl, "vlcLocationPath");
+            }
+            else if (defaultPlayer == "generic")
+            {
+                OpenStreamInPlayer(streamUrl, "genericPlayerPath");
+            }
+            else
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Default player is not set or invalid.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // selectedPlayer can be the vlc or any generic player

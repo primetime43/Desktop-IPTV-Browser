@@ -217,6 +217,44 @@
                     </StackPanel>
                 </materialDesign:Card>
 
+                <!--  Default Player Section  -->
+                <materialDesign:Card
+                    Margin="0,10,10,0"
+                    Padding="10"
+                    Background="#424242">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,10"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="Default Player" />
+                        <StackPanel Margin="0,10" Orientation="Horizontal">
+                            <RadioButton
+                                x:Name="vlcRadioButton"
+                                Content="VLC"
+                                Foreground="White"
+                                GroupName="DefaultPlayer"
+                                IsChecked="{Binding IsVlcDefault, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <RadioButton
+                                x:Name="genericPlayerRadioButton"
+                                Margin="20,0,0,0"
+                                Content="Generic Player"
+                                Foreground="White"
+                                GroupName="DefaultPlayer"
+                                IsChecked="{Binding IsGenericPlayerDefault, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <Button
+                            x:Name="saveDefaultPlayer_Btn"
+                            Width="100"
+                            Height="30"
+                            Margin="10,10,0,0"
+                            HorizontalAlignment="Left"
+                            Click="SaveDefaultPlayer_Btn_Click"
+                            Content="Save" />
+                    </StackPanel>
+                </materialDesign:Card>
+
+
                 <!--  Action Buttons Section  -->
                 <StackPanel
                     Margin="0,20,0,0"

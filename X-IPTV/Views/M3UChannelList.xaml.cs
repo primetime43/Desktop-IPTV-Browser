@@ -11,7 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using X_IPTV.Models;
 using static X_IPTV.M3UPlaylist;
-using static X_IPTV.XtreamCodes;
+using X_IPTV.Utilities;
 
 namespace X_IPTV.Views
 {
@@ -74,13 +74,11 @@ namespace X_IPTV.Views
                         Clipboard.SetText(m3uChannel.StreamUrl);
                         Xceed.Wpf.Toolkit.MessageBox.Show("URL copied to clipboard.");
                         break;
-                    case "OpenInVLC":
-                        ChannelOptions.OpenStreamInPlayer(m3uChannel.StreamUrl, "vlcLocationPath");
-                        //Xceed.Wpf.Toolkit.MessageBox.Show("Opening in VLC...");
-                        break;
                     case "OpenInPlayer":
-                        ChannelOptions.OpenStreamInPlayer(m3uChannel.StreamUrl, "genericPlayerPath");
-                        //Xceed.Wpf.Toolkit.MessageBox.Show("Opening in Player...");
+                        string defaultPlayer = ConfigurationManager.GetDefaultPlayer();
+                        string playerKey = defaultPlayer == "vlc" ? "vlcLocationPath" : "genericPlayerPath";
+
+                        ChannelOptions.OpenStreamInPlayer(m3uChannel.StreamUrl, playerKey);
                         break;
                     default:
                         Xceed.Wpf.Toolkit.MessageBox.Show("Unknown action.");

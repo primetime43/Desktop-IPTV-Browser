@@ -11,12 +11,15 @@ namespace X_IPTV.Views
 {
     public partial class SettingsPage : Page
     {
+        public bool IsVlcDefault { get; set; }
+        public bool IsGenericPlayerDefault { get; set; }
         public SettingsPage()
         {
             InitializeComponent();
             LoadConfigPaths();
             InitializeAutoUpdate();
             LoadLastEPGUpdateTime();
+            LoadDefaultPlayerSetting();
         }
 
         private void InitializeAutoUpdate()
@@ -27,6 +30,21 @@ namespace X_IPTV.Views
 
             int updateIntervalHours = int.TryParse(ConfigurationManager.GetSetting("epgUpdateIntervalHours"), out int interval) ? interval : 6;
             epgUpdateIntervalSlider.Value = updateIntervalHours;
+        }
+
+        private void LoadDefaultPlayerSetting()
+        {
+            string defaultPlayer = ConfigurationManager.GetSetting("defaultPlayer");
+            IsVlcDefault = defaultPlayer == "vlc";
+            IsGenericPlayerDefault = defaultPlayer == "generic";
+            DataContext = this;
+        }
+
+        private void SaveDefaultPlayer_Btn_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedPlayer = IsVlcDefault ? "vlc" : "generic";
+            ConfigurationManager.UpdateSetting("defaultPlayer", selectedPlayer);
+            Xceed.Wpf.Toolkit.MessageBox.Show($"Default player set to: {selectedPlayer}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void UpdateAutoUpdateIndicator(bool enabled)

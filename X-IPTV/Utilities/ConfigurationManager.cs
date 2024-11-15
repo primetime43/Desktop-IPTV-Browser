@@ -19,7 +19,8 @@ namespace X_IPTV.Utilities
                 _configuration = new JObject
                 {
                     ["vlcLocationPath"] = "", // setting for vlc player
-                    ["genericPlayerPath"] = "", // setting for any generic player
+                    ["genericPlayerPath"] = "", // setting for any generic
+                    ["defaultPlayer"] = "vlc", // Default player is VLC
                     ["usersFolderPath"] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "XtreamUsers"),
                     ["M3UFolderPath"] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "M3U"),
                     ["epgDataFolderPath"] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EPGData"),
@@ -39,6 +40,7 @@ namespace X_IPTV.Utilities
                 _configuration["usersFolderPath"] = string.IsNullOrEmpty(_configuration["usersFolderPath"]?.ToString()) ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "XtreamUsers") : _configuration["usersFolderPath"];
                 _configuration["M3UFolderPath"] = string.IsNullOrEmpty(_configuration["M3UFolderPath"]?.ToString()) ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "M3U") : _configuration["M3UFolderPath"];
                 _configuration["epgDataFolderPath"] = string.IsNullOrEmpty(_configuration["epgDataFolderPath"]?.ToString()) ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EPGData") : _configuration["epgDataFolderPath"];
+                _configuration["defaultPlayer"] = string.IsNullOrEmpty(_configuration["defaultPlayer"]?.ToString()) ? "vlc" : _configuration["defaultPlayer"]; // Default to VLC if not set
 
                 // Save any updates back to the file
                 File.WriteAllText(filePath, _configuration.ToString());
@@ -48,6 +50,21 @@ namespace X_IPTV.Utilities
         public static string GetSetting(string key)
         {
             return _configuration?[key]?.ToString();
+        }
+
+        public static string GetDefaultPlayer()
+        {
+            return GetSetting("defaultPlayer") ?? "vlc"; // Default to VLC if the setting is missing
+        }
+
+        public static void SetDefaultPlayer(string player)
+        {
+            if (player != "vlc" && player != "generic")
+            {
+                throw new ArgumentException("Invalid player type. Only 'vlc' or 'generic' are allowed.");
+            }
+
+            UpdateSetting("defaultPlayer", player);
         }
 
         // Update a specific setting in the configuration
