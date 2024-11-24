@@ -28,53 +28,66 @@ namespace Desktop_IPTV_Browser.Views
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (LoginMethodSelector.SelectedValue is ComboBoxItem selectedItem)
+            // Disable buttons and show loading indicator
+            DisableButtons();
+            ShowLoadingIndicator("Connecting, please wait...");
+
+            try
             {
-                if (selectedItem.Tag?.ToString() == "Xtream")
+                if (LoginMethodSelector.SelectedValue is ComboBoxItem selectedItem)
                 {
-                    // Xtream Login Logic
-                    string server = ServerUrlTxt.Text;
-                    string username = XtreamUserTxt.Text;
-                    string password = XtreamPassBox.Password;
-                    string port = PortTxt.Text;
-                    bool useHttps = HttpsCheckBox.IsChecked == true;
-
-                    try
+                    if (selectedItem.Tag?.ToString() == "Xtream")
                     {
-                        string connectionString = useHttps
-                            ? $"https://{server}:{port}/player_api.php?username={username}&password={password}"
-                            : $"http://{server}:{port}/player_api.php?username={username}&password={password}";
+                        // Xtream Login Logic
+                        string server = ServerUrlTxt.Text;
+                        string username = XtreamUserTxt.Text;
+                        string password = XtreamPassBox.Password;
+                        string port = PortTxt.Text;
+                        bool useHttps = HttpsCheckBox.IsChecked == true;
 
-                        bool loginSuccess = await _xtreamLoginService.CheckLoginConnection(server, username, password, port, useHttps, _cts.Token);
-                        MessageBox.Show(loginSuccess ? "Xtream login successful!" : "Xtream login failed.");
+                        try
+                        {
+                            string connectionString = useHttps
+                                ? $"https://{server}:{port}/player_api.php?username={username}&password={password}"
+                                : $"http://{server}:{port}/player_api.php?username={username}&password={password}";
+
+                            bool loginSuccess = await _xtreamLoginService.CheckLoginConnection(server, username, password, port, useHttps, _cts.Token);
+                            MessageBox.Show(loginSuccess ? "Xtream login successful!" : "Xtream login failed.");
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error during Xtream login: {ex.Message}");
+                        }
                     }
-                    catch (Exception ex)
+                    else if (selectedItem.Tag?.ToString() == "M3U")
                     {
-                        MessageBox.Show($"Error during Xtream login: {ex.Message}");
+                        // M3U Login Logic
+                        string m3uUrl = M3UUrlTxt.Text;
+                        string epgUrl = M3UEpgUrlTxt.Text;
+
+                        if (string.IsNullOrWhiteSpace(m3uUrl))
+                        {
+                            MessageBox.Show("Please provide a valid M3U URL.");
+                            return;
+                        }
+
+                        try
+                        {
+                            await _m3uLoginService.ConnectM3U(m3uUrl, epgUrl, _cts.Token);
+                            MessageBox.Show("M3U connection successful!");
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error during M3U connection: {ex.Message}");
+                        }
                     }
                 }
-                else if (selectedItem.Tag?.ToString() == "M3U")
-                {
-                    // M3U Login Logic
-                    string m3uUrl = M3UUrlTxt.Text;
-                    string epgUrl = M3UEpgUrlTxt.Text;
-
-                    if (string.IsNullOrWhiteSpace(m3uUrl))
-                    {
-                        MessageBox.Show("Please provide a valid M3U URL.");
-                        return;
-                    }
-
-                    try
-                    {
-                        await _m3uLoginService.ConnectM3U(m3uUrl, epgUrl, _cts.Token);
-                        MessageBox.Show("M3U connection successful!");
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error during M3U connection: {ex.Message}");
-                    }
-                }
+            }
+            finally
+            {
+                // Re-enable buttons and hide loading indicator
+                EnableButtons();
+                HideLoadingIndicator();
             }
         }
 
@@ -263,6 +276,31 @@ namespace Desktop_IPTV_Browser.Views
             {
                 XtreamPassTxt.Text = XtreamPassBox.Password;
             }
+        }
+
+        private void DisableButtons()
+        {
+            SaveButton.IsEnabled = false;
+            ConnectButton.IsEnabled = false;
+            CancelButton.IsEnabled = false;
+        }
+
+        private void EnableButtons()
+        {
+            SaveButton.IsEnabled = true;
+            ConnectButton.IsEnabled = true;
+            CancelButton.IsEnabled = true;
+        }
+
+        private void ShowLoadingIndicator(string message)
+        {
+            LoadingMessage.Text = message;
+            LoadingOverlay.Visibility = Visibility.Visible;
+        }
+
+        private void HideLoadingIndicator()
+        {
+            LoadingOverlay.Visibility = Visibility.Collapsed;
         }
     }
 }
