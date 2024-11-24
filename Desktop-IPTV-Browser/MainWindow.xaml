@@ -1,0 +1,96 @@
+﻿<Window
+    x:Class="Desktop_IPTV_Browser.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="WPF Gallery"
+    Width="1000"
+    Height="600"
+    mc:Ignorable="d">
+    <!--  Define all resources in one block  -->
+    <Window.Resources>
+        <!--  MergedDictionaries  -->
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!--  Define DataTemplates  -->
+            <DataTemplate x:Key="HomeTemplate">
+                <TextBlock
+                    FontSize="20"
+                    Foreground="Gray"
+                    Text="This is the Home page content." />
+            </DataTemplate>
+
+            <DataTemplate x:Key="DesignGuidanceTemplate">
+                <TextBlock
+                    FontSize="20"
+                    Foreground="Gray"
+                    Text="This is the Design Guidance content." />
+            </DataTemplate>
+
+            <DataTemplate x:Key="SamplesTemplate">
+                <TextBlock
+                    FontSize="20"
+                    Foreground="Gray"
+                    Text="This is the Samples content." />
+            </DataTemplate>
+
+            <DataTemplate x:Key="SettingsTemplate">
+                <TextBlock
+                    FontSize="20"
+                    Foreground="Gray"
+                    Text="This is the Settings page content." />
+            </DataTemplate>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <!--  Sidebar  -->
+        <DockPanel>
+            <StackPanel
+                Width="220"
+                Background="#1E1E2D"
+                DockPanel.Dock="Left">
+                <TextBlock
+                    Margin="10"
+                    FontSize="20"
+                    FontWeight="Bold"
+                    Foreground="White"
+                    Text="WPF Gallery Preview" />
+                <Separator Margin="10" />
+
+                <!--  ListBox for Navigation  -->
+                <ListBox
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Foreground="White"
+                    SelectedValue="{Binding SelectedPage}"
+                    SelectedValuePath="Tag">
+                    <ListBoxItem
+                        Padding="10"
+                        Content="Home"
+                        Tag="HomeTemplate" />
+                    <ListBoxItem
+                        Padding="10"
+                        Content="Design Guidance"
+                        Tag="DesignGuidanceTemplate" />
+                    <ListBoxItem
+                        Padding="10"
+                        Content="Samples"
+                        Tag="SamplesTemplate" />
+                    <ListBoxItem
+                        Padding="10"
+                        Content="Settings"
+                        Tag="SettingsTemplate" />
+                </ListBox>
+
+            </StackPanel>
+
+            <!--  Main Content  -->
+            <ContentControl Margin="20" ContentTemplate="{Binding SelectedPageTemplate}" />
+        </DockPanel>
+    </Grid>
+</Window>
