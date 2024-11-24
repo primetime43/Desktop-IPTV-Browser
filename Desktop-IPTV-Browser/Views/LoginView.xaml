@@ -9,9 +9,17 @@
     mc:Ignorable="d">
 
     <Grid Margin="20" Background="{DynamicResource Fluent.Background}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
         <!--  Login Method Selector  -->
         <StackPanel
-            Margin="0,20,0,0"
+            Grid.Row="0"
+            Margin="0,20,0,10"
             HorizontalAlignment="Center"
             VerticalAlignment="Top">
             <TextBlock
@@ -31,13 +39,32 @@
             </ComboBox>
         </StackPanel>
 
+        <!--  Saved Logins  -->
+        <StackPanel
+            Grid.Row="1"
+            Margin="0,10,0,20"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top">
+            <TextBlock FontWeight="Bold" Text="Saved Logins" />
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <ComboBox
+                    x:Name="SavedLoginsComboBox"
+                    Width="200"
+                    Margin="0,10,10,10" />
+                <Button
+                    Width="100"
+                    Click="LoadSavedLogin_Click"
+                    Content="Load" />
+            </StackPanel>
+        </StackPanel>
+
         <!--  Login Input Fields  -->
         <StackPanel
+            Grid.Row="2"
             Width="350"
-            Margin="0,100,0,0"
+            Margin="0,10,0,10"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Orientation="Vertical">
+            VerticalAlignment="Top">
             <!--  Xtream Login Fields  -->
             <StackPanel
                 x:Name="XtreamFields"
@@ -63,14 +90,38 @@
                     Width="300"
                     Margin="0,10,0,10" />
                 <TextBlock Text="Password" />
-                <TextBox
-                    x:Name="XtreamPassTxt"
-                    Width="300"
-                    Margin="0,10,0,10" />
+
+                <!--  Password Fields  -->
+                <Grid>
+                    <!--  PasswordBox for hidden password  -->
+                    <PasswordBox
+                        x:Name="XtreamPassBox"
+                        Width="300"
+                        Margin="0,10,0,10"
+                        PasswordChanged="XtreamPassBox_PasswordChanged" />
+
+                    <!--  TextBox for visible password  -->
+                    <TextBox
+                        x:Name="XtreamPassTxt"
+                        Width="300"
+                        Margin="0,10,0,10"
+                        Text="{Binding ElementName=XtreamPassBox, Path=Password}"
+                        Visibility="Collapsed" />
+                </Grid>
+
+                <!--  Show/Hide Password CheckBox  -->
+                <CheckBox
+                    Margin="0,0,0,10"
+                    Checked="ShowPassword_Checked"
+                    Content="Show Password"
+                    Unchecked="ShowPassword_Unchecked" />
             </StackPanel>
 
             <!--  M3U Login Fields  -->
-            <StackPanel x:Name="M3UFields" Visibility="Collapsed">
+            <StackPanel
+                x:Name="M3UFields"
+                Orientation="Vertical"
+                Visibility="Collapsed">
                 <TextBlock Text="M3U Playlist URL" />
                 <TextBox
                     x:Name="M3UUrlTxt"
@@ -86,9 +137,9 @@
 
         <!--  Action Buttons  -->
         <StackPanel
-            Margin="0,0,0,20"
+            Grid.Row="3"
+            Margin="0,20,0,20"
             HorizontalAlignment="Center"
-            VerticalAlignment="Bottom"
             Orientation="Horizontal">
             <Button
                 Width="100"

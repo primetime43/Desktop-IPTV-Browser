@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
@@ -31,7 +32,7 @@ namespace Desktop_IPTV_Browser.Services
                     var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
                     JObject json = JObject.Parse(responseData);
 
-                    if (json["user_info"]?["auth"].ToString() == "1")
+                    if (json["user_info"]?["auth"]?.ToString() == "1")
                     {
                         return true; // Login successful
                     }
@@ -39,7 +40,6 @@ namespace Desktop_IPTV_Browser.Services
             }
             catch (Exception ex)
             {
-                // Handle exceptions
                 Console.WriteLine($"Error checking login connection: {ex.Message}");
             }
 
@@ -71,7 +71,20 @@ namespace Desktop_IPTV_Browser.Services
             {
                 return JObject.Parse(File.ReadAllText(filePath));
             }
+
             return null;
+        }
+
+        public IEnumerable<string> GetSavedLogins()
+        {
+            if (!Directory.Exists(_saveDir))
+                Directory.CreateDirectory(_saveDir);
+
+            var files = Directory.GetFiles(_saveDir, "*.json");
+            foreach (var file in files)
+            {
+                yield return Path.GetFileNameWithoutExtension(file);
+            }
         }
     }
 }

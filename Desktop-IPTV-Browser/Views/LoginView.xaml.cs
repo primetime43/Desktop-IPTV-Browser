@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,19 +20,25 @@ namespace Desktop_IPTV_Browser.Views
             InitializeComponent();
             _xtreamLoginService = new XtreamLoginService(); // Initialize the service
             _cts = new CancellationTokenSource();
+
+            LoadSavedLogins();
         }
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
         {
             string server = ServerUrlTxt.Text;
             string username = XtreamUserTxt.Text;
-            string password = XtreamPassTxt.Text;
+            string password = XtreamPassBox.Password;
             string port = PortTxt.Text;
             bool useHttps = HttpsCheckBox.IsChecked == true;
 
             try
             {
-                // Attempt to connect using the XtreamLoginService
+                string connectionString = useHttps
+                    ? $"https://{server}:{port}/player_api.php?username={username}&password={password}"
+                    : $"http://{server}:{port}/player_api.php?username={username}&password={password}";
+
+                // Attempt to connect
                 bool loginSuccess = await _xtreamLoginService.CheckLoginConnection(server, username, password, port, useHttps, _cts.Token);
                 if (loginSuccess)
                 {
@@ -44,7 +51,6 @@ namespace Desktop_IPTV_Browser.Views
             }
             catch (TaskCanceledException)
             {
-                // Handle cancellation
                 MessageBox.Show("Login process was canceled.");
             }
             catch (Exception ex)
@@ -53,15 +59,36 @@ namespace Desktop_IPTV_Browser.Views
             }
         }
 
+        private void ShowPassword_Checked(object sender, RoutedEventArgs e)
+        {
+            XtreamPassTxt.Visibility = Visibility.Visible;
+            XtreamPassBox.Visibility = Visibility.Collapsed;
+            XtreamPassTxt.Text = XtreamPassBox.Password;
+        }
+
+        private void ShowPassword_Unchecked(object sender, RoutedEventArgs e)
+        {
+            XtreamPassTxt.Visibility = Visibility.Collapsed;
+            XtreamPassBox.Visibility = Visibility.Visible;
+            XtreamPassBox.Password = XtreamPassTxt.Text;
+        }
+
+        private void XtreamPassBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (XtreamPassTxt.Visibility == Visibility.Visible)
+            {
+                XtreamPassTxt.Text = XtreamPassBox.Password;
+            }
+        }
+
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             string server = ServerUrlTxt.Text;
             string username = XtreamUserTxt.Text;
-            string password = XtreamPassTxt.Text;
+            string password = XtreamPassBox.Password;
             string port = PortTxt.Text;
             bool useHttps = HttpsCheckBox.IsChecked == true;
 
-            // Validate username
             if (string.IsNullOrWhiteSpace(username))
             {
                 MessageBox.Show("Please enter a username.");
@@ -73,6 +100,7 @@ namespace Desktop_IPTV_Browser.Views
                 // Save user data using the XtreamLoginService
                 _xtreamLoginService.SaveUserData(username, password, server, port, useHttps);
                 MessageBox.Show("User data saved successfully.");
+                LoadSavedLogins(); // Refresh saved logins
             }
             catch (Exception ex)
             {
@@ -82,9 +110,31 @@ namespace Desktop_IPTV_Browser.Views
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            // Cancel any ongoing login operation
             _cts.Cancel();
             MessageBox.Show("Operation canceled.");
+        }
+
+        private void LoadSavedLogin_Click(object sender, RoutedEventArgs e)
+        {
+            if (SavedLoginsComboBox.SelectedItem is not string selectedLogin)
+            {
+                MessageBox.Show("Please select a saved login.");
+                return;
+            }
+
+            var userData = _xtreamLoginService.LoadUserData(selectedLogin);
+            if (userData != null)
+            {
+                ServerUrlTxt.Text = userData["Server"]?.ToString();
+                XtreamUserTxt.Text = userData["Username"]?.ToString();
+                XtreamPassBox.Password = userData["Password"]?.ToString();
+                PortTxt.Text = userData["Port"]?.ToString();
+                HttpsCheckBox.IsChecked = userData["UseHttps"]?.ToObject<bool>();
+            }
+            else
+            {
+                MessageBox.Show("Failed to load the saved login.");
+            }
         }
 
         private void LoginMethodSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -97,19 +147,26 @@ namespace Desktop_IPTV_Browser.Views
                     switch (selectedItem?.Tag?.ToString())
                     {
                         case "Xtream":
-                            // Set visibility for Xtream login fields
                             XtreamFields.Visibility = Visibility.Visible;
                             M3UFields.Visibility = Visibility.Collapsed;
                             break;
                         case "M3U":
-                            // Set visibility for M3U login fields
                             XtreamFields.Visibility = Visibility.Collapsed;
                             M3UFields.Visibility = Visibility.Visible;
                             break;
-                        default:
-                            break;
                     }
                 }
+            }
+        }
+
+        private void LoadSavedLogins()
+        {
+            var savedLogins = _xtreamLoginService.GetSavedLogins();
+            SavedLoginsComboBox.Items.Clear();
+
+            foreach (var login in savedLogins)
+            {
+                SavedLoginsComboBox.Items.Add(login);
             }
         }
     }
