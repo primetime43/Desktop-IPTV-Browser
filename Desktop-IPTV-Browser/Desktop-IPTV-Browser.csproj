@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentWPF" Version="0.10.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

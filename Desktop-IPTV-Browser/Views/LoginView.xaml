@@ -33,23 +33,37 @@
 
         <!--  Login Input Fields  -->
         <StackPanel
+            Width="350"
             Margin="0,100,0,0"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center">
+            VerticalAlignment="Center"
+            Orientation="Vertical">
             <!--  Xtream Login Fields  -->
-            <StackPanel x:Name="XtreamFields" Visibility="Visible">
-                <TextBlock Text="Xtream Server URL" />
+            <StackPanel
+                x:Name="XtreamFields"
+                Orientation="Vertical"
+                Visibility="Visible">
+                <TextBlock Text="Server URL" />
                 <TextBox
-                    x:Name="XtreamServerTxt"
+                    x:Name="ServerUrlTxt"
                     Width="300"
                     Margin="0,10,0,10" />
+                <TextBlock Text="Port" />
+                <TextBox
+                    x:Name="PortTxt"
+                    Width="300"
+                    Margin="0,10,0,10" />
+                <CheckBox
+                    x:Name="HttpsCheckBox"
+                    Margin="0,10,0,10"
+                    Content="Use HTTPS" />
                 <TextBlock Text="Username" />
                 <TextBox
                     x:Name="XtreamUserTxt"
                     Width="300"
                     Margin="0,10,0,10" />
                 <TextBlock Text="Password" />
-                <PasswordBox
+                <TextBox
                     x:Name="XtreamPassTxt"
                     Width="300"
                     Margin="0,10,0,10" />
