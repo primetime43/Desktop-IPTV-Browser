@@ -23,71 +23,58 @@ namespace Desktop_IPTV_Browser.Views
             _m3uLoginService = new M3ULoginService();
             _cts = new CancellationTokenSource();
 
-            LoadSavedLogins();
+            LoadSavedLogins(); // Initial load of saved logins
         }
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (LoginMethodSelector.SelectedValue is ComboBoxItem selectedItem && selectedItem.Tag?.ToString() == "Xtream")
+            if (LoginMethodSelector.SelectedValue is ComboBoxItem selectedItem)
             {
-                string server = ServerUrlTxt.Text;
-                string username = XtreamUserTxt.Text;
-                string password = XtreamPassBox.Password;
-                string port = PortTxt.Text;
-                bool useHttps = HttpsCheckBox.IsChecked == true;
-
-                try
+                if (selectedItem.Tag?.ToString() == "Xtream")
                 {
-                    string connectionString = useHttps
-                        ? $"https://{server}:{port}/player_api.php?username={username}&password={password}"
-                        : $"http://{server}:{port}/player_api.php?username={username}&password={password}";
+                    // Xtream Login Logic
+                    string server = ServerUrlTxt.Text;
+                    string username = XtreamUserTxt.Text;
+                    string password = XtreamPassBox.Password;
+                    string port = PortTxt.Text;
+                    bool useHttps = HttpsCheckBox.IsChecked == true;
 
-                    bool loginSuccess = await _xtreamLoginService.CheckLoginConnection(server, username, password, port, useHttps, _cts.Token);
-                    MessageBox.Show(loginSuccess ? "Login successful!" : "Login failed. Please check your credentials.");
+                    try
+                    {
+                        string connectionString = useHttps
+                            ? $"https://{server}:{port}/player_api.php?username={username}&password={password}"
+                            : $"http://{server}:{port}/player_api.php?username={username}&password={password}";
+
+                        bool loginSuccess = await _xtreamLoginService.CheckLoginConnection(server, username, password, port, useHttps, _cts.Token);
+                        MessageBox.Show(loginSuccess ? "Xtream login successful!" : "Xtream login failed.");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error during Xtream login: {ex.Message}");
+                    }
                 }
-                catch (TaskCanceledException)
+                else if (selectedItem.Tag?.ToString() == "M3U")
                 {
-                    MessageBox.Show("Login process was canceled.");
+                    // M3U Login Logic
+                    string m3uUrl = M3UUrlTxt.Text;
+                    string epgUrl = M3UEpgUrlTxt.Text;
+
+                    if (string.IsNullOrWhiteSpace(m3uUrl))
+                    {
+                        MessageBox.Show("Please provide a valid M3U URL.");
+                        return;
+                    }
+
+                    try
+                    {
+                        await _m3uLoginService.ConnectM3U(m3uUrl, epgUrl, _cts.Token);
+                        MessageBox.Show("M3U connection successful!");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error during M3U connection: {ex.Message}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"An error occurred: {ex.Message}");
-                }
-            }
-            else if (LoginMethodSelector.SelectedValue is ComboBoxItem m3uItem && m3uItem.Tag?.ToString() == "M3U")
-            {
-                string m3uUrl = M3UUrlTxt.Text;
-                string epgUrl = M3UEpgUrlTxt.Text;
-
-                if (string.IsNullOrWhiteSpace(m3uUrl))
-                {
-                    MessageBox.Show("Please provide a valid M3U URL.");
-                    return;
-                }
-
-                MessageBox.Show("M3U connection logic to be implemented.");
-            }
-        }
-
-        private void ShowPassword_Checked(object sender, RoutedEventArgs e)
-        {
-            XtreamPassTxt.Visibility = Visibility.Visible;
-            XtreamPassBox.Visibility = Visibility.Collapsed;
-            XtreamPassTxt.Text = XtreamPassBox.Password;
-        }
-
-        private void ShowPassword_Unchecked(object sender, RoutedEventArgs e)
-        {
-            XtreamPassTxt.Visibility = Visibility.Collapsed;
-            XtreamPassBox.Visibility = Visibility.Visible;
-            XtreamPassBox.Password = XtreamPassTxt.Text;
-        }
-
-        private void XtreamPassBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            if (XtreamPassTxt.Visibility == Visibility.Visible)
-            {
-                XtreamPassTxt.Text = XtreamPassBox.Password;
             }
         }
 
@@ -97,6 +84,7 @@ namespace Desktop_IPTV_Browser.Views
             {
                 if (selectedItem.Tag?.ToString() == "Xtream")
                 {
+                    // Save Xtream Login
                     string server = ServerUrlTxt.Text;
                     string username = XtreamUserTxt.Text;
                     string password = XtreamPassBox.Password;
@@ -117,11 +105,12 @@ namespace Desktop_IPTV_Browser.Views
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Failed to save Xtream login: {ex.Message}");
+                        MessageBox.Show($"Error saving Xtream login: {ex.Message}");
                     }
                 }
                 else if (selectedItem.Tag?.ToString() == "M3U")
                 {
+                    // Save M3U Login
                     string fileName = PromptForFileName("Enter the name for the M3U login:");
                     if (string.IsNullOrWhiteSpace(fileName))
                     {
@@ -146,26 +135,10 @@ namespace Desktop_IPTV_Browser.Views
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Failed to save M3U login: {ex.Message}");
+                        MessageBox.Show($"Error saving M3U login: {ex.Message}");
                     }
                 }
             }
-        }
-
-        private string PromptForFileName(string message)
-        {
-            var inputDialog = new InputDialog(message);
-            if (inputDialog.ShowDialog() == true)
-            {
-                return inputDialog.ResponseText;
-            }
-            return null;
-        }
-
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            _cts.Cancel();
-            MessageBox.Show("Operation canceled.");
         }
 
         private void LoadSavedLogin_Click(object sender, RoutedEventArgs e)
@@ -204,7 +177,8 @@ namespace Desktop_IPTV_Browser.Views
 
         private void LoginMethodSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SavedLoginsComboBox?.Items.Clear(); // Clear saved logins to avoid mix-ups
+            SavedLoginsComboBox?.Items.Clear();
+
             if (e.AddedItems.Count > 0)
             {
                 var selectedItem = e.AddedItems[0] as ComboBoxItem;
@@ -216,10 +190,7 @@ namespace Desktop_IPTV_Browser.Views
                         case "Xtream":
                             XtreamFields.Visibility = Visibility.Visible;
                             M3UFields.Visibility = Visibility.Collapsed;
-
-                            // Load only Xtream logins
-                            var savedXtreamLogins = _xtreamLoginService.GetSavedLogins();
-                            foreach (var login in savedXtreamLogins)
+                            foreach (var login in _xtreamLoginService.GetSavedLogins())
                             {
                                 SavedLoginsComboBox.Items.Add(login);
                             }
@@ -228,10 +199,7 @@ namespace Desktop_IPTV_Browser.Views
                         case "M3U":
                             XtreamFields.Visibility = Visibility.Collapsed;
                             M3UFields.Visibility = Visibility.Visible;
-
-                            // Load only M3U logins
-                            var savedM3ULogins = _m3uLoginService.GetSavedLogins();
-                            foreach (var login in savedM3ULogins)
+                            foreach (var login in _m3uLoginService.GetSavedLogins())
                             {
                                 SavedLoginsComboBox.Items.Add(login);
                             }
@@ -243,30 +211,57 @@ namespace Desktop_IPTV_Browser.Views
 
         private void LoadSavedLogins()
         {
-            SavedLoginsComboBox.Items.Clear(); // Clear the ComboBox to refresh the data
-
+            SavedLoginsComboBox.Items.Clear();
             if (LoginMethodSelector.SelectedValue is ComboBoxItem selectedItem)
             {
-                switch (selectedItem.Tag?.ToString())
+                if (selectedItem.Tag?.ToString() == "Xtream")
                 {
-                    case "Xtream":
-                        // Load Xtream saved logins
-                        var savedXtreamLogins = _xtreamLoginService.GetSavedLogins();
-                        foreach (var login in savedXtreamLogins)
-                        {
-                            SavedLoginsComboBox.Items.Add(login);
-                        }
-                        break;
-
-                    case "M3U":
-                        // Load M3U saved logins
-                        var savedM3ULogins = _m3uLoginService.GetSavedLogins();
-                        foreach (var login in savedM3ULogins)
-                        {
-                            SavedLoginsComboBox.Items.Add(login);
-                        }
-                        break;
+                    foreach (var login in _xtreamLoginService.GetSavedLogins())
+                    {
+                        SavedLoginsComboBox.Items.Add(login);
+                    }
                 }
+                else if (selectedItem.Tag?.ToString() == "M3U")
+                {
+                    foreach (var login in _m3uLoginService.GetSavedLogins())
+                    {
+                        SavedLoginsComboBox.Items.Add(login);
+                    }
+                }
+            }
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            _cts.Cancel();
+            MessageBox.Show("Operation canceled.");
+        }
+
+        private string PromptForFileName(string message)
+        {
+            var inputDialog = new InputDialog(message);
+            return inputDialog.ShowDialog() == true ? inputDialog.ResponseText : null;
+        }
+
+        private void ShowPassword_Checked(object sender, RoutedEventArgs e)
+        {
+            XtreamPassTxt.Visibility = Visibility.Visible;
+            XtreamPassBox.Visibility = Visibility.Collapsed;
+            XtreamPassTxt.Text = XtreamPassBox.Password;
+        }
+
+        private void ShowPassword_Unchecked(object sender, RoutedEventArgs e)
+        {
+            XtreamPassTxt.Visibility = Visibility.Collapsed;
+            XtreamPassBox.Visibility = Visibility.Visible;
+            XtreamPassBox.Password = XtreamPassTxt.Text;
+        }
+
+        private void XtreamPassBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (XtreamPassTxt.Visibility == Visibility.Visible)
+            {
+                XtreamPassTxt.Text = XtreamPassBox.Password;
             }
         }
     }
