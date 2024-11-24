@@ -6,10 +6,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:views="clr-namespace:Desktop_IPTV_Browser.Views"
     Title="IPTV Browser"
-    Width="1000"
-    Height="600"
-    MinWidth="1000"
-    MinHeight="600"
+    Width="1200"
+    Height="800"
+    MinWidth="1200"
+    MinHeight="800"
     mc:Ignorable="d">
 
     <!--  Resources  -->
