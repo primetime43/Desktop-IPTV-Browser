@@ -1,0 +1,69 @@
+﻿<Window
+    x:Class="Desktop_IPTV_Browser.Views.InputDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Input"
+    Width="400"
+    Height="200"
+    Background="#1E1E1E"
+    Foreground="White"
+    ResizeMode="NoResize"
+    WindowStartupLocation="CenterScreen">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!--  Prompt Message  -->
+        <TextBlock
+            x:Name="PromptMessage"
+            Grid.Row="0"
+            Margin="0,0,0,10"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            FontSize="16"
+            FontWeight="Bold"
+            TextWrapping="Wrap" />
+
+        <!--  Input Field  -->
+        <TextBox
+            x:Name="InputTextBox"
+            Grid.Row="1"
+            MinHeight="30"
+            Margin="0,0,0,20"
+            Padding="10"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Center"
+            Background="#2E2E2E"
+            BorderBrush="#5A5A5A"
+            BorderThickness="1"
+            FontSize="14"
+            Foreground="White" />
+
+        <!--  Action Buttons  -->
+        <StackPanel
+            Grid.Row="2"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+            <Button
+                Width="80"
+                Height="30"
+                Margin="0,0,10,0"
+                Background="#007ACC"
+                Click="OkButton_Click"
+                Content="OK"
+                FontWeight="Bold"
+                Foreground="White" />
+            <Button
+                Width="80"
+                Height="30"
+                Background="#444"
+                Click="CancelButton_Click"
+                Content="Cancel"
+                FontWeight="Bold"
+                Foreground="White" />
+        </StackPanel>
+    </Grid>
+</Window>
