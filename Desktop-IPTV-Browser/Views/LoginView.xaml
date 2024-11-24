@@ -1,0 +1,96 @@
+﻿<UserControl
+    x:Class="Desktop_IPTV_Browser.Views.LoginView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="500"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+
+    <Grid Margin="20" Background="{DynamicResource Fluent.Background}">
+        <!--  Login Method Selector  -->
+        <StackPanel
+            Margin="0,20,0,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top">
+            <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="18"
+                FontWeight="Bold"
+                Text="Select Login Method" />
+            <ComboBox
+                x:Name="LoginMethodSelector"
+                Width="300"
+                SelectionChanged="LoginMethodSelector_SelectionChanged">
+                <ComboBoxItem
+                    Content="Xtream Login"
+                    IsSelected="True"
+                    Tag="Xtream" />
+                <ComboBoxItem Content="M3U Login" Tag="M3U" />
+            </ComboBox>
+        </StackPanel>
+
+        <!--  Login Input Fields  -->
+        <StackPanel
+            Margin="0,100,0,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <!--  Xtream Login Fields  -->
+            <StackPanel x:Name="XtreamFields" Visibility="Visible">
+                <TextBlock Text="Xtream Server URL" />
+                <TextBox
+                    x:Name="XtreamServerTxt"
+                    Width="300"
+                    Margin="0,10,0,10" />
+                <TextBlock Text="Username" />
+                <TextBox
+                    x:Name="XtreamUserTxt"
+                    Width="300"
+                    Margin="0,10,0,10" />
+                <TextBlock Text="Password" />
+                <PasswordBox
+                    x:Name="XtreamPassTxt"
+                    Width="300"
+                    Margin="0,10,0,10" />
+            </StackPanel>
+
+            <!--  M3U Login Fields  -->
+            <StackPanel x:Name="M3UFields" Visibility="Collapsed">
+                <TextBlock Text="M3U Playlist URL" />
+                <TextBox
+                    x:Name="M3UUrlTxt"
+                    Width="300"
+                    Margin="0,10,0,10" />
+                <TextBlock Text="EPG URL (optional)" />
+                <TextBox
+                    x:Name="M3UEpgUrlTxt"
+                    Width="300"
+                    Margin="0,10,0,10" />
+            </StackPanel>
+        </StackPanel>
+
+        <!--  Action Buttons  -->
+        <StackPanel
+            Margin="0,0,0,20"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            Orientation="Horizontal">
+            <Button
+                Width="100"
+                Margin="10"
+                Click="SaveButton_Click"
+                Content="Save" />
+            <Button
+                Width="100"
+                Margin="10"
+                Click="ConnectButton_Click"
+                Content="Connect" />
+            <Button
+                Width="100"
+                Margin="10"
+                Click="CancelButton_Click"
+                Content="Cancel" />
+        </StackPanel>
+    </Grid>
+</UserControl>

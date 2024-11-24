@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
+using Desktop_IPTV_Browser.Views;
 
 namespace Desktop_IPTV_Browser
 {
@@ -12,6 +14,9 @@ namespace Desktop_IPTV_Browser
             InitializeComponent();
             DataContext = this;
             SelectedPage = "HomeTemplate"; // Set the default page
+
+            var homeView = new HomeView();
+            var loginView = new LoginView();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -47,6 +52,16 @@ namespace Desktop_IPTV_Browser
         {
             // Update the template dynamically based on SelectedPage
             SelectedPageTemplate = FindResource(SelectedPage) as DataTemplate;
+        }
+
+        // Add this method to handle ListBox SelectionChanged event
+        private void MenuList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ListBox listBox && listBox.SelectedItem is ListBoxItem selectedItem)
+            {
+                // Update the SelectedPage property based on the selected item's Tag
+                SelectedPage = selectedItem.Tag?.ToString();
+            }
         }
     }
 }

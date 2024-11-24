@@ -4,24 +4,29 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="WPF Gallery"
+    xmlns:views="clr-namespace:Desktop_IPTV_Browser.Views"
+    Title="IPTV Browser"
     Width="1000"
     Height="600"
+    MinWidth="1000"
+    MinHeight="600"
     mc:Ignorable="d">
-    <!--  Define all resources in one block  -->
+
+    <!--  Resources  -->
     <Window.Resources>
-        <!--  MergedDictionaries  -->
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!--  Define DataTemplates  -->
+            <!--  Reference UserControls  -->
             <DataTemplate x:Key="HomeTemplate">
-                <TextBlock
-                    FontSize="20"
-                    Foreground="Gray"
-                    Text="This is the Home page content." />
+                <views:HomeView />
+            </DataTemplate>
+
+            <!--  LoginView  -->
+            <DataTemplate x:Key="LoginTemplate">
+                <views:LoginView />
             </DataTemplate>
 
             <DataTemplate x:Key="DesignGuidanceTemplate">
@@ -47,50 +52,87 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <!--  Sidebar  -->
-        <DockPanel>
-            <StackPanel
-                Width="220"
-                Background="#1E1E2D"
-                DockPanel.Dock="Left">
-                <TextBlock
-                    Margin="10"
-                    FontSize="20"
-                    FontWeight="Bold"
-                    Foreground="White"
-                    Text="WPF Gallery Preview" />
-                <Separator Margin="10" />
+    <DockPanel>
+        <!--  Side Menu  -->
+        <StackPanel
+            Width="220"
+            Background="#2E2E2E"
+            DockPanel.Dock="Left">
+            <TextBlock
+                Margin="10"
+                HorizontalAlignment="Center"
+                FontSize="18"
+                FontWeight="Bold"
+                Foreground="White"
+                Text="Main Menu" />
 
-                <!--  ListBox for Navigation  -->
-                <ListBox
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Foreground="White"
-                    SelectedValue="{Binding SelectedPage}"
-                    SelectedValuePath="Tag">
-                    <ListBoxItem
-                        Padding="10"
-                        Content="Home"
-                        Tag="HomeTemplate" />
-                    <ListBoxItem
-                        Padding="10"
-                        Content="Design Guidance"
-                        Tag="DesignGuidanceTemplate" />
-                    <ListBoxItem
-                        Padding="10"
-                        Content="Samples"
-                        Tag="SamplesTemplate" />
-                    <ListBoxItem
-                        Padding="10"
-                        Content="Settings"
-                        Tag="SettingsTemplate" />
-                </ListBox>
+            <!--  Navigation ListBox  -->
+            <ListBox
+                x:Name="SideMenu"
+                Background="Transparent"
+                BorderThickness="0"
+                Foreground="White"
+                SelectedValue="{Binding SelectedPage}"
+                SelectedValuePath="Tag"
+                SelectionChanged="MenuList_SelectionChanged">
 
-            </StackPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,5" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="10,0"
+                                VerticalAlignment="Center"
+                                Text="{Binding Content}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
 
-            <!--  Main Content  -->
-            <ContentControl Margin="20" ContentTemplate="{Binding SelectedPageTemplate}" />
-        </DockPanel>
-    </Grid>
+                <!--  Navigation Items  -->
+                <ListBoxItem
+                    x:Name="LoginPage"
+                    Content="Login"
+                    Tag="LoginTemplate" />
+                <ListBoxItem
+                    x:Name="XtreamLoginPage"
+                    Content="Xtream Login"
+                    Tag="XtreamLoginTemplate" />
+                <ListBoxItem
+                    x:Name="M3ULoginPage"
+                    Content="M3U Login"
+                    Tag="M3ULoginTemplate" />
+                <ListBoxItem
+                    x:Name="CategoriesPage"
+                    Content="Categories"
+                    Tag="CategoriesTemplate"
+                    Visibility="Collapsed" />
+                <ListBoxItem
+                    x:Name="XtreamChannelsPage"
+                    Content="Xtream Channels"
+                    Tag="XtreamChannelsTemplate"
+                    Visibility="Collapsed" />
+                <ListBoxItem
+                    x:Name="M3UChannelPage"
+                    Content="M3U Channels"
+                    Tag="M3UChannelsTemplate"
+                    Visibility="Collapsed" />
+                <ListBoxItem
+                    x:Name="ChannelOptions"
+                    Content="Channel Options"
+                    Tag="ChannelOptionsTemplate"
+                    Visibility="Collapsed" />
+                <ListBoxItem
+                    x:Name="AllChannelsSearchPage"
+                    Content="Search For Channels"
+                    Tag="AllChannelsSearchTemplate"
+                    Visibility="Collapsed" />
+                <ListBoxItem
+                    x:Name="AppSettings"
+                    Content="Settings"
+                    Tag="SettingsTemplate" />
+            </ListBox>
+        </StackPanel>
+
+        <!--  Main Content  -->
+        <ContentControl Margin="20" ContentTemplate="{Binding SelectedPageTemplate}" />
+    </DockPanel>
 </Window>

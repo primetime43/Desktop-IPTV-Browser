@@ -9,4 +9,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FluentWPF" Version="0.10.2" />
+  </ItemGroup>
+
 </Project>
