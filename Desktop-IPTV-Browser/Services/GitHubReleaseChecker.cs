@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Net.Http.Json;
 
-namespace X_IPTV.Service
+namespace Desktop_IPTV_Browser.Service
 {
     class GitHubReleaseChecker
     {

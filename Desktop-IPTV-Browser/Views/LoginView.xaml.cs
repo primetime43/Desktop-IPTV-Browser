@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using Desktop_IPTV_Browser.Models;
 using Desktop_IPTV_Browser.Services;
 
 namespace Desktop_IPTV_Browser.Views
@@ -47,16 +49,42 @@ namespace Desktop_IPTV_Browser.Views
 
                         try
                         {
-                            string connectionString = useHttps
-                                ? $"https://{server}:{port}/player_api.php?username={username}&password={password}"
-                                : $"http://{server}:{port}/player_api.php?username={username}&password={password}";
-
+                            // Check login connection
                             bool loginSuccess = await _xtreamLoginService.CheckLoginConnection(server, username, password, port, useHttps, _cts.Token);
-                            MessageBox.Show(loginSuccess ? "Xtream login successful!" : "Xtream login failed.");
+                            if (!loginSuccess)
+                            {
+                                MessageBox.Show("Xtream login failed.");
+                                return;
+                            }
+
+                            MessageBox.Show("Xtream login successful!");
+
+                            // Retrieve playlist data (channels)
+                            ShowLoadingIndicator("Retrieving playlist data...");
+                            List<XtreamChannel> channels = await _xtreamLoginService.RetrieveXtreamPlaylistData(_cts.Token);
+                            GlobalData.XtreamChannels = channels; // Store channels in global data
+
+                            // Download EPG data
+                            ShowLoadingIndicator("Downloading EPG data...");
+                            var epgDataFilePath = await _xtreamLoginService.DownloadEPGData(_cts.Token);
+
+                            // Link channels with EPG data
+                            ShowLoadingIndicator("Linking channels with EPG data...");
+                            await _xtreamLoginService.LinkChannelsToEPGData(channels, epgDataFilePath, _cts.Token);
+
+                            MessageBox.Show("Playlist and EPG data retrieved successfully!");
+
+                            foreach (var channel in channels)
+                            {
+                                if (channel.EPGData != null)
+                                {
+                                    Debug.WriteLine($"{channel.ChannelName} - {channel.EPGData.Description}");
+                                }
+                            }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Error during Xtream login: {ex.Message}");
+                            MessageBox.Show($"Error during Xtream connection: {ex.Message}");
                         }
                     }
                     else if (selectedItem.Tag?.ToString() == "M3U")
