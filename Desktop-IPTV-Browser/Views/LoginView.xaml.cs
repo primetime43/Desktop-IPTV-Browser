@@ -70,7 +70,7 @@ namespace Desktop_IPTV_Browser.Views
 
                             // Link channels with EPG data
                             ShowLoadingIndicator("Linking channels with EPG data...");
-                            await _xtreamLoginService.LinkChannelsToEPGData(channels, epgDataFilePath, _cts.Token);
+                            GlobalData.XtreamChannels = await _xtreamLoginService.LinkChannelsToEPGData(channels, epgDataFilePath, _cts.Token);
 
                             MessageBox.Show("Playlist and EPG data retrieved successfully!");
 
