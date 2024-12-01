@@ -28,15 +28,19 @@ namespace X_IPTV.Views
     /// </summary>
     public partial class M3ULogin : Page
     {
+        private static string M3UFolderPath;
         public M3ULogin()
         {
             InitializeComponent();
+
+            string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            M3UFolderPath = Path.Combine(assemblyFolder, "M3U");
         }
 
         private void M3U_loadButton_Click(object sender, RoutedEventArgs e)
         {
             // Retrieve the M3UFolderPath from the configuration
-            string M3UFolderPath = ConfigurationManager.GetSetting("M3UFolderPath");
+            M3UFolderPath = ConfigurationManager.GetSetting("M3UFolderPath");
             if (string.IsNullOrEmpty(M3UFolderPath))
             {
                 // If M3UFolderPath is not set, fall back to a default path
@@ -130,8 +134,8 @@ namespace X_IPTV.Views
 
                     //var epgDataForChannel = Instance.M3UEPGDataList.Where(e => e.ChannelId == "someChannelId").ToList();
 
-                    // Update the lastEpgDataLoadTime setting with the current date and time in ISO 8601 format
-                    ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
+                    // Update the lastEpgDataLoadTime setting with the local machine's current date and time in ISO 8601 format
+                    ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
                 }
 
                 busy_ind.IsBusy = false;
@@ -149,6 +153,37 @@ namespace X_IPTV.Views
             catch (OperationCanceledException) { }
 
             _cts = new CancellationTokenSource();//reset the token
+        }
+
+        private void OpenUsersFolderBtn_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (Directory.Exists(M3UFolderPath))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = M3UFolderPath,
+                        UseShellExecute = true,
+                        Verb = "open"
+                    });
+                }
+                else
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("The users folder path does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show($"Failed to open the users folder. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Stop the ongoing process
+            busy_ind.IsBusy = false;
+            MessageBox.Show("Operation canceled by the user.", "Canceled", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

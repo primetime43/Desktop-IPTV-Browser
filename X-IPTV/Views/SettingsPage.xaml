@@ -9,230 +9,277 @@
     Title="Settings"
     MinWidth="800"
     MinHeight="450"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
     mc:Ignorable="d">
 
     <Grid Background="#333333">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        <ScrollViewer
+            Grid.ColumnSpan="2"
+            Margin="20"
+            VerticalScrollBarVisibility="Auto">
+            <StackPanel>
 
-        <!--  VLC Path Label  -->
-        <Label
-            Grid.Row="0"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            VerticalAlignment="Bottom"
-            Content="VLC Path:"
-            Foreground="White" />
-        <!--  VLC Path TextBox  -->
-        <TextBox
-            x:Name="vlcLocation_Input"
-            Grid.Row="1"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            Margin="20,0,0,0"
-            Background="#f8f9fa"
-            Foreground="Black"
-            IsReadOnly="True"
-            Style="{StaticResource MaterialDesignTextBox}"
-            TextAlignment="Center"
-            ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
-        <!--  Set VLC Path Button  -->
-        <Button
-            x:Name="setVLCpath_Btn"
-            Grid.Row="1"
-            Grid.Column="2"
-            Width="50px"
-            Height="30px"
-            Margin="10,0,0,0"
-            HorizontalAlignment="Left"
-            Background="Transparent"
-            BorderBrush="Black"
-            Click="setVLCpath_Btn_Click">
-            <StackPanel Orientation="Horizontal">
-                <Image
-                    Width="20"
-                    Height="20"
-                    Source="../Icons/folder-open-regular.png" />
+                <!--  VLC Path Section  -->
+                <materialDesign:Card
+                    Margin="0,10,10,0"
+                    Padding="10"
+                    Background="#424242">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,10"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="VLC Path" />
+                        <TextBox
+                            x:Name="vlcLocation_Input"
+                            Background="#f8f9fa"
+                            Foreground="Black"
+                            IsReadOnly="True"
+                            Style="{StaticResource MaterialDesignTextBox}"
+                            TextAlignment="Center"
+                            ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
+                        <Button
+                            x:Name="setVLCpath_Btn"
+                            Width="100"
+                            Height="30"
+                            Margin="10,10,0,0"
+                            HorizontalAlignment="Left"
+                            Click="setVLCpath_Btn_Click"
+                            Content="Set Path" />
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!--  Generic Player Path Section  -->
+                <materialDesign:Card
+                    Margin="0,10,10,0"
+                    Padding="10"
+                    Background="#424242">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,10"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="Generic Player Path" />
+                        <TextBox
+                            x:Name="playerLocation_Input"
+                            Background="#f8f9fa"
+                            Foreground="Black"
+                            IsReadOnly="True"
+                            Style="{StaticResource MaterialDesignTextBox}"
+                            TextAlignment="Center"
+                            ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
+                        <Button
+                            x:Name="setPlayerPath_Btn"
+                            Width="100"
+                            Height="30"
+                            Margin="10,10,0,0"
+                            HorizontalAlignment="Left"
+                            Click="setPlayerPath_Btn_Click"
+                            Content="Set Path" />
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!--  Xtream Codes Users Folder Path Section  -->
+                <materialDesign:Card
+                    Margin="0,10,10,0"
+                    Padding="10"
+                    Background="#424242">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,10"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="Xtream Codes Users Folder Path" />
+                        <TextBox
+                            x:Name="setUsersFolderPath_Input"
+                            Background="#f8f9fa"
+                            Foreground="Black"
+                            IsReadOnly="True"
+                            Style="{StaticResource MaterialDesignTextBox}"
+                            TextAlignment="Center"
+                            ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
+                        <Button
+                            x:Name="setUsersFolderPath_Btn"
+                            Width="100"
+                            Height="30"
+                            Margin="10,10,0,0"
+                            HorizontalAlignment="Left"
+                            Click="setUsersFolderPath_Btn_Click"
+                            Content="Set Path" />
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!--  M3U Playlists Path Section  -->
+                <materialDesign:Card
+                    Margin="0,10,10,0"
+                    Padding="10"
+                    Background="#424242">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,10"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="M3U Playlists Path" />
+                        <TextBox
+                            x:Name="setM3UPlaylistsPath_Input"
+                            Background="#f8f9fa"
+                            Foreground="Black"
+                            IsReadOnly="True"
+                            Style="{StaticResource MaterialDesignTextBox}"
+                            TextAlignment="Center"
+                            ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
+                        <Button
+                            x:Name="setM3UPlaylistsPath_Btn"
+                            Width="100"
+                            Height="30"
+                            Margin="10,10,0,0"
+                            HorizontalAlignment="Left"
+                            Click="setM3UPlaylistsPath_Btn_Click"
+                            Content="Set Path" />
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!--  EPG Data Folder Path Section  -->
+                <materialDesign:Card
+                    Margin="0,10,10,0"
+                    Padding="10"
+                    Background="#424242">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,10"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="EPG Data Folder Path" />
+                        <TextBox
+                            x:Name="setEpgDataFolderPath_Input"
+                            Background="#f8f9fa"
+                            Foreground="Black"
+                            IsReadOnly="True"
+                            Style="{StaticResource MaterialDesignTextBox}"
+                            TextAlignment="Center"
+                            ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
+                        <Button
+                            x:Name="setEpgDataFolderPath_Btn"
+                            Width="100"
+                            Height="30"
+                            Margin="10,10,0,0"
+                            HorizontalAlignment="Left"
+                            Click="setEpgDataFolderPath_Btn_Click"
+                            Content="Set Path" />
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!--  Auto-Update and EPG Interval Section  -->
+                <materialDesign:Card
+                    Margin="0,10,10,0"
+                    Padding="10"
+                    Background="#424242">
+                    <StackPanel>
+                        <CheckBox
+                            x:Name="autoUpdateCheckBox"
+                            Checked="AutoUpdateCheckBox_Checked"
+                            Content="Enable Auto-Update"
+                            Foreground="White"
+                            Unchecked="AutoUpdateCheckBox_Unchecked" />
+
+                        <StackPanel Margin="0,10" Orientation="Horizontal">
+                            <Label
+                                VerticalAlignment="Center"
+                                Content="EPG Update Interval (Hours):"
+                                Foreground="White" />
+                            <Slider
+                                x:Name="epgUpdateIntervalSlider"
+                                Width="195"
+                                IsSnapToTickEnabled="True"
+                                Maximum="24"
+                                Minimum="1"
+                                TickFrequency="1"
+                                ValueChanged="EpgUpdateIntervalSlider_ValueChanged" />
+                            <Label
+                                VerticalAlignment="Center"
+                                Content="{Binding ElementName=epgUpdateIntervalSlider, Path=Value, StringFormat='{}{0} hours'}"
+                                Foreground="White" />
+                        </StackPanel>
+
+                        <TextBlock
+                            x:Name="autoUpdateIndicator"
+                            Margin="0,10"
+                            Foreground="Red"
+                            Text="Auto-Update: Off" />
+                        <TextBlock
+                            x:Name="lastEPGUpdateLbl"
+                            Foreground="White"
+                            Text="Last EPG Update: Not Available" />
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!--  Default Player Section  -->
+                <materialDesign:Card
+                    Margin="0,10,10,0"
+                    Padding="10"
+                    Background="#424242">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,10"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="Default Player" />
+                        <StackPanel Margin="0,10" Orientation="Horizontal">
+                            <RadioButton
+                                x:Name="vlcRadioButton"
+                                Content="VLC"
+                                Foreground="White"
+                                GroupName="DefaultPlayer"
+                                IsChecked="{Binding IsVlcDefault, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <RadioButton
+                                x:Name="genericPlayerRadioButton"
+                                Margin="20,0,0,0"
+                                Content="Generic Player"
+                                Foreground="White"
+                                GroupName="DefaultPlayer"
+                                IsChecked="{Binding IsGenericPlayerDefault, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <Button
+                            x:Name="saveDefaultPlayer_Btn"
+                            Width="100"
+                            Height="30"
+                            Margin="10,10,0,0"
+                            HorizontalAlignment="Left"
+                            Click="SaveDefaultPlayer_Btn_Click"
+                            Content="Save" />
+                    </StackPanel>
+                </materialDesign:Card>
+
+
+                <!--  Action Buttons Section  -->
+                <StackPanel
+                    Margin="0,20,0,0"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal">
+                    <Button
+                        x:Name="editConfigBtn"
+                        Width="150"
+                        Margin="10,0"
+                        Click="editConfigBtn_Click"
+                        Content="Edit Config" />
+                    <Button
+                        x:Name="checkForUpdate_Btn"
+                        Width="150"
+                        Margin="10,0"
+                        Click="checkForUpdate_Btn_Click"
+                        Content="Check for Update" />
+                    <Button
+                        x:Name="updateEPG_Btn"
+                        Width="150"
+                        Margin="10,0"
+                        Click="updateEpgBtn_Click"
+                        Content="Update EPG" />
+                </StackPanel>
             </StackPanel>
-        </Button>
-
-        <!--  Users Folder Path Label  -->
-        <Label
-            Grid.Row="3"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            VerticalAlignment="Bottom"
-            Content="Xtream Codes Users Folder Path:"
-            Foreground="White" />
-        <!--  Users Folder Path TextBox  -->
-        <TextBox
-            x:Name="setUsersFolderPath_Input"
-            Grid.Row="4"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            Margin="20,0,0,0"
-            Background="#f8f9fa"
-            Foreground="Black"
-            IsReadOnly="True"
-            Style="{StaticResource MaterialDesignTextBox}"
-            TextAlignment="Center"
-            ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
-        <!--  Set Users Folder Path Button  -->
-        <Button
-            x:Name="setUsersFolderPath_Btn"
-            Grid.Row="4"
-            Grid.Column="2"
-            Width="50px"
-            Height="30px"
-            Margin="10,0,0,0"
-            HorizontalAlignment="Left"
-            Background="Transparent"
-            BorderBrush="Black"
-            Click="setUsersFolderPath_Btn_Click">
-            <StackPanel Orientation="Horizontal">
-                <Image
-                    Width="20"
-                    Height="20"
-                    Source="../Icons/folder-open-regular.png" />
-            </StackPanel>
-        </Button>
-
-        <!--  M3U Playlists Label  -->
-        <Label
-            Grid.Row="5"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            VerticalAlignment="Bottom"
-            Content="M3U Playlists Path:"
-            Foreground="White" />
-        <!--  M3U Playlists TextBox  -->
-        <TextBox
-            x:Name="setM3UPlaylistsPath_Input"
-            Grid.Row="6"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            Margin="20,0,0,0"
-            Background="#f8f9fa"
-            Foreground="Black"
-            IsReadOnly="True"
-            Style="{StaticResource MaterialDesignTextBox}"
-            TextAlignment="Center"
-            ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
-        <!--  Set M3U Playlists Path Button  -->
-        <Button
-            x:Name="setM3UPlaylistsPath_Btn"
-            Grid.Row="6"
-            Grid.Column="2"
-            Width="50px"
-            Height="30px"
-            Margin="10,0,0,0"
-            HorizontalAlignment="Left"
-            Background="Transparent"
-            BorderBrush="Black"
-            Click="setM3UPlaylistsPath_Btn_Click">
-            <StackPanel Orientation="Horizontal">
-                <Image
-                    Width="20"
-                    Height="20"
-                    Source="../Icons/folder-open-regular.png" />
-            </StackPanel>
-        </Button>
-
-        <!--  EPG Data Folder Path Label  -->
-        <Label
-            Grid.Row="7"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            VerticalAlignment="Bottom"
-            Content="EPG Data Folder Path:"
-            Foreground="White" />
-        <!--  EPG Data Folder Path TextBox  -->
-        <TextBox
-            x:Name="setEpgDataFolderPath_Input"
-            Grid.Row="8"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            Margin="20,0,0,0"
-            Background="#f8f9fa"
-            Foreground="Black"
-            IsReadOnly="True"
-            Style="{StaticResource MaterialDesignTextBox}"
-            TextAlignment="Center"
-            ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
-        <!--  Set EPG Data Folder Path Button  -->
-        <Button
-            x:Name="setEpgDataFolderPath_Btn"
-            Grid.Row="8"
-            Grid.Column="2"
-            Width="50px"
-            Height="30px"
-            Margin="10,0,0,0"
-            HorizontalAlignment="Left"
-            Background="Transparent"
-            BorderBrush="Black"
-            Click="setEpgDataFolderPath_Btn_Click">
-            <StackPanel Orientation="Horizontal">
-                <Image
-                    Width="20"
-                    Height="20"
-                    Source="../Icons/folder-open-regular.png" />
-            </StackPanel>
-        </Button>
-
-        <!--  Check for Update Button  -->
-        <Button
-            x:Name="checkForUpdate_Btn"
-            Grid.Row="9"
-            Grid.Column="3"
-            Grid.ColumnSpan="2"
-            Width="160px"
-            Height="50px"
-            Margin="0,0,0,20"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Bottom"
-            Click="checkForUpdate_Btn_Click"
-            Content="Check for update" />
-
-        <!--  Check for Update Button  -->
-        <Button
-            x:Name="updateEPG_Btn"
-            Grid.Row="9"
-            Grid.Column="2"
-            Width="160px"
-            Height="50px"
-            Margin="0,0,0,20"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Bottom"
-            Click="updateEpgBtn_Click"
-            Content="Update EPG" />
-        <Label
-            x:Name="lastEPGUpdateLbl"
-            Grid.Row="12"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            Width="245"
-            Margin="20,0,0,20"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Bottom"
-            Content="Label" />
+        </ScrollViewer>
     </Grid>
 </Page>

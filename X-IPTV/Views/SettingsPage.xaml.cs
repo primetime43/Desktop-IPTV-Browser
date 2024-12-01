@@ -1,55 +1,79 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using X_IPTV.Utilities;
 using static X_IPTV.Service.GitHubReleaseChecker;
 
 namespace X_IPTV.Views
 {
-    /// <summary>
-    /// Interaction logic for SettingsPage.xaml
-    /// </summary>
     public partial class SettingsPage : Page
     {
+        public bool IsVlcDefault { get; set; }
+        public bool IsGenericPlayerDefault { get; set; }
         public SettingsPage()
         {
             InitializeComponent();
             LoadConfigPaths();
+            InitializeAutoUpdate();
+            LoadLastEPGUpdateTime();
+            LoadDefaultPlayerSetting();
+        }
 
-            // Retrieve the last EPG update time string from the configuration
+        private void InitializeAutoUpdate()
+        {
+            bool autoUpdateEnabled = bool.TryParse(ConfigurationManager.GetSetting("autoUpdateEnabled"), out bool isEnabled) && isEnabled;
+            autoUpdateCheckBox.IsChecked = autoUpdateEnabled;
+            UpdateAutoUpdateIndicator(autoUpdateEnabled);
+
+            int updateIntervalHours = int.TryParse(ConfigurationManager.GetSetting("epgUpdateIntervalHours"), out int interval) ? interval : 6;
+            epgUpdateIntervalSlider.Value = updateIntervalHours;
+        }
+
+        private void LoadDefaultPlayerSetting()
+        {
+            string defaultPlayer = ConfigurationManager.GetSetting("defaultPlayer");
+            IsVlcDefault = defaultPlayer == "vlc";
+            IsGenericPlayerDefault = defaultPlayer == "generic";
+            DataContext = this;
+        }
+
+        private void SaveDefaultPlayer_Btn_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedPlayer = IsVlcDefault ? "vlc" : "generic";
+            ConfigurationManager.UpdateSetting("defaultPlayer", selectedPlayer);
+            Xceed.Wpf.Toolkit.MessageBox.Show($"Default player set to: {selectedPlayer}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void UpdateAutoUpdateIndicator(bool enabled)
+        {
+            autoUpdateIndicator.Text = enabled ? "Auto-Update: On" : "Auto-Update: Off";
+            autoUpdateIndicator.Foreground = new SolidColorBrush(enabled ? Colors.LimeGreen : Colors.Red);
+        }
+
+        private void LoadLastEPGUpdateTime()
+        {
             string lastEpgUpdateTimeIso = ConfigurationManager.GetSetting("lastEpgDataLoadTime");
-
-            if (!string.IsNullOrEmpty(lastEpgUpdateTimeIso))
+            if (DateTimeOffset.TryParse(lastEpgUpdateTimeIso, out var lastEpgUpdateTime))
             {
-                // Parse the ISO 8601 date-time string into a DateTimeOffset object
-                DateTimeOffset lastEpgUpdateTime;
-                if (DateTimeOffset.TryParse(lastEpgUpdateTimeIso, out lastEpgUpdateTime))
-                {
-                    // Convert UTC time to local time
-                    var localTime = lastEpgUpdateTime.ToLocalTime();
-
-                    // Format the DateTimeOffset to a more readable string
-                    // Example: "March 19, 2024, 9:58 PM"
-                    string formattedTime = localTime.ToString("MMMM dd, yyyy, h:mm tt");
-
-                    lastEPGUpdateLbl.Content = "Last EPG Update: " + formattedTime;
-                }
-                else
-                {
-                    // Handle parsing error or set to a default value
-                    lastEPGUpdateLbl.Content = "Time unavailable";
-                }
+                lastEPGUpdateLbl.Text = "Last EPG Update: " + lastEpgUpdateTime.ToLocalTime().ToString("MMMM dd, yyyy, h:mm tt");
             }
             else
             {
-                lastEPGUpdateLbl.Content = "Not available";
+                lastEPGUpdateLbl.Text = "Last EPG Update: Not Available";
             }
+        }
+
+        private void AutoUpdateCheckBox_Checked(object sender, RoutedEventArgs e) => SetAutoUpdate(true);
+        private void AutoUpdateCheckBox_Unchecked(object sender, RoutedEventArgs e) => SetAutoUpdate(false);
+
+        private void SetAutoUpdate(bool enabled)
+        {
+            ConfigurationManager.UpdateSetting("autoUpdateEnabled", enabled.ToString());
+            UpdateAutoUpdateIndicator(enabled);
         }
 
         private async void checkForUpdate()
@@ -64,32 +88,26 @@ namespace X_IPTV.Views
 
                 if (latestReleaseInt > localProgramVersionInt)
                 {
-                    MessageBoxResult result = Xceed.Wpf.Toolkit.MessageBox.Show("Current version: " + programVersion + "\nNew release available: " + release.name + " (" + release.tag_name + ")\nDo you want to download it?", "New Release", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    MessageBoxResult result = Xceed.Wpf.Toolkit.MessageBox.Show(
+                        $"Current version: {programVersion}\nNew release available: {release.name} ({release.tag_name})\nDo you want to download it?",
+                        "New Release", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                     if (result == MessageBoxResult.Yes)
                     {
                         try
                         {
-                            var startInfo = new ProcessStartInfo
-                            {
-                                FileName = ReleaseChecker.releaseURL,
-                                UseShellExecute = true
-                            };
-
-                            Process.Start(startInfo);
+                            Process.Start(new ProcessStartInfo { FileName = ReleaseChecker.releaseURL, UseShellExecute = true });
                         }
-                        catch (System.ComponentModel.Win32Exception ex)
+                        catch (Exception ex)
                         {
-                            Xceed.Wpf.Toolkit.MessageBox.Show("An error occurred: " + ex.Message);
+                            Xceed.Wpf.Toolkit.MessageBox.Show($"An error occurred: {ex.Message}");
                         }
                     }
                 }
-                else if(latestReleaseInt == localProgramVersionInt)
+                else
                 {
                     Xceed.Wpf.Toolkit.MessageBox.Show("You are using the latest version.");
                 }
-                else
-                    Debug.WriteLine("Release null, skipping check.");
             }
             else
             {
@@ -97,110 +115,7 @@ namespace X_IPTV.Views
             }
         }
 
-        private void LoadConfigPaths()
-        {
-            CheckForVLCPath(); // Existing functionality to load VLC path
-
-            // Load Users Folder Path
-            var usersFolderPath = ConfigurationManager.GetSetting("usersFolderPath");
-            setUsersFolderPath_Input.Text = !string.IsNullOrEmpty(usersFolderPath) ? usersFolderPath : "Users folder path not set.";
-
-            // Load EPG Data Folder Path
-            var epgDataFolderPath = ConfigurationManager.GetSetting("epgDataFolderPath");
-            setEpgDataFolderPath_Input.Text = !string.IsNullOrEmpty(epgDataFolderPath) ? epgDataFolderPath : "EPG Data folder path not set.";
-
-            // Load M3U Playlists Folder Path
-            var m3uPlaylistsFolderPath = ConfigurationManager.GetSetting("M3UFolderPath");
-            setM3UPlaylistsPath_Input.Text = !string.IsNullOrEmpty(m3uPlaylistsFolderPath) ? m3uPlaylistsFolderPath : "M3U Playlists folder path not set.";
-        }
-
-        private void CheckForVLCPath()
-        {
-            // Try to get the VLC path directly from the configuration first
-            var vlcPath = ConfigurationManager.GetSetting("vlcLocationPath");
-
-            // If the path doesn't exist or is empty, then use GetVLCPath to find it
-            if (string.IsNullOrEmpty(vlcPath))
-            {
-                vlcPath = ConfigurationManager.GetVLCPath();
-            }
-
-            // After attempting to retrieve or find the VLC path, check if we have a valid path
-            if (!string.IsNullOrEmpty(vlcPath))
-            {
-                vlcLocation_Input.Text = vlcPath;
-            }
-            else
-            {
-                // Handle the case where VLC is not found
-                vlcLocation_Input.Text = "VLC not found";
-            }
-        }
-
-        //only auto update the epg on 15 min increments if the window has been open that long
-        //(actually this needs fixed because if no windows aren't open longer than 15 min increments, it won't
-        //ever auto update; unless manually update is clicked)
-        //Add an check eventually that checks the last time the epg data was updated and update it
-        private void AutoUpdateEPGData() //not sure what to do with this yet
-        {
-            DateTime now = DateTime.Now;
-            string lastUpdateString = ConfigurationManager.GetSetting("lastEpgDataLoadTime");
-            DateTime lastEpgDataUpdateTime;
-
-            // Attempt to parse the last EPG data update time from settings
-            if (!DateTime.TryParse(lastUpdateString, out lastEpgDataUpdateTime))
-            {
-                Debug.WriteLine("Could not parse the last EPG data load time, setting to now.");
-                lastEpgDataUpdateTime = DateTime.MinValue; // Or set to a default value that will trigger an update
-            }
-
-            // Check if it's been at least 15 minutes since the last update or other conditions for updating
-            if ((now - lastEpgDataUpdateTime).TotalMinutes >= 15 || Instance.ShouldUpdateOnInterval(now))
-            {
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        bool updatePerformed = false;
-                        if (Instance.XtreamCodesChecked)
-                        {
-                            await XtreamCodes.UpdateChannelsEpgData(Instance.XtreamChannels);
-                            Debug.WriteLine("EPG updated for XtreamCodes...");//eventually have a log file and write to that (maybe also show a log window on settings page)
-                            updatePerformed = true;
-                        }
-                        else if (Instance.M3uChecked)
-                        {
-                            // Assume similar update method exists for M3U
-                            await M3UPlaylist.UpdateChannelsEpgData(Instance.M3UChannels);
-                            Debug.WriteLine("EPG updated for M3U...");
-                            updatePerformed = true;
-                        }
-
-                        if (updatePerformed)
-                        {
-                            // Update the lastEpgDataLoadTime setting with the current date and time in ISO 8601 format
-                            ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.UtcNow.ToString("o"));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            Xceed.Wpf.Toolkit.MessageBox.Show($"Error updating EPG: {ex.Message}");
-                        });
-                    }
-                });
-            }
-            else
-            {
-                Debug.WriteLine("EPG not updated due to time constraints...");
-            }
-        }
-
-        private void checkForUpdate_Btn_Click(object sender, RoutedEventArgs e)
-        {
-            checkForUpdate();
-        }
+        private void checkForUpdate_Btn_Click(object sender, RoutedEventArgs e) => checkForUpdate();
 
         private async void updateEpgBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -213,88 +128,128 @@ namespace X_IPTV.Views
                     success = await M3UPlaylist.UpdateChannelsEpgData(Instance.M3UChannels);
 
                 if (success)
+                {
                     Xceed.Wpf.Toolkit.MessageBox.Show("EPG Updated!");
+                    UpdateLastEPGUpdateTime();
+                }
                 else
+                {
                     Xceed.Wpf.Toolkit.MessageBox.Show("Failed to update EPG data. Please check your connection and try again.");
+                }
             }
-            catch (Exception ex) // Maybe log to file or output log on settings page eventually
+            catch (Exception ex)
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show($"EPG Not Updated! Error: {ex.Message}");
             }
         }
 
-        private void setVLCpath_Btn_Click(object sender, RoutedEventArgs e)
+        private void UpdateLastEPGUpdateTime()
         {
-            var fileSelection = DialogHelpers.FileDialogSelectFile("Executable Files (*.exe)|*.exe");
+            var localTime = DateTimeOffset.UtcNow.ToLocalTime();
+            string formattedTime = localTime.ToString("MMMM dd, yyyy, h:mm tt");
+            lastEPGUpdateLbl.Text = "Last EPG Update: " + formattedTime;
+            // Update the lastEpgDataLoadTime setting with the local machine's current date and time in ISO 8601 format
+            ConfigurationManager.UpdateSetting("lastEpgDataLoadTime", DateTime.Now.ToString("o"));
+        }
 
-            if (fileSelection.FileSelected)
+        private void LoadConfigPaths()
+        {
+            CheckForPlayerPath();
+            CheckForVLCPath();
+            setUsersFolderPath_Input.Text = ConfigurationManager.GetSetting("usersFolderPath") ?? "Users folder path not set.";
+            setEpgDataFolderPath_Input.Text = ConfigurationManager.GetSetting("epgDataFolderPath") ?? "EPG Data folder path not set.";
+            setM3UPlaylistsPath_Input.Text = ConfigurationManager.GetSetting("M3UFolderPath") ?? "M3U Playlists folder path not set.";
+        }
+
+        private void CheckForPlayerPath()
+        {
+            var playerPath = ConfigurationManager.GetSetting("genericPlayerPath") ?? ConfigurationManager.GetPlayerPath("genericPlayerPath");
+            playerLocation_Input.Text = string.IsNullOrEmpty(playerPath) ? "Player not found" : playerPath;
+        }
+
+        private void CheckForVLCPath()
+        {
+            var vlcPath = ConfigurationManager.GetSetting("vlcLocationPath") ?? ConfigurationManager.GetPlayerPath("vlcLocationPath");
+            vlcLocation_Input.Text = string.IsNullOrEmpty(vlcPath) ? "VLC not found" : vlcPath;
+        }
+
+        private void EpgUpdateIntervalSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            int intervalHours = (int)e.NewValue;
+            ConfigurationManager.UpdateSetting("epgUpdateIntervalHours", intervalHours.ToString());
+            Debug.WriteLine($"EPG update interval set to {intervalHours} hours");
+        }
+
+        private void SetPathFromDialog(TextBox targetTextBox, string settingKey, Func<(string FullPath, bool Selected)> dialogFunc, string successMessage)
+        {
+            var selection = dialogFunc();
+            if (selection.Selected)
             {
-                var vlcPath = fileSelection.FileFullPath;
-
-                // Save the path to the configuration
-                ConfigurationManager.UpdateSetting("vlcLocationPath", vlcPath);
-
-                // Show a message box to inform the user that the path has been saved
-                Xceed.Wpf.Toolkit.MessageBox.Show("VLC path saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                // Refresh the displayed VLC path in case it's displayed elsewhere or for confirmation
-                CheckForVLCPath();
+                ConfigurationManager.UpdateSetting(settingKey, selection.FullPath);
+                targetTextBox.Text = selection.FullPath;
+                Xceed.Wpf.Toolkit.MessageBox.Show(successMessage, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
-                // Inform the user that no VLC path was selected
-                Xceed.Wpf.Toolkit.MessageBox.Show("No VLC path was selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Xceed.Wpf.Toolkit.MessageBox.Show("No path was selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private void editConfigBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string configFilePath = ConfigurationManager.GetConfigFilePath();
+            if (File.Exists(configFilePath))
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = configFilePath,
+                        UseShellExecute = true // opens in the default associated editor
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show($"Unable to open configuration file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Configuration file not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-
-        private void setUsersFolderPath_Btn_Click(object sender, RoutedEventArgs e)
+        private void SetFolderPath(string settingKey, TextBox targetTextBox, string successMessage)
         {
             var folderSelection = DialogHelpers.FolderDialogSelectFolder();
-            var usersFolderPath = folderSelection.FullPath;
+            var folderPath = folderSelection.FullPath;
 
-            // Check if the path is neither null nor empty
-            if (!string.IsNullOrEmpty(usersFolderPath))
+            if (!string.IsNullOrEmpty(folderPath))
             {
-                ConfigurationManager.UpdateSetting("usersFolderPath", usersFolderPath);
-                Xceed.Wpf.Toolkit.MessageBox.Show("Users folder path saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                ConfigurationManager.UpdateSetting(settingKey, folderPath);
+                targetTextBox.Text = folderPath; // Update the TextBox directly
+                Xceed.Wpf.Toolkit.MessageBox.Show(successMessage, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Please select a valid Users folder path.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Xceed.Wpf.Toolkit.MessageBox.Show("Please select a valid folder path.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void setEpgDataFolderPath_Btn_Click(object sender, RoutedEventArgs e)
-        {
-            var folderSelection = DialogHelpers.FolderDialogSelectFolder();
-            var epgDataFolderPath = folderSelection.FullPath;
+        // Event handlers for each button using the helper method
 
-            if (!string.IsNullOrEmpty(epgDataFolderPath))
-            {
-                ConfigurationManager.UpdateSetting("epgDataFolderPath", epgDataFolderPath);
-                Xceed.Wpf.Toolkit.MessageBox.Show("EPG Data folder path saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            else
-            {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Please enter a valid EPG Data folder path.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+        private void setVLCpath_Btn_Click(object sender, RoutedEventArgs e) =>
+            SetPathFromDialog(vlcLocation_Input, "vlcLocationPath", () => DialogHelpers.FileDialogSelectFile("Executable Files (*.exe)|*.exe"), "VLC path saved successfully.");
 
-        private void setM3UPlaylistsPath_Btn_Click(object sender, RoutedEventArgs e)
-        {
-            var folderSelection = DialogHelpers.FolderDialogSelectFolder();
-            var m3uDataFolderPath = folderSelection.FullPath;
+        private void setPlayerPath_Btn_Click(object sender, RoutedEventArgs e) =>
+            SetPathFromDialog(playerLocation_Input, "genericPlayerPath", () => DialogHelpers.FileDialogSelectFile("Executable Files (*.exe)|*.exe"), "Player path saved successfully.");
 
-            if (!string.IsNullOrEmpty(m3uDataFolderPath))
-            {
-                ConfigurationManager.UpdateSetting("M3UFolderPath", m3uDataFolderPath);
-                Xceed.Wpf.Toolkit.MessageBox.Show("M3U Playlists folder path saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            else
-            {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Please enter a valid M3U Playlists folder path.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+        private void setUsersFolderPath_Btn_Click(object sender, RoutedEventArgs e) =>
+            SetFolderPath("usersFolderPath", setUsersFolderPath_Input, "Users folder path saved successfully.");
+
+        private void setEpgDataFolderPath_Btn_Click(object sender, RoutedEventArgs e) =>
+            SetFolderPath("epgDataFolderPath", setEpgDataFolderPath_Input, "EPG Data folder path saved successfully.");
+
+        private void setM3UPlaylistsPath_Btn_Click(object sender, RoutedEventArgs e) =>
+            SetFolderPath("M3UFolderPath", setM3UPlaylistsPath_Input, "M3U Playlists path saved successfully.");
     }
 }

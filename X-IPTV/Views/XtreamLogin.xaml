@@ -13,13 +13,24 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <!--  BusyIndicator Style with Cancel Button  -->
+        <!--  BusyIndicator Style with Blocking Overlay  -->
         <Style x:Key="BusyIndicatorStyle" TargetType="extToolkit:BusyIndicator">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="extToolkit:BusyIndicator">
                         <Grid>
+                            <!--  Background Content  -->
                             <ContentControl Content="{TemplateBinding Content}" />
+
+                            <!--  Blocking Overlay  -->
+                            <Rectangle
+                                x:Name="overlay"
+                                Fill="Black"
+                                IsHitTestVisible="True"
+                                Opacity="0.5"
+                                Visibility="Collapsed" />
+
+                            <!--  Busy Indicator Content  -->
                             <Grid
                                 x:Name="busyGrid"
                                 HorizontalAlignment="Center"
@@ -54,7 +65,9 @@
                             </Grid>
                         </Grid>
                         <ControlTemplate.Triggers>
+                            <!--  Show Overlay and Busy Content When IsBusy is True  -->
                             <Trigger Property="IsBusy" Value="True">
+                                <Setter TargetName="overlay" Property="Visibility" Value="Visible" />
                                 <Setter TargetName="busyGrid" Property="Visibility" Value="Visible" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -66,280 +79,241 @@
 
     <extToolkit:BusyIndicator
         x:Name="busy_ind"
+        Margin="0,0,0,-60"
         BusyContent="Authenticating..."
-        IsBusy="False">
+        IsBusy="False"
+        Style="{StaticResource BusyIndicatorStyle}">
 
-        <Grid Background="#333333">
+        <Grid Margin="10,10,10,29" Background="#333333">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <!--  Each column will take equal space  -->
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="195*" />
+                <ColumnDefinition Width="103*" />
+                <ColumnDefinition Width="92*" />
+                <ColumnDefinition Width="195*" />
+                <ColumnDefinition Width="195*" />
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <!--  Each row will take equal space  -->
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <!--  Xtream Playlist UI  -->
-            <!--  Margin values are specified in the order: Left, Top, Right, Bottom  -->
-
-            <!--  Username  -->
-            <Label
-                Grid.Row="1"
-                Grid.Column="1"
-                Margin="5,0,0,5"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Content="Username:"
-                Foreground="#f8f9fa" />
-            <TextBox
-                x:Name="usrTxt"
-                Grid.Row="1"
-                Grid.Column="1"
-                Grid.ColumnSpan="2"
-                Width="120"
-                Height="23"
-                Margin="0,0,0,5"
-                Background="#f8f9fa"
-                Foreground="Black"
-                Style="{StaticResource MaterialDesignTextBox}"
-                TextChanged="showUpdatedConnectionString" />
-
-            <!--  Password  -->
-            <Label
-                Grid.Row="1"
-                Grid.Column="1"
-                Margin="5,0,0,20"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Bottom"
-                Content="Password:"
-                Foreground="#f8f9fa" />
-
-            <TextBox
-                x:Name="passTxt"
-                Grid.Row="1"
-                Grid.Column="1"
-                Grid.ColumnSpan="2"
-                Width="120"
-                Height="23"
-                Margin="0,0,0,20"
-                VerticalAlignment="Bottom"
-                Background="#f8f9fa"
-                Foreground="Black"
-                Style="{StaticResource MaterialDesignTextBox}"
-                TextChanged="showUpdatedConnectionString" />
-
-            <!--  Server  -->
-            <Label
-                Grid.Row="2"
-                Grid.Column="1"
-                Margin="-8,0,0,0"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top"
-                Content="Server:"
-                Foreground="#f8f9fa" />
-
-            <TextBox
-                x:Name="serverTxt"
-                Grid.Row="2"
-                Grid.Column="1"
-                Grid.ColumnSpan="2"
-                Width="120"
-                Height="23"
-                Margin="0,0,0,0"
-                VerticalAlignment="Top"
-                Background="#f8f9fa"
-                Foreground="Black"
-                Style="{StaticResource MaterialDesignTextBox}"
-                TextChanged="showUpdatedConnectionString" />
-
-            <!--  Port  -->
-            <Label
-                Grid.Row="2"
-                Grid.Column="1"
-                Margin="-18,0,0,25"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Content="Port:"
-                Foreground="#f8f9fa" />
-
-            <TextBox
-                x:Name="portTxt"
-                Grid.Row="2"
-                Grid.Column="1"
-                Grid.ColumnSpan="2"
-                Width="120"
-                Height="23"
-                Margin="0,0,0,25"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Background="#f8f9fa"
-                Foreground="Black"
-                Style="{StaticResource MaterialDesignTextBox}"
-                TextChanged="showUpdatedConnectionString" />
-
-            <!--  HTTP/S  -->
-            <CheckBox
-                x:Name="protocolCheckBox"
-                Grid.Row="2"
-                Grid.Column="2"
-                Grid.ColumnSpan="1"
-                Width="90"
-                Height="20"
-                Margin="40,2,0,0"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top"
-                Checked="showUpdatedConnectionString"
-                Content="HTTPS"
-                Foreground="#f8f9fa"
-                IsChecked="True"
-                ToolTip="HTTP will be used by default if not checked"
-                Unchecked="showUpdatedConnectionString" />
-
             <!--  Load User Box  -->
             <Border
-                Grid.Row="1"
-                Grid.RowSpan="2"
+                Grid.Row="0"
                 Grid.Column="0"
-                Width="175"
-                Height="160"
-                Margin="10,10,0,10"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Background="#333333"
+                Margin="10,10,10,10"
+                Background="#444"
                 BorderBrush="Black"
-                BorderThickness="2" />
+                BorderThickness="2"
+                CornerRadius="5">
+                <StackPanel Margin="10">
+                    <ComboBox
+                        x:Name="UsercomboBox"
+                        Width="140"
+                        Height="50"
+                        Margin="0,10,0,10"
+                        Background="White"
+                        Foreground="Black"
+                        Style="{DynamicResource MaterialDesignFilledComboBox}" />
+                    <Button
+                        x:Name="loadUserDataBtn"
+                        Width="140"
+                        Height="30"
+                        Margin="0,20,0,20"
+                        Background="#007bff"
+                        Click="loadUserDataBtn_Click"
+                        Content="Load User Login"
+                        Foreground="#f8f9fa"
+                        Style="{StaticResource MaterialDesignFlatButton}" />
+                    <Button
+                        x:Name="saveUserDataBtn"
+                        Width="140"
+                        Height="30"
+                        Background="#007bff"
+                        Click="saveUserDataBtn_Click"
+                        Content="Save User Login"
+                        Foreground="#f8f9fa"
+                        Style="{StaticResource MaterialDesignFlatButton}" />
+                </StackPanel>
+            </Border>
 
-            <StackPanel
-                Grid.Row="1"
-                Grid.RowSpan="2"
-                Grid.Column="0"
-                Width="175"
-                Height="160"
-                Margin="10"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top">
+            <!--  Xtream Playlist UI - Aligned Textboxes and Labels  -->
+            <Grid
+                Grid.Row="0"
+                Grid.Column="1"
+                Grid.ColumnSpan="4"
+                Margin="10,10,10,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                <ComboBox
-                    x:Name="UsercomboBox"
-                    Grid.Row="1"
-                    Grid.RowSpan="2"
+                <!--  Username Row  -->
+                <TextBlock
+                    Grid.Row="0"
                     Grid.Column="0"
-                    Width="140"
-                    Height="50"
-                    Margin="20,10,0,20"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    Background="White"
+                    Margin="0,0,10,5"
+                    Foreground="#f8f9fa"
+                    Text="Username:" />
+                <TextBox
+                    x:Name="usrTxt"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Width="250"
+                    Height="30"
+                    Margin="39,0,210,0"
+                    Background="#f8f9fa"
                     Foreground="Black"
-                    Style="{DynamicResource MaterialDesignFilledComboBox}" />
+                    Style="{StaticResource MaterialDesignTextBox}"
+                    TextChanged="showUpdatedConnectionString" />
 
-                <Button
-                    x:Name="loadUserDataBtn"
+                <!--  Password Row  -->
+                <TextBlock
                     Grid.Row="1"
-                    Grid.RowSpan="2"
                     Grid.Column="0"
-                    Width="140"
-                    Height="27"
-                    Margin="20,5,0,5"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    Background="#007bff"
-                    Click="loadUserDataBtn_Click"
-                    Content="Load User Login"
+                    Margin="0,0,10,5"
                     Foreground="#f8f9fa"
-                    Style="{StaticResource MaterialDesignFlatButton}" />
+                    Text="Password:" />
+                <TextBox
+                    x:Name="passTxt"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"
+                    Width="250"
+                    Height="30"
+                    Margin="39,0,210,0"
+                    Background="#f8f9fa"
+                    Foreground="Black"
+                    Style="{StaticResource MaterialDesignTextBox}"
+                    TextChanged="showUpdatedConnectionString " />
 
-                <Button
-                    x:Name="saveUserDataBtn"
-                    Grid.Row="1"
-                    Grid.RowSpan="2"
+                <!--  Server Row  -->
+                <TextBlock
+                    Grid.Row="2"
                     Grid.Column="0"
-                    Width="140"
-                    Height="27"
-                    Margin="20,5,0,0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    Background="#007bff"
-                    Click="saveUserDataBtn_Click"
-                    Content="Save User Login"
+                    Margin="0,0,10,5"
                     Foreground="#f8f9fa"
-                    Style="{StaticResource MaterialDesignFlatButton}" />
-            </StackPanel>
+                    Text="Server:" />
+                <TextBox
+                    x:Name="serverTxt"
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"
+                    Width="250"
+                    Height="30"
+                    Margin="39,0,210,0"
+                    Background="#f8f9fa"
+                    Foreground="Black"
+                    Style="{StaticResource MaterialDesignTextBox}"
+                    TextChanged="showUpdatedConnectionString" />
+
+                <!--  Port Row  -->
+                <TextBlock
+                    Grid.Row="3"
+                    Grid.Column="0"
+                    Margin="0,0,10,5"
+                    Foreground="#f8f9fa"
+                    Text="Port:" />
+                <TextBox
+                    x:Name="portTxt"
+                    Grid.Row="3"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"
+                    Width="250"
+                    Height="30"
+                    Margin="39,0,210,0"
+                    Background="#f8f9fa"
+                    Foreground="Black"
+                    Style="{StaticResource MaterialDesignTextBox}"
+                    TextChanged="showUpdatedConnectionString" />
+
+                <!--  HTTPS Checkbox  -->
+                <CheckBox
+                    x:Name="protocolCheckBox"
+                    Grid.Row="3"
+                    Grid.Column="1"
+                    Margin="308,0,98,0"
+                    Checked="showUpdatedConnectionString"
+                    Content="HTTPS"
+                    Foreground="#f8f9fa"
+                    IsChecked="True"
+                    ToolTip="HTTP will be used by default if not checked"
+                    Unchecked="showUpdatedConnectionString" />
+            </Grid>
 
             <!--  Connection Textboxes  -->
-            <Label
-                x:Name="serverConnectionStringlbl"
+            <StackPanel
                 Grid.Row="3"
                 Grid.Column="0"
-                Grid.ColumnSpan="2"
-                Margin="30,20,0,0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Content="Connection String"
-                Foreground="#f8f9fa" />
+                Grid.ColumnSpan="5"
+                Margin="10,10,10,10">
+                <TextBlock
+                    Margin="0,0,0,5"
+                    Foreground="#f8f9fa"
+                    Text="Connection String" />
+                <TextBox
+                    x:Name="textBoxServerConnectionString"
+                    Height="30"
+                    Margin="0,0,30,0"
+                    Background="#f8f9fa"
+                    Foreground="Black"
+                    IsReadOnly="True"
+                    Style="{StaticResource MaterialDesignTextBox}"
+                    TextAlignment="Center" />
 
-            <TextBox
-                x:Name="textBoxServerConnectionString"
-                Grid.Row="3"
-                Grid.Column="0"
-                Grid.ColumnSpan="4"
-                Margin="30,0,30,70"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Bottom"
-                Background="#f8f9fa"
-                Foreground="Black"
-                IsReadOnly="True"
-                Style="{StaticResource MaterialDesignTextBox}"
-                TextAlignment="Center" />
+                <TextBlock
+                    Margin="0,10,0,5"
+                    Foreground="#f8f9fa"
+                    Text="EPG Data Connection String" />
+                <TextBox
+                    x:Name="textBoxPlaylistDataConnectionString"
+                    Height="30"
+                    Margin="0,0,30,0"
+                    Background="#f8f9fa"
+                    Foreground="Black"
+                    IsReadOnly="True"
+                    Style="{StaticResource MaterialDesignTextBox}"
+                    TextAlignment="Center" />
 
-            <Label
-                x:Name="serverPlaylistDataConnectionlbl"
-                Grid.Row="3"
-                Grid.Column="0"
-                Grid.ColumnSpan="2"
-                Margin="29,0,0,42"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                Content="EPG Data Connection String"
-                Foreground="#f8f9fa" />
+                <Button
+                    x:Name="con_btn"
+                    Width="140"
+                    Height="30"
+                    Margin="10,10,0,0"
+                    Background="#007bff"
+                    Click="Con_btn_Click"
+                    Content="Connect"
+                    Foreground="#f8f9fa"
+                    Style="{StaticResource MaterialDesignFlatButton}" />
 
-            <TextBox
-                x:Name="textBoxPlaylistDataConnectionString"
-                Grid.Row="3"
-                Grid.Column="0"
-                Grid.ColumnSpan="4"
-                Margin="30,0,30,15"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Bottom"
-                Background="#f8f9fa"
-                Foreground="Black"
-                IsReadOnly="True"
-                Style="{StaticResource MaterialDesignTextBox}"
-                TextAlignment="Center" />
+                <!--  Users Folder Path Section  -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button
+                        x:Name="openUsersFolderBtn"
+                        Height="30"
+                        Margin="16,39,563,-39"
+                        Background="#007bff"
+                        Click="OpenUsersFolderBtn_Click"
+                        Content="Open Users Folder"
+                        Foreground="#f8f9fa"
+                        Style="{StaticResource MaterialDesignFlatButton}" />
+                </Grid>
 
-            <Button
-                x:Name="con_btn"
-                Grid.Row="2"
-                Grid.RowSpan="2"
-                Grid.Column="1"
-                Grid.ColumnSpan="2"
-                Width="122"
-                Height="30"
-                Margin="4,0,0,40"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Background="#007bff"
-                Click="Con_btn_Click"
-                Content="Connect"
-                Foreground="#f8f9fa"
-                Style="{StaticResource MaterialDesignFlatButton}" />
+            </StackPanel>
+
         </Grid>
     </extToolkit:BusyIndicator>
 </Page>
