@@ -1,8 +1,20 @@
-# Desktop-IPTV-Browser
+# Deprecated / Archived
+
+This project (Desktop-IPTV-Browser / X-IPTV) is no longer maintained and has been archived.
+
+A cleaner, actively maintained rewrite is available here:
+
+?? New repository: https://github.com/primetime43/iptv-desktop-browser
+
+Please migrate to (and file any issues or pull requests against) the new project. No further updates, fixes, or support will be provided in this repository.
+
+---
+
+# Desktop-IPTV-Browser (Original Archived README)
 
 Table of Contents
 
-- [Desktop-IPTV-Browser](#desktop-iptv-browser)
+- [Desktop-IPTV-Browser](#desktop-iptv-browser-original-archived-readme)
   - [Features](#features)
   - [Planned Enhancements](#planned-enhancements)
   - [Images of v3.1.0](#images-of-v310)
@@ -21,7 +33,6 @@ Table of Contents
 - [ ] Implement functionality to import and utilize locally downloaded EPG files.
 - [ ] Optimize data retrieval processes to minimize redundant EPG downloads, incorporating validity checks to determine the necessity of updates.
 - [ ] Pursue ongoing code refinement, aiming for improved efficiency, readability, and maintainability.
-
 
 ## Images of v3.1.0
 
