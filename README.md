@@ -4,7 +4,7 @@ This project (Desktop-IPTV-Browser / X-IPTV) is no longer maintained and has bee
 
 A cleaner, actively maintained rewrite is available here:
 
-?? New repository: https://github.com/primetime43/iptv-desktop-browser
+# New repository: https://github.com/primetime43/iptv-desktop-browser
 
 Please migrate to (and file any issues or pull requests against) the new project. No further updates, fixes, or support will be provided in this repository.
 
